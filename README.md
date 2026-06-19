@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".github/banner.svg" alt="Loops — open-source, self-hostable feedback board" width="100%" />
+  <img src=".github/loops-banner.svg" alt="Loops — open-source, self-hostable feedback board" width="100%" />
 </p>
 
 <h1 align="center">Loops</h1>
