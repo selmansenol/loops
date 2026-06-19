@@ -205,6 +205,15 @@ Contributions are very welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) a
 2. Run `npm run lint` and `npm run build` before opening a PR.
 3. Keep user-facing strings in both locales (`src/lib/i18n.ts`).
 
+## 💛 Support
+
+Loops is free and open-source (MIT). If it saves you time or money, consider sponsoring
+its development — it directly funds bug fixes and new features.
+
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-%E2%9D%A4-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/selmansenol)
+
+> _Loops ücretsiz ve açık kaynak. İşine yaradıysa GitHub Sponsors ile destek olabilirsin._ 🙏
+
 ## 🔒 Security
 
 Found a vulnerability? Please **don't** open a public issue — see
