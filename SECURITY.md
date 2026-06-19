@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Loop is under active development. Security fixes are applied to the `main` branch and the
+Loops is under active development. Security fixes are applied to the `main` branch and the
 latest release.
 
 ## Reporting a Vulnerability
@@ -27,4 +27,4 @@ give us a reasonable window to address the issue before any public disclosure.
 - Keep your AI provider and API keys out of version control (use `.env`).
 - Restrict database network access to the app only.
 
-Thank you for helping keep Loop and its users safe. 🙏
+Thank you for helping keep Loops and its users safe. 🙏

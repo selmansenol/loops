@@ -75,14 +75,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Loop — Open source AI-powered feedback board" },
+      { title: "Loops — Open source AI-powered feedback board" },
       {
         name: "description",
         content:
           "Open source feedback board that doesn't just collect user requests — it organizes them for you with AI clustering, tagging and summaries.",
       },
-      { name: "author", content: "Loop" },
-      { property: "og:title", content: "Loop — AI-Powered Feedback Board" },
+      { name: "author", content: "Loops" },
+      { property: "og:title", content: "Loops — AI-Powered Feedback Board" },
       {
         property: "og:description",
         content: "Like Canny, but AI organizes feedback for you — and open source.",

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/insights")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Loop · AI Insights" },
+      { title: "Loops · AI Insights" },
       { name: "description", content: "Cluster, summarize and prioritize feedback with AI." },
     ],
   }),

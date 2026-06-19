@@ -1,6 +1,6 @@
 # Working in this repo
 
-Loop is a TanStack Start (React 19) app on Postgres + Drizzle + better-auth.
+Loops is a TanStack Start (React 19) app on Postgres + Drizzle + better-auth.
 
 ## Architecture rules
 

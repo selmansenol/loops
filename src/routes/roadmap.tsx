@@ -10,9 +10,9 @@ import { generateRoadmapFn, applyRoadmapFn, type RoadmapProposal } from "@/lib/r
 export const Route = createFileRoute("/roadmap")({
   head: () => ({
     meta: [
-      { title: "Loop · Roadmap" },
+      { title: "Loops · Roadmap" },
       { name: "description", content: "What we're working on, planning and have shipped." },
-      { property: "og:title", content: "Loop · Roadmap" },
+      { property: "og:title", content: "Loops · Roadmap" },
       { property: "og:description", content: "Top-voted feedback by status." },
     ],
   }),

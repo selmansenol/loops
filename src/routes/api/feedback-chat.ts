@@ -94,7 +94,7 @@ export const Route = createFileRoute("/api/feedback-chat")({
         };
 
         const system = [
-          "You help a user file a single high-quality product feedback post for the 'Loop' board.",
+          "You help a user file a single high-quality product feedback post for the 'Loops' board.",
           "Keep replies short and friendly. Ask at most 1-2 clarifying questions if the request is vague.",
           "Before creating anything, call find_similar to check for duplicates; if a close match exists, suggest the user upvote it instead and ask whether to proceed.",
           "Only call submit_post after the user confirms. After submitting, confirm in one sentence.",

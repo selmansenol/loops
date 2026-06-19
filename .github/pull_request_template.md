@@ -6,8 +6,7 @@ Closes #
 
 ## Changes
 
-<!-- Bullet the key changes. -->
--
+## <!-- Bullet the key changes. -->
 
 ## Checklist
 

@@ -8,7 +8,7 @@ import { listApiKeys, createApiKey, revokeApiKey } from "@/lib/api-keys.function
 
 export const Route = createFileRoute("/settings/api-keys")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Loop · API Keys" }] }),
+  head: () => ({ meta: [{ title: "Loops · API Keys" }] }),
   component: ApiKeysPage,
 });
 

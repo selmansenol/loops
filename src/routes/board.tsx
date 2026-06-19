@@ -16,9 +16,9 @@ import { FeedbackChat } from "@/components/feedback-chat";
 export const Route = createFileRoute("/board")({
   head: () => ({
     meta: [
-      { title: "Loop · Feedback board" },
-      { name: "description", content: "Loop's live feedback board — vote, post new requests." },
-      { property: "og:title", content: "Loop · Feedback board" },
+      { title: "Loops · Feedback board" },
+      { name: "description", content: "Loops' live feedback board — vote, post new requests." },
+      { property: "og:title", content: "Loops · Feedback board" },
       {
         property: "og:description",
         content: "Live board — anyone can read, signed-in users vote and post.",

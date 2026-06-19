@@ -1,5 +1,5 @@
 /**
- * Provider-agnostic AI selection for Loop.
+ * Provider-agnostic AI selection for Loops.
  *
  * Keys are stored in the `ai_provider_keys` table via the admin UI
  * (Settings → AI). The DB takes precedence; if no DB key is set,

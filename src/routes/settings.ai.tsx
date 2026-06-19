@@ -16,10 +16,10 @@ export const Route = createFileRoute("/settings/ai")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Loop · AI Provider" },
+      { title: "Loops · AI Provider" },
       {
         name: "description",
-        content: "Configure your own OpenAI, Anthropic or Gemini API key for Loop's AI insights.",
+        content: "Configure your own OpenAI, Anthropic or Gemini API key for Loops' AI insights.",
       },
     ],
   }),

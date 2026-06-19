@@ -1,8 +1,8 @@
 <p align="center">
-  <img src=".github/banner.svg" alt="Loop — open-source, self-hostable feedback board" width="100%" />
+  <img src=".github/banner.svg" alt="Loops — open-source, self-hostable feedback board" width="100%" />
 </p>
 
-<h1 align="center">Loop</h1>
+<h1 align="center">Loops</h1>
 
 <p align="center">
   <strong>An open-source, self-hostable feedback board — a Canny alternative.</strong><br/>
@@ -30,15 +30,15 @@
 
 ---
 
-## Why Loop?
+## Why Loops?
 
-Most feedback tools just **collect** requests and leave you to drown in them. Loop is
+Most feedback tools just **collect** requests and leave you to drown in them. Loops is
 **AI-native**: as feedback comes in it detects duplicates, can turn a vague chat into a
 clean post, and drafts your roadmap for you — all on infrastructure you own (just
 **Node + Postgres**, no proprietary backend, no per-seat pricing).
 
 > [!NOTE]
-> Loop is fully self-hostable and ships with zero vendor lock-in. Bring your own
+> Loops is fully self-hostable and ships with zero vendor lock-in. Bring your own
 > Postgres and (optionally) your own AI provider key.
 
 ## ✨ Features
@@ -55,7 +55,7 @@ clean post, and drafts your roadmap for you — all on infrastructure you own (j
 
 ## 🤖 AI-native extras
 
-These are what set Loop apart from a classic Canny clone — and they work with **any**
+These are what set Loops apart from a classic Canny clone — and they work with **any**
 provider (OpenAI, Anthropic or Google):
 
 - 🪄 **AI duplicate detection** — the composer surfaces similar existing posts as you
@@ -68,14 +68,14 @@ provider (OpenAI, Anthropic or Google):
 
 ## 🛠️ Tech stack
 
-| Concern | Choice |
-| --- | --- |
-| Framework | [TanStack Start](https://tanstack.com/start) (React 19) + Vite + nitro |
-| Database | PostgreSQL |
-| ORM / migrations | [Drizzle](https://orm.drizzle.team) |
-| Auth | [better-auth](https://better-auth.com) (cookie sessions) |
-| Styling | Tailwind CSS v4 + Radix UI |
-| AI | [Vercel AI SDK](https://sdk.vercel.ai) (provider-agnostic) |
+| Concern          | Choice                                                                 |
+| ---------------- | ---------------------------------------------------------------------- |
+| Framework        | [TanStack Start](https://tanstack.com/start) (React 19) + Vite + nitro |
+| Database         | PostgreSQL                                                             |
+| ORM / migrations | [Drizzle](https://orm.drizzle.team)                                    |
+| Auth             | [better-auth](https://better-auth.com) (cookie sessions)               |
+| Styling          | Tailwind CSS v4 + Radix UI                                             |
+| AI               | [Vercel AI SDK](https://sdk.vercel.ai) (provider-agnostic)             |
 
 > **Architecture note:** the browser never talks to the database directly. All data
 > access goes through TanStack **server functions** and the REST API; authorization is
@@ -122,29 +122,29 @@ docker run -d --name loop-pg -p 5432:5432 \
 
 ### Scripts
 
-| Script | What it does |
-| --- | --- |
-| `npm run dev` | Start the dev server |
-| `npm run build` | Production build (`.output/`, node-server preset) |
-| `npm start` | Run the built server (`node .output/server/index.mjs`) |
-| `npm run db:generate` | Generate a migration from `src/db/schema.ts` |
-| `npm run db:migrate` | Apply migrations + `src/db/triggers.sql` |
-| `npm run db:studio` | Open Drizzle Studio |
-| `npm run lint` / `npm run format` | Lint / format |
+| Script                            | What it does                                           |
+| --------------------------------- | ------------------------------------------------------ |
+| `npm run dev`                     | Start the dev server                                   |
+| `npm run build`                   | Production build (`.output/`, node-server preset)      |
+| `npm start`                       | Run the built server (`node .output/server/index.mjs`) |
+| `npm run db:generate`             | Generate a migration from `src/db/schema.ts`           |
+| `npm run db:migrate`              | Apply migrations + `src/db/triggers.sql`               |
+| `npm run db:studio`               | Open Drizzle Studio                                    |
+| `npm run lint` / `npm run format` | Lint / format                                          |
 
 ## ⚙️ Configuration
 
 All configuration is via environment variables — see [`.env.example`](.env.example).
 
-| Variable | Required | Description |
-| --- | --- | --- |
-| `DATABASE_URL` | ✅ | Postgres connection string |
-| `BETTER_AUTH_SECRET` | ✅ | Random 32+ byte secret (`openssl rand -base64 32`) |
-| `BETTER_AUTH_URL` | ✅ | Public base URL (OAuth callbacks, cookies) |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | – | Enable Google login |
-| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | – | Enable GitHub login |
-| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GOOGLE_GENERATIVE_AI_API_KEY` | – | AI features (also settable in Settings → AI) |
-| `LOOP_AI_PROVIDER` / `LOOP_AI_MODEL` | – | Force a specific AI provider/model |
+| Variable                                                                | Required | Description                                        |
+| ----------------------------------------------------------------------- | -------- | -------------------------------------------------- |
+| `DATABASE_URL`                                                          | ✅       | Postgres connection string                         |
+| `BETTER_AUTH_SECRET`                                                    | ✅       | Random 32+ byte secret (`openssl rand -base64 32`) |
+| `BETTER_AUTH_URL`                                                       | ✅       | Public base URL (OAuth callbacks, cookies)         |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`                             | –        | Enable Google login                                |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET`                             | –        | Enable GitHub login                                |
+| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GOOGLE_GENERATIVE_AI_API_KEY` | –        | AI features (also settable in Settings → AI)       |
+| `LOOP_AI_PROVIDER` / `LOOP_AI_MODEL`                                    | –        | Force a specific AI provider/model                 |
 
 OAuth callback URLs to register with each provider:
 
@@ -194,7 +194,7 @@ curl -X POST http://localhost:3000/api/v1/posts/<id>/vote \
 - [ ] Two-way GitHub / Linear / Jira sync
 - [ ] More locales
 
-Have an idea? [Open an issue](../../issues/new/choose) — Loop is built on feedback. 🙂
+Have an idea? [Open an issue](../../issues/new/choose) — Loops is built on feedback. 🙂
 
 ## 🤝 Contributing
 
@@ -212,4 +212,4 @@ Found a vulnerability? Please **don't** open a public issue — see
 
 ## 📄 License
 
-[MIT](LICENSE) © Loop contributors.
+[MIT](LICENSE) © Loops contributors.

@@ -1,7 +1,7 @@
 (function () {
   "use strict";
   /**
-   * Loop Embed Widget — herhangi bir siteye <script> ile gömülür.
+   * Loops Embed Widget — herhangi bir siteye <script> ile gömülür.
    * Kullanım:
    *   <div id="loop-board"></div>
    *   <script src="https://your-loop.app/loop-widget.js"

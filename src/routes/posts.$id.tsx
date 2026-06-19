@@ -16,8 +16,8 @@ import { getProfilesFn } from "@/lib/profiles.functions";
 export const Route = createFileRoute("/posts/$id")({
   head: () => ({
     meta: [
-      { title: "Loop · Feedback" },
-      { name: "description", content: "Loop feedback detail and discussion." },
+      { title: "Loops · Feedback" },
+      { name: "description", content: "Loops feedback detail and discussion." },
     ],
   }),
   component: PostDetailPage,

@@ -1,9 +1,9 @@
 {
-  "name": "loop-feedback-board",
+  "name": "loops-feedback-board",
   "version": "1.0.0",
   "private": false,
   "license": "MIT",
-  "description": "Loop — an open-source, self-hostable feedback board (a Canny alternative) with voting, roadmap, changelog, comments, AI clustering, a public REST API and webhooks. Built on TanStack Start, Postgres, Drizzle and better-auth.",
+  "description": "Loops — an open-source, self-hostable feedback board (a Canny alternative) with voting, roadmap, changelog, comments, AI clustering, a public REST API and webhooks. Built on TanStack Start, Postgres, Drizzle and better-auth.",
   "keywords": [
     "feedback",
     "feedback-board",

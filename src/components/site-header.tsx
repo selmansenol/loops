@@ -37,7 +37,7 @@ export function SiteHeader() {
       <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
           <LoopMark />
-          <span className="font-display text-xl font-semibold tracking-tight">Loop</span>
+          <span className="font-display text-xl font-semibold tracking-tight">Loops</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1 text-sm text-muted-foreground">
           <NavItem to="/board" label={t("nav.board")} />
@@ -162,7 +162,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl px-6 py-12 flex flex-col md:flex-row gap-6 md:items-center md:justify-between">
         <div className="flex items-center gap-2">
           <LoopMark />
-          <span className="font-display text-lg font-semibold">Loop</span>
+          <span className="font-display text-lg font-semibold">Loops</span>
           <span className="text-sm text-muted-foreground ml-2">{t("footer.tagline")}</span>
         </div>
         <div className="flex gap-6 text-sm text-muted-foreground">

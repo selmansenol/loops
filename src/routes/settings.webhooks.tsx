@@ -13,7 +13,7 @@ import {
 
 export const Route = createFileRoute("/settings/webhooks")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Loop · Webhooks" }] }),
+  head: () => ({ meta: [{ title: "Loops · Webhooks" }] }),
   component: WebhooksPage,
 });
 

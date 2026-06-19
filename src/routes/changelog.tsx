@@ -7,9 +7,9 @@ import { listPostsFn } from "@/lib/posts.functions";
 export const Route = createFileRoute("/changelog")({
   head: () => ({
     meta: [
-      { title: "Loop · Changelog" },
-      { name: "description", content: "All shipped features and updates in Loop." },
-      { property: "og:title", content: "Loop · Changelog" },
+      { title: "Loops · Changelog" },
+      { name: "description", content: "All shipped features and updates in Loops." },
+      { property: "og:title", content: "Loops · Changelog" },
       { property: "og:description", content: "What we've shipped, in order." },
     ],
   }),

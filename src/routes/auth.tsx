@@ -8,8 +8,8 @@ import { LoopMark } from "@/components/site-header";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Loop · Sign in" },
-      { name: "description", content: "Sign in or create a Loop account." },
+      { title: "Loops · Sign in" },
+      { name: "description", content: "Sign in or create a Loops account." },
     ],
   }),
   component: AuthPage,
@@ -98,7 +98,7 @@ function AuthPage() {
       <header className="px-6 py-5 border-b border-border">
         <Link to="/" className="inline-flex items-center gap-2">
           <LoopMark />
-          <span className="font-display text-lg font-semibold">Loop</span>
+          <span className="font-display text-lg font-semibold">Loops</span>
         </Link>
       </header>
       <main className="flex-1 grid place-items-center px-6 py-12">

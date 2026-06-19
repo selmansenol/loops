@@ -5,13 +5,13 @@ import { SiteHeader, SiteFooter, LoopMark } from "@/components/site-header";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Loop — Open-source feedback board organized by AI" },
+      { title: "Loops — Open-source feedback board organized by AI" },
       {
         name: "description",
         content:
           "Not a board that just collects user requests — one that organizes them for you. Open source. One-command self-host.",
       },
-      { property: "og:title", content: "Loop — AI-powered feedback board" },
+      { property: "og:title", content: "Loops — AI-powered feedback board" },
       {
         property: "og:description",
         content: "Like Canny, but AI organizes feedback for you — and it's open source.",

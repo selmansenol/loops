@@ -1,5 +1,5 @@
 /**
- * Drizzle schema for Loop.
+ * Drizzle schema for Loops.
  *
  * Two groups of tables live here:
  *  - better-auth tables (`user`, `session`, `account`, `verification`) — column

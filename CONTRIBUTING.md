@@ -1,6 +1,6 @@
-# Contributing to Loop
+# Contributing to Loops
 
-Thanks for your interest in improving Loop! This document covers how to get set up and
+Thanks for your interest in improving Loops! This document covers how to get set up and
 the conventions we follow.
 
 ## Getting started

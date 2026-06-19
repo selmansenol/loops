@@ -6,13 +6,13 @@ import { SiteHeader, SiteFooter } from "@/components/site-header";
 export const Route = createFileRoute("/docs")({
   head: () => ({
     meta: [
-      { title: "Loop · Developer Docs" },
+      { title: "Loops · Developer Docs" },
       {
         name: "description",
         content:
-          "Use Loop from any language, any platform: REST API, embed widget, Telegram/WhatsApp/Discord bot examples.",
+          "Use Loops from any language, any platform: REST API, embed widget, Telegram/WhatsApp/Discord bot examples.",
       },
-      { property: "og:title", content: "Loop · Developer Docs" },
+      { property: "og:title", content: "Loops · Developer Docs" },
       {
         property: "og:description",
         content: "REST API + embed widget + bot templates. Open source, MIT.",
@@ -47,7 +47,7 @@ const DOCS_TR = {
   quickstart: {
     eyebrow: "3 dakika",
     title: "Hızlı başla",
-    step1a: "Loop'a giriş yap",
+    step1a: "Loops'a giriş yap",
     step1b: " ve admin yetkisi al.",
     step2a: "Settings → API Anahtarları",
     step2b: " sayfasında bir ",
@@ -110,7 +110,7 @@ const DOCS_TR = {
     eyebrow: "Outgoing",
     title: "Webhooks",
     leadA:
-      "Loop'ta yeni post / oy / durum değişimi olduğunda kendi URL'ne POST atılır. Slack, Discord, Linear, GitHub Issues vb. her şeye köprü kurabilirsin.",
+      "Loops'ta yeni post / oy / durum değişimi olduğunda kendi URL'ne POST atılır. Slack, Discord, Linear, GitHub Issues vb. her şeye köprü kurabilirsin.",
     leadB1: "Her istek ",
     leadB2: " header'ı taşır: webhook gizli anahtarınla ",
     leadB3: ". Aşağıda Node ile doğrulama:",
@@ -120,19 +120,19 @@ const DOCS_TR = {
     eyebrow: "Python",
     title: "Telegram bot",
     leadA: "",
-    leadB: " komutuyla Loop'a post atan bot. ~30 satır.",
+    leadB: " komutuyla Loops'a post atan bot. ~30 satır.",
     cmd: "/feedback <metin>",
   },
   whatsapp: {
     eyebrow: "Node + Twilio",
     title: "WhatsApp bot",
-    lead: "Twilio WhatsApp Sandbox'a gelen mesajı Loop post'una çevirir. Webhook olarak Twilio'ya bu Express endpoint'ini ver.",
+    lead: "Twilio WhatsApp Sandbox'a gelen mesajı Loops post'una çevirir. Webhook olarak Twilio'ya bu Express endpoint'ini ver.",
   },
   discord: {
     eyebrow: "Node + discord.js",
     title: "Discord bot",
     leadA: "",
-    leadB: " slash komutuyla Loop'a post yollayan minimal bot.",
+    leadB: " slash komutuyla Loops'a post yollayan minimal bot.",
     cmd: "/feedback",
   },
 };
@@ -141,7 +141,7 @@ const DOCS_EN: DocsCopy = {
   quickstart: {
     eyebrow: "3 minutes",
     title: "Quick start",
-    step1a: "Sign in to Loop",
+    step1a: "Sign in to Loops",
     step1b: " and get admin access.",
     step2a: "Settings → API Keys",
     step2b: " page, create a ",
@@ -204,7 +204,7 @@ const DOCS_EN: DocsCopy = {
     eyebrow: "Outgoing",
     title: "Webhooks",
     leadA:
-      "When a new post / vote / status change happens in Loop, we POST to your URL. Bridge it to Slack, Discord, Linear, GitHub Issues or anything else.",
+      "When a new post / vote / status change happens in Loops, we POST to your URL. Bridge it to Slack, Discord, Linear, GitHub Issues or anything else.",
     leadB1: "Every request carries an ",
     leadB2: " header — your webhook secret signed with ",
     leadB3: ". Node verification example below:",
@@ -213,19 +213,19 @@ const DOCS_EN: DocsCopy = {
   telegram: {
     eyebrow: "Python",
     title: "Telegram bot",
-    leadA: "Bot that posts to Loop with the ",
+    leadA: "Bot that posts to Loops with the ",
     leadB: " command. ~30 lines.",
     cmd: "/feedback <text>",
   },
   whatsapp: {
     eyebrow: "Node + Twilio",
     title: "WhatsApp bot",
-    lead: "Convert messages received via Twilio's WhatsApp Sandbox into Loop posts. Point Twilio's webhook at this Express endpoint.",
+    lead: "Convert messages received via Twilio's WhatsApp Sandbox into Loops posts. Point Twilio's webhook at this Express endpoint.",
   },
   discord: {
     eyebrow: "Node + discord.js",
     title: "Discord bot",
-    leadA: "Minimal bot that posts to Loop via the ",
+    leadA: "Minimal bot that posts to Loops via the ",
     leadB: " slash command.",
     cmd: "/feedback",
   },
@@ -642,7 +642,7 @@ function BotDiscord() {
 
 const cmd = new SlashCommandBuilder()
   .setName("feedback")
-  .setDescription("Send feedback to Loop")
+  .setDescription("Send feedback to Loops")
   .addStringOption(o => o.setName("text").setDescription("Your idea").setRequired(true));
 
 const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);

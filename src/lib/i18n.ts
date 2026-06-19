@@ -34,7 +34,7 @@ const tr = {
     showSecret: "İmza secret'ı göster",
   },
   board: {
-    metaTitle: "Loop · Geri bildirim panosu",
+    metaTitle: "Loops · Geri bildirim panosu",
     eyebrow: "Canlı pano · loop",
     title: "Geri bildirim panosu",
     subtitleAuthed: "Oy ver, fikir ekle.",
@@ -72,7 +72,7 @@ const tr = {
     },
   },
   insights: {
-    metaTitle: "Loop · AI İçgörüleri",
+    metaTitle: "Loops · AI İçgörüleri",
     metaDesc: "AI ile geri bildirimleri kümele, özetle ve önceliklendir.",
     eyebrow: "AI · loop",
     title: "İçgörüler",
@@ -122,7 +122,7 @@ const tr = {
     },
   },
   auth: {
-    metaTitle: "Loop · Giriş",
+    metaTitle: "Loops · Giriş",
     signInTitle: "Tekrar hoş geldin",
     signUpTitle: "Hesap oluştur",
     signInSubtitle: "Oy vermek ve geri bildirim eklemek için giriş yap.",
@@ -151,7 +151,7 @@ const tr = {
     h1c: "değil,",
     h1d: "senin yerine düzenleyen",
     h1e: "panel.",
-    lead: 'Loop, kullanıcı isteklerini tek bir yerde toplar — sonra AI ile benzer olanları kümeler, etiketler ve sana "aslında 5 şey istiyorlar" der.',
+    lead: 'Loops, kullanıcı isteklerini tek bir yerde toplar — sonra AI ile benzer olanları kümeler, etiketler ve sana "aslında 5 şey istiyorlar" der.',
     tryDemo: "Canlı demoyu dene",
     starGitHub: "GitHub'da yıldızla",
     sublead: "Kurulum istemez · 5 saniyede dene · MIT lisanslı",
@@ -197,7 +197,7 @@ const tr = {
     aiTitle1: '"Karanlık mod ekleyin",',
     aiTitle2: '"dark theme istiyorum",',
     aiTitle3: '"geceleri gözüm ağrıyor"…',
-    aiLeadA: "Loop bu üçünün aslında ",
+    aiLeadA: "Loops bu üçünün aslında ",
     aiLeadB: "aynı şey",
     aiLeadC: " olduğunu görür ve tek başlık altında toplamayı önerir. Sen onayla, sayım birleşsin.",
     aiBullets: [
@@ -229,21 +229,21 @@ const tr = {
     selfHostLead:
       "Docker Compose ile 5 dakikada kalkar. Postgres + Next.js + opsiyonel AI. İster Vercel'e dağıt, ister kendi VPS'ine.",
     selfHostTerminalComment: "# (opsiyonel) AI anahtarını ekle",
-    selfHostTerminalReady: "✓ Loop http://localhost:3000 üzerinde hazır",
+    selfHostTerminalReady: "✓ Loops http://localhost:3000 üzerinde hazır",
     ctaTitle: "Geri bildirim kaosunu bitir.",
     ctaLead: "Açık kaynak. Ücretsiz. AI dahil. Topluluğa katıl.",
     ctaPrimary: "Canlı demo",
   },
   docs: {
-    metaTitle: "Loop · Developer Docs",
+    metaTitle: "Loops · Developer Docs",
     metaDesc:
-      "Loop'u her dilden, her platformdan kullan: REST API, embed widget, Telegram/WhatsApp/Discord bot örnekleri.",
+      "Loops'u her dilden, her platformdan kullan: REST API, embed widget, Telegram/WhatsApp/Discord bot örnekleri.",
     sidebarTitle: "Developer Docs",
     licenseTitle: "MIT Lisanslı",
-    licenseDesc: "Loop açık kaynak. Forkla, değiştir, kendi sunucunda çalıştır.",
-    heroTitle: "Loop'u her şeye bağla",
+    licenseDesc: "Loops açık kaynak. Forkla, değiştir, kendi sunucunda çalıştır.",
+    heroTitle: "Loops'u her şeye bağla",
     heroLead:
-      "Loop'un public REST API'si dile bağımsızdır. Web siteleri, mobil uygulamalar, WhatsApp/Telegram/Discord botları, Slack, GitHub Actions, hatta cron job'lar — Bearer token'la herhangi bir HTTP istemcisi yeter.",
+      "Loops'un public REST API'si dile bağımsızdır. Web siteleri, mobil uygulamalar, WhatsApp/Telegram/Discord botları, Slack, GitHub Actions, hatta cron job'lar — Bearer token'la herhangi bir HTTP istemcisi yeter.",
     sections: {
       quickstart: "Hızlı başla",
       embed: "Embed widget",
@@ -256,10 +256,10 @@ const tr = {
   },
   settings: {
     apiKeys: {
-      metaTitle: "Loop · API Anahtarları",
-      eyebrow: "Ayarlar · Loop API",
+      metaTitle: "Loops · API Anahtarları",
+      eyebrow: "Ayarlar · Loops API",
       title: "API Anahtarları",
-      lead: "Loop'a herhangi bir dilden bağlanmak için key oluştur.",
+      lead: "Loops'a herhangi bir dilden bağlanmak için key oluştur.",
       newKey: "+ Yeni key",
       empty: 'Henüz API anahtarı yok. "Yeni key" ile başla.',
       types: { secret: "SECRET", publishable: "PUBLISHABLE" },
@@ -292,7 +292,7 @@ const tr = {
       back: "Panoya dön",
     },
     webhooks: {
-      metaTitle: "Loop · Webhooks",
+      metaTitle: "Loops · Webhooks",
       eyebrow: "Ayarlar · Webhooks",
       title: "Webhooks",
       lead: "Pano olaylarını Slack, Discord, Linear veya kendi sistemine HMAC imzalı POST ile gönder.",
@@ -315,7 +315,7 @@ const tr = {
       verificationC: ". Node örneği için ",
       verificationLink: "Docs → Webhooks",
       modalTitle: "Yeni webhook",
-      modalLead: "Olay olduğunda Loop bu URL'ye POST atar.",
+      modalLead: "Olay olduğunda Loops bu URL'ye POST atar.",
       fName: "İsim",
       fNamePh: "Örn: Slack bildirim, Discord kanal",
       fUrl: "URL",
@@ -327,7 +327,7 @@ const tr = {
   settingsAi: {
     eyebrow: "Ayarlar · AI Sağlayıcı",
     title: "AI Sağlayıcısı",
-    lead: "Loop hangi AI sağlayıcıyı kullanacağını sen seçersin. Aşağıdan istediğin sağlayıcının (OpenAI, Anthropic veya Gemini) API anahtarını gir — kalanını boş bırakabilirsin.",
+    lead: "Loops hangi AI sağlayıcıyı kullanacağını sen seçersin. Aşağıdan istediğin sağlayıcının (OpenAI, Anthropic veya Gemini) API anahtarını gir — kalanını boş bırakabilirsin.",
     refresh: "Yenile",
     activeTitle: "Aktif sağlayıcı",
     noneActive: "Hiçbir sağlayıcı yapılandırılmadı. Aşağıdan bir API anahtarı ekle.",
@@ -380,7 +380,7 @@ const tr = {
     anonymous: "Kullanıcı",
   },
   roadmap: {
-    metaTitle: "Loop · Yol haritası",
+    metaTitle: "Loops · Yol haritası",
     metaDesc: "Şu an üzerinde çalıştığımız, planladığımız ve yayınladığımız özellikler.",
     eyebrow: "Roadmap",
     title: "Yol haritası",
@@ -390,8 +390,8 @@ const tr = {
     suggest: "Bir fikir öner",
   },
   changelog: {
-    metaTitle: "Loop · Değişiklik günlüğü",
-    metaDesc: "Loop'a yapılan tüm güncellemeler ve yayınlanan özellikler.",
+    metaTitle: "Loops · Değişiklik günlüğü",
+    metaDesc: "Loops'a yapılan tüm güncellemeler ve yayınlanan özellikler.",
     eyebrow: "Changelog",
     title: "Yenilikler",
     lead: "Hangi özelliği ne zaman yayına aldık — kronolojik sırayla.",
@@ -468,7 +468,7 @@ const en: typeof tr = {
     showSecret: "Show signing secret",
   },
   board: {
-    metaTitle: "Loop · Feedback board",
+    metaTitle: "Loops · Feedback board",
     eyebrow: "Live board · loop",
     title: "Feedback board",
     subtitleAuthed: "Vote and post ideas.",
@@ -501,7 +501,7 @@ const en: typeof tr = {
     },
   },
   insights: {
-    metaTitle: "Loop · AI Insights",
+    metaTitle: "Loops · AI Insights",
     metaDesc: "Cluster, summarize and prioritize feedback with AI.",
     eyebrow: "AI · loop",
     title: "Insights",
@@ -551,7 +551,7 @@ const en: typeof tr = {
     },
   },
   auth: {
-    metaTitle: "Loop · Sign in",
+    metaTitle: "Loops · Sign in",
     signInTitle: "Welcome back",
     signUpTitle: "Create account",
     signInSubtitle: "Sign in to vote and post feedback.",
@@ -580,7 +580,7 @@ const en: typeof tr = {
     h1c: "feedback,",
     h1d: "but organizes it for you",
     h1e: ".",
-    lead: 'Loop collects user requests in one place — then uses AI to cluster similar ones, label them, and tell you "they\'re really asking for 5 things."',
+    lead: 'Loops collects user requests in one place — then uses AI to cluster similar ones, label them, and tell you "they\'re really asking for 5 things."',
     tryDemo: "Try the live demo",
     starGitHub: "Star on GitHub",
     sublead: "No setup · Try in 5 seconds · MIT licensed",
@@ -625,7 +625,7 @@ const en: typeof tr = {
     aiTitle1: '"Add dark mode,"',
     aiTitle2: '"want dark theme,"',
     aiTitle3: '"my eyes hurt at night"…',
-    aiLeadA: "Loop sees these three are actually ",
+    aiLeadA: "Loops sees these three are actually ",
     aiLeadB: "the same thing",
     aiLeadC: " and suggests merging them. You confirm, votes combine.",
     aiBullets: [
@@ -651,21 +651,21 @@ const en: typeof tr = {
     selfHostLead:
       "Up in 5 minutes with Docker Compose. Postgres + Next.js + optional AI. Deploy to Vercel or your own VPS.",
     selfHostTerminalComment: "# (optional) add your AI key",
-    selfHostTerminalReady: "✓ Loop is ready at http://localhost:3000",
+    selfHostTerminalReady: "✓ Loops is ready at http://localhost:3000",
     ctaTitle: "End the feedback chaos.",
     ctaLead: "Open source. Free. AI included. Join the community.",
     ctaPrimary: "Live demo",
   },
   docs: {
-    metaTitle: "Loop · Developer Docs",
+    metaTitle: "Loops · Developer Docs",
     metaDesc:
-      "Use Loop from any language, any platform: REST API, embed widget, Telegram/WhatsApp/Discord bot examples.",
+      "Use Loops from any language, any platform: REST API, embed widget, Telegram/WhatsApp/Discord bot examples.",
     sidebarTitle: "Developer Docs",
     licenseTitle: "MIT Licensed",
-    licenseDesc: "Loop is open source. Fork it, change it, run it on your own server.",
-    heroTitle: "Connect Loop to anything",
+    licenseDesc: "Loops is open source. Fork it, change it, run it on your own server.",
+    heroTitle: "Connect Loops to anything",
     heroLead:
-      "Loop's public REST API is language-agnostic. Websites, mobile apps, WhatsApp/Telegram/Discord bots, Slack, GitHub Actions, even cron jobs — any HTTP client with a bearer token works.",
+      "Loops' public REST API is language-agnostic. Websites, mobile apps, WhatsApp/Telegram/Discord bots, Slack, GitHub Actions, even cron jobs — any HTTP client with a bearer token works.",
     sections: {
       quickstart: "Quick start",
       embed: "Embed widget",
@@ -678,10 +678,10 @@ const en: typeof tr = {
   },
   settings: {
     apiKeys: {
-      metaTitle: "Loop · API Keys",
-      eyebrow: "Settings · Loop API",
+      metaTitle: "Loops · API Keys",
+      eyebrow: "Settings · Loops API",
       title: "API Keys",
-      lead: "Create a key to connect to Loop from any language.",
+      lead: "Create a key to connect to Loops from any language.",
       newKey: "+ New key",
       empty: 'No API keys yet. Start with "New key".',
       types: { secret: "SECRET", publishable: "PUBLISHABLE" },
@@ -714,7 +714,7 @@ const en: typeof tr = {
       back: "Back to board",
     },
     webhooks: {
-      metaTitle: "Loop · Webhooks",
+      metaTitle: "Loops · Webhooks",
       eyebrow: "Settings · Webhooks",
       title: "Webhooks",
       lead: "Send board events to Slack, Discord, Linear or your own system as HMAC-signed POSTs.",
@@ -737,7 +737,7 @@ const en: typeof tr = {
       verificationC: ". For a Node example see ",
       verificationLink: "Docs → Webhooks",
       modalTitle: "New webhook",
-      modalLead: "When the event happens, Loop POSTs to this URL.",
+      modalLead: "When the event happens, Loops POSTs to this URL.",
       fName: "Name",
       fNamePh: "e.g. Slack notify, Discord channel",
       fUrl: "URL",
@@ -749,7 +749,7 @@ const en: typeof tr = {
   settingsAi: {
     eyebrow: "Settings · AI Provider",
     title: "AI Provider",
-    lead: "You choose which AI provider Loop uses. Paste an API key for whichever provider you want (OpenAI, Anthropic or Gemini) — leave the others empty.",
+    lead: "You choose which AI provider Loops uses. Paste an API key for whichever provider you want (OpenAI, Anthropic or Gemini) — leave the others empty.",
     refresh: "Refresh",
     activeTitle: "Active provider",
     noneActive: "No provider configured yet. Add an API key below.",
@@ -802,7 +802,7 @@ const en: typeof tr = {
     anonymous: "User",
   },
   roadmap: {
-    metaTitle: "Loop · Roadmap",
+    metaTitle: "Loops · Roadmap",
     metaDesc: "What we're working on, planning and have shipped.",
     eyebrow: "Roadmap",
     title: "Roadmap",
@@ -812,8 +812,8 @@ const en: typeof tr = {
     suggest: "Suggest an idea",
   },
   changelog: {
-    metaTitle: "Loop · Changelog",
-    metaDesc: "All updates and shipped features in Loop.",
+    metaTitle: "Loops · Changelog",
+    metaDesc: "All updates and shipped features in Loops.",
     eyebrow: "Changelog",
     title: "What's new",
     lead: "Every feature we've shipped, in order.",
