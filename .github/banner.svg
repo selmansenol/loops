@@ -1,0 +1,22 @@
+<svg width="1280" height="320" viewBox="0 0 1280 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Loop — open-source AI-powered feedback board">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0B1020"/>
+      <stop offset="1" stop-color="#131A2E"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="120" y1="120" x2="240" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C9CFF"/>
+      <stop offset="1" stop-color="#9B6BFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="320" rx="24" fill="url(#bg)"/>
+  <!-- loop mark -->
+  <g transform="translate(96,110)">
+    <circle cx="50" cy="50" r="44" stroke="url(#accent)" stroke-width="12" fill="none"/>
+    <path d="M50 6 a44 44 0 0 1 38 22" stroke="#0B1020" stroke-width="14" fill="none" stroke-linecap="round"/>
+    <circle cx="88" cy="28" r="9" fill="url(#accent)"/>
+  </g>
+  <text x="220" y="150" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="76" font-weight="700" fill="#F4F6FF">Loop</text>
+  <text x="222" y="208" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="30" font-weight="500" fill="#A6B0CF">Open-source, self-hostable feedback board — a Canny alternative</text>
+  <text x="222" y="250" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="500" fill="#7C9CFF">Vote · Roadmap · Changelog · AI clustering · REST API · Webhooks</text>
+</svg>
