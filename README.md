@@ -205,14 +205,21 @@ Contributions are very welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) a
 2. Run `npm run lint` and `npm run build` before opening a PR.
 3. Keep user-facing strings in both locales (`src/lib/i18n.ts`).
 
-## 💛 Support
+## 💛 Sponsors & Support
 
-Loops is free and open-source (MIT). If it saves you time or money, consider sponsoring
-its development — it directly funds bug fixes and new features.
+Loops is free and open-source (MIT). If it saves you time or money, please consider
+sponsoring — it directly funds bug fixes and new features, and keeps the project
+independent.
 
-[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-%E2%9D%A4-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/selmansenol)
+<p>
+  <a href="https://github.com/sponsors/selmansenol">
+    <img src="https://img.shields.io/badge/Sponsor%20on%20GitHub-%E2%9D%A4-EA4AAA?logo=githubsponsors&logoColor=white&style=for-the-badge" alt="Sponsor on GitHub"/>
+  </a>
+</p>
 
-> _Loops ücretsiz ve açık kaynak. İşine yaradıysa GitHub Sponsors ile destek olabilirsin._ 🙏
+> _Loops ücretsiz ve açık kaynak. İşine yaradıysa [GitHub Sponsors](https://github.com/sponsors/selmansenol) ile destek olabilirsin._ 🙏
+
+**Be the first sponsor** and your name/logo can appear here. 💖
 
 ## 🔒 Security
 

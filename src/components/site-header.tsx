@@ -4,6 +4,17 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth-context";
 import { applyClientLanguage } from "@/lib/i18n";
 
+export const GITHUB_URL = "https://github.com/selmansenol/loops";
+export const SPONSOR_URL = "https://github.com/sponsors/selmansenol";
+
+function HeartIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
+      <path d="M12 21s-7.5-4.6-10-9.2C.6 9 1.4 5.7 4.3 4.7c1.9-.7 3.9.1 4.9 1.7L12 9l2.8-2.6c1-1.6 3-2.4 4.9-1.7 2.9 1 3.7 4.3 2.3 7.1C19.5 16.4 12 21 12 21z" />
+    </svg>
+  );
+}
+
 export function SiteHeader() {
   const { user, isAdmin, loading, signOut } = useAuth();
   const router = useRouter();
@@ -53,12 +64,21 @@ export function SiteHeader() {
           )}
           <NavItem to="/docs" label={t("nav.docs")} />
           <a
-            href="https://github.com"
+            href={GITHUB_URL}
             target="_blank"
             rel="noreferrer"
             className="px-3 py-1.5 rounded-full hover:text-foreground hover:bg-accent transition-colors"
           >
             {t("nav.github")}
+          </a>
+          <a
+            href={SPONSOR_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="ml-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#EA4AAA]/40 text-[#EA4AAA] hover:bg-[#EA4AAA]/10 transition-colors"
+          >
+            <HeartIcon />
+            {t("nav.sponsor")}
           </a>
         </nav>
 
@@ -166,19 +186,20 @@ export function SiteFooter() {
           <span className="text-sm text-muted-foreground ml-2">{t("footer.tagline")}</span>
         </div>
         <div className="flex gap-6 text-sm text-muted-foreground">
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-foreground"
-          >
+          <a href={GITHUB_URL} target="_blank" rel="noreferrer" className="hover:text-foreground">
             {t("nav.github")}
           </a>
           <Link to="/docs" className="hover:text-foreground">
             {t("nav.docs")}
           </Link>
-          <a href="#" className="hover:text-foreground">
-            Twitter
+          <a
+            href={SPONSOR_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 text-[#EA4AAA] hover:opacity-80"
+          >
+            <HeartIcon />
+            {t("nav.sponsor")}
           </a>
         </div>
       </div>
