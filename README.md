@@ -84,8 +84,10 @@ provider (OpenAI, Anthropic or Google):
 
 ## 📸 Screenshots
 
-> _Add screenshots/GIFs here_ — drop images in `.github/` and reference them, e.g.
-> `![Board](.github/screenshot-board.png)`. (Run the app locally to capture them.)
+|                                                       |                                                       |
+| ----------------------------------------------------- | ----------------------------------------------------- |
+| ![Loops landing page](.github/screenshot-landing.png) | ![Loops feedback board](.github/screenshot-board.png) |
+| _Landing_                                             | _Feedback board_                                      |
 
 ## 🚀 Quick start (Docker)
 
@@ -185,6 +187,36 @@ curl -X POST http://localhost:3000/api/v1/posts/<id>/vote \
   -H "Authorization: Bearer loop_sk_..." \
   -H "X-Loop-External-User: user-123"
 ```
+
+## 🌐 Deploy to production
+
+Loops is a standard Node server (`node .output/server/index.mjs`) + a Postgres
+database — host it anywhere (a VPS, Fly.io, Railway, Render, your own box…).
+
+**With your own domain (e.g. `feedback.yourdomain.com`):**
+
+1. Point the domain at your server and terminate TLS (HTTPS) with a reverse proxy
+   (Caddy, Nginx, Traefik) or your host's built-in TLS.
+2. Set the production environment:
+   ```bash
+   DATABASE_URL="postgres://…/loops"
+   BETTER_AUTH_SECRET="…"                       # openssl rand -base64 32
+   BETTER_AUTH_URL="https://feedback.yourdomain.com"   # your public URL
+   ```
+3. If you use OAuth, register these callback URLs with each provider:
+   ```
+   https://feedback.yourdomain.com/api/auth/callback/google
+   https://feedback.yourdomain.com/api/auth/callback/github
+   ```
+4. Run it. Easiest is Docker Compose (app + Postgres):
+   ```bash
+   docker compose up -d --build
+   ```
+   Or build and run on a Node host directly: `npm ci && npm run build && npm run db:migrate && npm start`.
+
+> [!IMPORTANT]
+> `BETTER_AUTH_URL` **must** match the public HTTPS URL, or sign-in cookies and
+> OAuth redirects will fail. Always serve production over HTTPS.
 
 ## 🗺️ Roadmap
 

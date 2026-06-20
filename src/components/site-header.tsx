@@ -107,7 +107,7 @@ export function SiteHeader() {
           ) : user ? (
             <div className="flex items-center gap-2">
               <span className="hidden sm:inline text-xs text-muted-foreground">
-                {user.email?.split("@")[0]}
+                {user.name || user.email?.split("@")[0]}
               </span>
               <button
                 onClick={handleSignOut}
