@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { SiteHeader, SiteFooter, LoopMark } from "@/components/site-header";
+import { SiteHeader, SiteFooter, LoopMark, GITHUB_URL } from "@/components/site-header";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -86,7 +86,7 @@ function Hero() {
             <span aria-hidden>→</span>
           </Link>
           <a
-            href="https://github.com"
+            href={GITHUB_URL}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 rounded-full border border-border-strong bg-surface px-6 py-3 text-sm font-medium hover:bg-accent transition-colors"
@@ -417,8 +417,8 @@ function SelfHost() {
             terminal
           </div>
           <pre className="p-6 text-sm font-mono leading-relaxed overflow-x-auto">
-            {`$ git clone github.com/loop/loop
-$ cd loop
+            {`$ git clone github.com/selmansenol/loops
+$ cd loops
 $ cp .env.example .env
 
 ${t("landing.selfHostTerminalComment")}
