@@ -11,6 +11,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db";
 import { user, session, account, verification, profiles } from "@/db/schema";
+import { emailEnabled, sendEmail, emailLayout } from "@/lib/email.server";
 
 type SocialProviders = NonNullable<Parameters<typeof betterAuth>[0]["socialProviders"]>;
 
@@ -41,9 +42,52 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 6,
-    // No email service is wired by default, so don't gate sign-in on verification.
-    requireEmailVerification: false,
+    // Verification is only enforced when an email provider (Resend) is wired.
+    // Self-host installs without RESEND_API_KEY keep sign-in open.
+    requireEmailVerification: emailEnabled(),
+    ...(emailEnabled()
+      ? {
+          sendResetPassword: async ({ user, url }: { user: { email: string }; url: string }) => {
+            await sendEmail({
+              to: user.email,
+              subject: "Reset your Loops password",
+              html: emailLayout({
+                heading: "Reset your password",
+                body: "We received a request to reset your Loops password. Click below to choose a new one. This link expires in 1 hour.",
+                ctaLabel: "Reset password",
+                ctaUrl: url,
+              }),
+            });
+          },
+        }
+      : {}),
   },
+  ...(emailEnabled()
+    ? {
+        emailVerification: {
+          sendOnSignUp: true,
+          autoSignInAfterVerification: true,
+          sendVerificationEmail: async ({
+            user,
+            url,
+          }: {
+            user: { email: string };
+            url: string;
+          }) => {
+            await sendEmail({
+              to: user.email,
+              subject: "Verify your email for Loops",
+              html: emailLayout({
+                heading: "Confirm your email",
+                body: "Welcome to Loops! Confirm your email address to activate your account and start building your feedback board.",
+                ctaLabel: "Verify email",
+                ctaUrl: url,
+              }),
+            });
+          },
+        },
+      }
+    : {}),
   socialProviders: buildSocialProviders(),
   databaseHooks: {
     user: {

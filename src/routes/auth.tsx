@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { authClient } from "@/lib/auth-client";
 import { useAuth } from "@/lib/auth-context";
+import { getAppModeFn } from "@/lib/workspace.functions";
 import { LoopMark } from "@/components/site-header";
 
 export const Route = createFileRoute("/auth")({
@@ -27,12 +28,33 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  // Whether this deployment verifies emails (Resend configured server-side).
+  const [emailVerification, setEmailVerification] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
       navigate({ to: "/dashboard", replace: true });
     }
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    getAppModeFn()
+      .then((m) => setEmailVerification(m.emailVerification))
+      .catch(() => {});
+  }, []);
+
+  const resendVerification = async () => {
+    setError(null);
+    try {
+      await authClient.sendVerificationEmail({
+        email,
+        callbackURL: `${window.location.origin}/dashboard`,
+      });
+      setNotice(t("auth.verify.resent"));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  };
 
   const translateAuthError = (msg: string): string => {
     const m = msg.toLowerCase();
@@ -58,11 +80,26 @@ function AuthPage() {
           name: username || email.split("@")[0],
         });
         if (error) throw new Error(error.message ?? "Sign up failed");
-        await router.invalidate();
-        navigate({ to: "/dashboard", replace: true });
+        if (emailVerification) {
+          // Account created but sign-in is gated until the email is confirmed.
+          setNotice(t("auth.verify.sent"));
+          setPassword("");
+        } else {
+          await router.invalidate();
+          navigate({ to: "/dashboard", replace: true });
+        }
       } else {
         const { error } = await authClient.signIn.email({ email, password });
-        if (error) throw new Error(error.message ?? "Sign in failed");
+        if (error) {
+          const m = (error.message ?? "").toLowerCase();
+          if (m.includes("verif") || error.status === 403) {
+            // Unverified email — better-auth re-sends the link on this attempt.
+            setNotice(t("auth.verify.needed"));
+            setBusy(false);
+            return;
+          }
+          throw new Error(error.message ?? "Sign in failed");
+        }
         await router.invalidate();
         navigate({ to: "/dashboard", replace: true });
       }
@@ -165,6 +202,14 @@ function AuthPage() {
                   placeholder={t("auth.placeholders.password")}
                   className="input"
                 />
+                {mode === "signin" && (
+                  <Link
+                    to="/forgot-password"
+                    className="mt-1.5 inline-block text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    {t("auth.forgotPassword")}
+                  </Link>
+                )}
               </Field>
               {error && (
                 <p className="text-xs text-destructive bg-destructive/10 rounded-lg px-3 py-2">
@@ -172,9 +217,18 @@ function AuthPage() {
                 </p>
               )}
               {notice && (
-                <p className="text-xs text-foreground bg-primary-soft rounded-lg px-3 py-2">
-                  {notice}
-                </p>
+                <div className="text-xs text-foreground bg-primary-soft rounded-lg px-3 py-2">
+                  <p>{notice}</p>
+                  {emailVerification && (
+                    <button
+                      type="button"
+                      onClick={resendVerification}
+                      className="mt-1 font-medium underline hover:no-underline"
+                    >
+                      {t("auth.verify.resend")}
+                    </button>
+                  )}
+                </div>
               )}
               <button
                 type="submit"

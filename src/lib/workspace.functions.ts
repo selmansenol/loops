@@ -10,11 +10,17 @@ export type PublicWorkspace = { id: string; slug: string; name: string };
  * marketing landing and boards live under `/<slug>`.
  */
 export const getAppModeFn = createServerFn({ method: "GET" }).handler(
-  async (): Promise<{ singleTenantSlug: string | null; demoSlug: string | null }> => {
+  async (): Promise<{
+    singleTenantSlug: string | null;
+    demoSlug: string | null;
+    emailVerification: boolean;
+  }> => {
     const { singleTenantSlug } = await import("@/lib/workspace.server");
+    const { emailEnabled } = await import("@/lib/email.server");
     return {
       singleTenantSlug: singleTenantSlug(),
       demoSlug: process.env.DEMO_WORKSPACE_SLUG?.trim() || null,
+      emailVerification: emailEnabled(),
     };
   },
 );

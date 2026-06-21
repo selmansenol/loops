@@ -9,7 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as NewRouteImport } from './routes/new'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -30,9 +32,19 @@ import { Route as SlugPostsIdRouteImport } from './routes/$slug/posts.$id'
 import { Route as ApiV1PostsIdRouteImport } from './routes/api/v1/posts.$id'
 import { Route as ApiV1PostsIdVoteRouteImport } from './routes/api/v1/posts.$id.vote'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NewRoute = NewRouteImport.update({
   id: '/new',
   path: '/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocsRoute = DocsRouteImport.update({
@@ -138,7 +150,9 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/new': typeof NewRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/$slug/changelog': typeof SlugChangelogRoute
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
@@ -159,7 +173,9 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/new': typeof NewRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/$slug/changelog': typeof SlugChangelogRoute
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
@@ -182,7 +198,9 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/new': typeof NewRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/$slug/changelog': typeof SlugChangelogRoute
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
@@ -206,7 +224,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/demo'
     | '/docs'
+    | '/forgot-password'
     | '/new'
+    | '/reset-password'
     | '/$slug/changelog'
     | '/$slug/insights'
     | '/$slug/roadmap'
@@ -227,7 +247,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/demo'
     | '/docs'
+    | '/forgot-password'
     | '/new'
+    | '/reset-password'
     | '/$slug/changelog'
     | '/$slug/insights'
     | '/$slug/roadmap'
@@ -249,7 +271,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/demo'
     | '/docs'
+    | '/forgot-password'
     | '/new'
+    | '/reset-password'
     | '/$slug/changelog'
     | '/$slug/insights'
     | '/$slug/roadmap'
@@ -272,7 +296,9 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DemoRoute: typeof DemoRoute
   DocsRoute: typeof DocsRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   NewRoute: typeof NewRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ApiFeedbackChatRoute: typeof ApiFeedbackChatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiV1PostsRoute: typeof ApiV1PostsRouteWithChildren
@@ -280,11 +306,25 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/new': {
       id: '/new'
       path: '/new'
       fullPath: '/new'
       preLoaderRoute: typeof NewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/docs': {
@@ -480,7 +520,9 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DemoRoute: DemoRoute,
   DocsRoute: DocsRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   NewRoute: NewRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ApiFeedbackChatRoute: ApiFeedbackChatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiV1PostsRoute: ApiV1PostsRouteWithChildren,
