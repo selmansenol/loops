@@ -19,6 +19,48 @@ import { webhooks, webhook_deliveries } from "@/db/schema";
 
 export type WebhookEvent = "post.created" | "post.status_changed" | "vote.created";
 
+/**
+ * If the destination is a Discord or Slack incoming webhook, those services
+ * require their own payload shape (they reject our generic envelope). We detect
+ * them by URL and send a ready-to-read message — so a user can just paste a
+ * Discord/Slack webhook URL and it works, no relay needed. Everything else gets
+ * the signed generic JSON for custom consumers.
+ */
+function targetKind(url: string): "discord" | "slack" | "generic" {
+  if (/discord(?:app)?\.com\/api\/webhooks\//i.test(url)) return "discord";
+  if (/hooks\.slack\.com\//i.test(url)) return "slack";
+  return "generic";
+}
+
+function humanMessage(event: WebhookEvent, d: Record<string, unknown>): string {
+  const title = (d.title as string) || (d.post_id as string) || "feedback";
+  const tag = d.tag ? ` _(${d.tag})_` : "";
+  switch (event) {
+    case "post.created":
+      return `🆕 **New feedback:** ${title}${tag}`;
+    case "post.status_changed":
+      return `🔄 **${title}** → ${d.new_status}`;
+    case "vote.created":
+      return `▲ **New vote** on ${title}${d.votes_count != null ? ` (${d.votes_count})` : ""}`;
+    default:
+      return `Loops: ${event}`;
+  }
+}
+
+function bodyFor(
+  kind: ReturnType<typeof targetKind>,
+  event: WebhookEvent,
+  payload: Record<string, unknown>,
+): string {
+  if (kind === "discord") {
+    return JSON.stringify({ username: "Loops", content: humanMessage(event, payload) });
+  }
+  if (kind === "slack") {
+    return JSON.stringify({ text: humanMessage(event, payload) });
+  }
+  return JSON.stringify({ event, timestamp: Math.floor(Date.now() / 1000), data: payload });
+}
+
 export async function dispatchWebhook(
   workspaceId: string,
   event: WebhookEvent,
@@ -42,14 +84,10 @@ export async function dispatchWebhook(
   }
   if (hooks.length === 0) return;
 
-  const body = JSON.stringify({
-    event,
-    timestamp: Math.floor(Date.now() / 1000),
-    data: payload,
-  });
-
   await Promise.allSettled(
     hooks.map(async (hook) => {
+      const kind = targetKind(hook.url);
+      const body = bodyFor(kind, event, payload);
       const signature = createHmac("sha256", hook.secret).update(body).digest("hex");
       try {
         const res = await fetch(hook.url, {

@@ -160,6 +160,8 @@ export async function toggleVote(
   });
   void dispatchWebhook(workspaceId, "vote.created", {
     post_id: postId,
+    title: post.title,
+    votes_count: (post.votes_count ?? 0) + 1,
     external_user_id: externalUserId ?? null,
   });
   return { voted: true };

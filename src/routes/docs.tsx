@@ -110,7 +110,7 @@ const DOCS_TR = {
     eyebrow: "Outgoing",
     title: "Webhooks",
     leadA:
-      "Loops'ta yeni post / oy / durum değişimi olduğunda kendi URL'ne POST atılır. Slack, Discord, Linear, GitHub Issues vb. her şeye köprü kurabilirsin.",
+      "Loops'ta yeni post / oy / durum değişimi olduğunda kendi URL'ne POST atılır. Bir Discord veya Slack webhook URL'i eklersen mesaj otomatik o platformun formatında gönderilir — ekstra kod/relay gerekmez. Diğer her şey (Linear, GitHub Issues, kendi sunucun) imzalı genel JSON alır.",
     leadB1: "Her istek ",
     leadB2: " header'ı taşır: webhook gizli anahtarınla ",
     leadB3: ". Aşağıda Node ile doğrulama:",
@@ -204,7 +204,7 @@ const DOCS_EN: DocsCopy = {
     eyebrow: "Outgoing",
     title: "Webhooks",
     leadA:
-      "When a new post / vote / status change happens in Loops, we POST to your URL. Bridge it to Slack, Discord, Linear, GitHub Issues or anything else.",
+      "When a new post / vote / status change happens in Loops, we POST to your URL. Paste a Discord or Slack incoming-webhook URL and we format the message for that platform automatically — no relay needed. Everything else (Linear, GitHub Issues, your own server) gets the signed generic JSON.",
     leadB1: "Every request carries an ",
     leadB2: " header — your webhook secret signed with ",
     leadB3: ". Node verification example below:",
@@ -320,7 +320,7 @@ function Quickstart() {
         <Step n={3}>
           {c.step3}
           <Code language="bash">{`curl -H "Authorization: Bearer loop_sk_..." \\
-  https://your-loop.app/api/v1/posts`}</Code>
+  https://getloops.co/api/v1/posts`}</Code>
         </Step>
       </ol>
     </Section>
@@ -333,9 +333,9 @@ function Embed() {
     <Section id="embed" title={c.title} eyebrow={c.eyebrow}>
       <p className="text-sm text-muted-foreground mb-4">{c.lead}</p>
       <Code language="html">{`<div id="loop-board"></div>
-<script src="https://your-loop.app/loop-widget.js"
+<script src="https://getloops.co/loop-widget.js"
         data-key="loop_pk_..."
-        data-host="https://your-loop.app"
+        data-host="https://getloops.co"
         data-target="#loop-board"
         data-theme="light"
         data-locale="tr"></script>`}</Code>
@@ -373,25 +373,25 @@ function ApiRef() {
         <LangTabs
           samples={{
             curl: `curl -H "Authorization: Bearer loop_sk_..." \\
-  "https://your-loop.app/api/v1/posts?status=planned&limit=10"`,
-            js: `const res = await fetch("https://your-loop.app/api/v1/posts?limit=10", {
+  "https://getloops.co/api/v1/posts?status=planned&limit=10"`,
+            js: `const res = await fetch("https://getloops.co/api/v1/posts?limit=10", {
   headers: { Authorization: "Bearer loop_sk_..." }
 });
 const { data } = await res.json();`,
             python: `import requests
 r = requests.get(
-  "https://your-loop.app/api/v1/posts",
+  "https://getloops.co/api/v1/posts",
   headers={"Authorization": "Bearer loop_sk_..."},
   params={"limit": 10},
 )
 print(r.json()["data"])`,
-            php: `$ch = curl_init("https://your-loop.app/api/v1/posts");
+            php: `$ch = curl_init("https://getloops.co/api/v1/posts");
 curl_setopt_array($ch, [
   CURLOPT_HTTPHEADER => ["Authorization: Bearer loop_sk_..."],
   CURLOPT_RETURNTRANSFER => true,
 ]);
 $data = json_decode(curl_exec($ch), true)["data"];`,
-            go: `req, _ := http.NewRequest("GET", "https://your-loop.app/api/v1/posts", nil)
+            go: `req, _ := http.NewRequest("GET", "https://getloops.co/api/v1/posts", nil)
 req.Header.Set("Authorization", "Bearer loop_sk_...")
 resp, _ := http.DefaultClient.Do(req)`,
           }}
@@ -417,8 +417,8 @@ resp, _ := http.DefaultClient.Do(req)`,
             curl: `curl -X POST -H "Authorization: Bearer loop_sk_..." \\
   -H "Content-Type: application/json" \\
   -d '{"title":"Dark theme please","tag":"UI","source":"telegram"}' \\
-  https://your-loop.app/api/v1/posts`,
-            js: `await fetch("https://your-loop.app/api/v1/posts", {
+  https://getloops.co/api/v1/posts`,
+            js: `await fetch("https://getloops.co/api/v1/posts", {
   method: "POST",
   headers: {
     Authorization: "Bearer loop_sk_...",
@@ -427,12 +427,12 @@ resp, _ := http.DefaultClient.Do(req)`,
   body: JSON.stringify({ title: "Dark theme please", tag: "UI" }),
 });`,
             python: `requests.post(
-  "https://your-loop.app/api/v1/posts",
+  "https://getloops.co/api/v1/posts",
   headers={"Authorization": "Bearer loop_sk_..."},
   json={"title": "Dark theme", "tag": "UI", "source": "py-script"},
 )`,
             php: `$payload = json_encode(["title" => "Dark theme", "tag" => "UI"]);
-$ch = curl_init("https://your-loop.app/api/v1/posts");
+$ch = curl_init("https://getloops.co/api/v1/posts");
 curl_setopt_array($ch, [
   CURLOPT_POST => true,
   CURLOPT_POSTFIELDS => $payload,
@@ -443,7 +443,7 @@ curl_setopt_array($ch, [
 ]);
 curl_exec($ch);`,
             go: `body := strings.NewReader(\`{"title":"Dark theme","tag":"UI"}\`)
-req, _ := http.NewRequest("POST", "https://your-loop.app/api/v1/posts", body)
+req, _ := http.NewRequest("POST", "https://getloops.co/api/v1/posts", body)
 req.Header.Set("Authorization", "Bearer loop_sk_...")
 req.Header.Set("Content-Type", "application/json")
 http.DefaultClient.Do(req)`,
@@ -461,8 +461,8 @@ http.DefaultClient.Do(req)`,
           samples={{
             curl: `curl -X POST -H "Authorization: Bearer loop_pk_..." \\
   -H "X-Loop-External-User: tg_user_12345" \\
-  https://your-loop.app/api/v1/posts/POST_ID/vote`,
-            js: `await fetch(\`https://your-loop.app/api/v1/posts/\${id}/vote\`, {
+  https://getloops.co/api/v1/posts/POST_ID/vote`,
+            js: `await fetch(\`https://getloops.co/api/v1/posts/\${id}/vote\`, {
   method: "POST",
   headers: {
     Authorization: "Bearer loop_pk_...",
@@ -470,13 +470,13 @@ http.DefaultClient.Do(req)`,
   },
 });`,
             python: `requests.post(
-  f"https://your-loop.app/api/v1/posts/{post_id}/vote",
+  f"https://getloops.co/api/v1/posts/{post_id}/vote",
   headers={
     "Authorization": "Bearer loop_pk_...",
     "X-Loop-External-User": str(user_id),
   },
 )`,
-            php: `$ch = curl_init("https://your-loop.app/api/v1/posts/$id/vote");
+            php: `$ch = curl_init("https://getloops.co/api/v1/posts/$id/vote");
 curl_setopt_array($ch, [
   CURLOPT_POST => true, CURLOPT_POSTFIELDS => "",
   CURLOPT_HTTPHEADER => [
@@ -485,7 +485,7 @@ curl_setopt_array($ch, [
   ],
 ]);
 curl_exec($ch);`,
-            go: `req, _ := http.NewRequest("POST", fmt.Sprintf("https://your-loop.app/api/v1/posts/%s/vote", id), nil)
+            go: `req, _ := http.NewRequest("POST", fmt.Sprintf("https://getloops.co/api/v1/posts/%s/vote", id), nil)
 req.Header.Set("Authorization", "Bearer loop_pk_...")
 req.Header.Set("X-Loop-External-User", userId)
 http.DefaultClient.Do(req)`,
@@ -546,7 +546,7 @@ function BotTelegram() {
       <Code language="bash">{`pip install python-telegram-bot requests
 export TELEGRAM_TOKEN=...
 export LOOP_KEY=loop_sk_...
-export LOOP_HOST=https://your-loop.app`}</Code>
+export LOOP_HOST=https://getloops.co`}</Code>
       <Code language="python">{`import os, requests
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
