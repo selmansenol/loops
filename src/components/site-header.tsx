@@ -308,6 +308,12 @@ export function SiteFooter() {
           <Link to="/docs" className="hover:text-foreground">
             {t("nav.docs")}
           </Link>
+          <Link to="/terms" className="hover:text-foreground">
+            {t("footer.terms")}
+          </Link>
+          <Link to="/privacy" className="hover:text-foreground">
+            {t("footer.privacy")}
+          </Link>
           <a
             href={SPONSOR_URL}
             target="_blank"
