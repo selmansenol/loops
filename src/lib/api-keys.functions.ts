@@ -3,14 +3,17 @@ import { requireAuth } from "@/lib/require-auth";
 import { z } from "zod";
 import { generateApiKey, type KeyType } from "./api-auth.server";
 
+const slugInput = z.object({ slug: z.string().max(40) });
+
 export const listApiKeys = createServerFn({ method: "GET" })
   .middleware([requireAuth])
-  .handler(async ({ context }) => {
-    const { assertAdmin } = await import("@/lib/authz");
-    await assertAdmin(context.userId);
+  .validator((input: unknown) => slugInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
     const { db } = await import("@/db");
     const { api_keys } = await import("@/db/schema");
-    const { desc } = await import("drizzle-orm");
+    const { desc, eq } = await import("drizzle-orm");
     return db
       .select({
         id: api_keys.id,
@@ -23,10 +26,11 @@ export const listApiKeys = createServerFn({ method: "GET" })
         created_at: api_keys.created_at,
       })
       .from(api_keys)
+      .where(eq(api_keys.workspace_id, ws.id))
       .orderBy(desc(api_keys.created_at));
   });
 
-const CreateInput = z.object({
+const CreateInput = slugInput.extend({
   name: z.string().trim().min(1).max(80),
   type: z.enum(["secret", "publishable"]),
   scopes: z.array(z.enum(["read", "write", "admin"])).min(1),
@@ -36,8 +40,8 @@ export const createApiKey = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .validator((input: unknown) => CreateInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { assertAdmin } = await import("@/lib/authz");
-    await assertAdmin(context.userId);
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
 
     const generated = generateApiKey(data.type as KeyType);
     const { db } = await import("@/db");
@@ -45,6 +49,7 @@ export const createApiKey = createServerFn({ method: "POST" })
     const [row] = await db
       .insert(api_keys)
       .values({
+        workspace_id: ws.id,
         name: data.name,
         key_type: data.type,
         scopes: data.scopes,
@@ -67,16 +72,16 @@ export const createApiKey = createServerFn({ method: "POST" })
 
 export const revokeApiKey = createServerFn({ method: "POST" })
   .middleware([requireAuth])
-  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => slugInput.extend({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { assertAdmin } = await import("@/lib/authz");
-    await assertAdmin(context.userId);
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
     const { db } = await import("@/db");
     const { api_keys } = await import("@/db/schema");
-    const { eq } = await import("drizzle-orm");
+    const { and, eq } = await import("drizzle-orm");
     await db
       .update(api_keys)
       .set({ revoked_at: new Date().toISOString() })
-      .where(eq(api_keys.id, data.id));
+      .where(and(eq(api_keys.id, data.id), eq(api_keys.workspace_id, ws.id)));
     return { ok: true };
   });

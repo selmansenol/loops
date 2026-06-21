@@ -10,20 +10,22 @@ export type RoadmapProposal = {
   summary: string;
 };
 
+const slugInput = z.object({ slug: z.string().max(40) });
+
 /**
- * AI Roadmap Generator (#3). Buckets the most-voted open posts into
- * Now / Next / Later. Returns a proposal only — nothing is persisted until
- * `applyRoadmapFn` is called. Admin only.
+ * AI Roadmap Generator. Buckets the most-voted open posts into Now/Next/Later.
+ * Returns a proposal only — `applyRoadmapFn` persists it. Workspace admin only.
  */
 export const generateRoadmapFn = createServerFn({ method: "POST" })
   .middleware([requireAuth])
-  .handler(async ({ context }): Promise<RoadmapProposal> => {
-    const { assertAdmin } = await import("@/lib/authz");
-    await assertAdmin(context.userId);
+  .validator((input: unknown) => slugInput.parse(input))
+  .handler(async ({ data, context }): Promise<RoadmapProposal> => {
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
 
     const { db } = await import("@/db");
     const { posts } = await import("@/db/schema");
-    const { and, desc, ne } = await import("drizzle-orm");
+    const { and, desc, eq, ne } = await import("drizzle-orm");
 
     const rows = await db
       .select({
@@ -34,7 +36,7 @@ export const generateRoadmapFn = createServerFn({ method: "POST" })
         votes_count: posts.votes_count,
       })
       .from(posts)
-      .where(and(ne(posts.status, "done")))
+      .where(and(eq(posts.workspace_id, ws.id), ne(posts.status, "done")))
       .orderBy(desc(posts.votes_count))
       .limit(60);
 
@@ -46,7 +48,7 @@ export const generateRoadmapFn = createServerFn({ method: "POST" })
     const { resolveAiModel, NoAiProviderError } = await import("@/lib/ai-provider.server");
     let model;
     try {
-      ({ model } = await resolveAiModel());
+      ({ model } = await resolveAiModel(ws.id));
     } catch (e) {
       if (e instanceof NoAiProviderError) {
         const err = new Error("NO_AI_PROVIDER") as Error & { code?: string };
@@ -57,10 +59,7 @@ export const generateRoadmapFn = createServerFn({ method: "POST" })
     }
 
     const { generateObject } = await import("ai");
-    const itemSchema = z.object({
-      id: z.string(),
-      reason: z.string(),
-    });
+    const itemSchema = z.object({ id: z.string(), reason: z.string() });
     const schema = z.object({
       now: z.array(itemSchema),
       next: z.array(itemSchema),
@@ -85,7 +84,6 @@ export const generateRoadmapFn = createServerFn({ method: "POST" })
       prompt: `Plan a roadmap from these ${rows.length} feedback items. Put the most important in 'now' (cap ~6), the rest across 'next' and 'later'.\n\n${corpus}`,
     });
 
-    // Keep only known ids and attach live titles/votes.
     const map = (items: { id: string; reason: string }[]): RoadmapBucketItem[] =>
       items
         .filter((i) => byId.has(i.id))
@@ -102,41 +100,37 @@ export const generateRoadmapFn = createServerFn({ method: "POST" })
     };
   });
 
-const ApplyInput = z.object({
+const ApplyInput = slugInput.extend({
   now: z.array(z.string().uuid()).max(200),
   next: z.array(z.string().uuid()).max(200),
   later: z.array(z.string().uuid()).max(200),
 });
 
-/** Persists the chosen buckets onto posts.priority_bucket. Admin only. */
+/** Persists the chosen buckets onto posts.priority_bucket. Workspace admin only. */
 export const applyRoadmapFn = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .validator((input: unknown) => ApplyInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { assertAdmin } = await import("@/lib/authz");
-    await assertAdmin(context.userId);
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
 
     const { db } = await import("@/db");
     const { posts } = await import("@/db/schema");
-    const { inArray } = await import("drizzle-orm");
+    const { and, eq, inArray } = await import("drizzle-orm");
 
-    const updates: Array<Promise<unknown>> = [];
-    if (data.now.length)
-      updates.push(
-        db.update(posts).set({ priority_bucket: "now" }).where(inArray(posts.id, data.now)),
-      );
-    if (data.next.length)
-      updates.push(
-        db.update(posts).set({ priority_bucket: "next" }).where(inArray(posts.id, data.next)),
-      );
-    if (data.later.length)
-      updates.push(
-        db.update(posts).set({ priority_bucket: "later" }).where(inArray(posts.id, data.later)),
-      );
-    await Promise.all(updates);
+    const setBucket = (ids: string[], bucket: "now" | "next" | "later") =>
+      ids.length
+        ? db
+            .update(posts)
+            .set({ priority_bucket: bucket })
+            .where(and(eq(posts.workspace_id, ws.id), inArray(posts.id, ids)))
+        : Promise.resolve();
 
-    return {
-      ok: true,
-      updated: data.now.length + data.next.length + data.later.length,
-    };
+    await Promise.all([
+      setBucket(data.now, "now"),
+      setBucket(data.next, "next"),
+      setBucket(data.later, "later"),
+    ]);
+
+    return { ok: true, updated: data.now.length + data.next.length + data.later.length };
   });

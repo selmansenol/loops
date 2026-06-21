@@ -3,10 +3,11 @@
  * `dispatch_webhook` Postgres function that used the Supabase `pg_net`
  * extension. Server-only.
  *
- * Call `dispatchWebhook(event, payload)` from every write path that should
- * notify subscribers (post created / status changed / vote created). It fans
- * out to all active webhooks subscribed to the event, signs the body with
- * HMAC-SHA256, POSTs it, and records the attempt in `webhook_deliveries`.
+ * Call `dispatchWebhook(workspaceId, event, payload)` from every write path
+ * that should notify subscribers (post created / status changed / vote
+ * created). It fans out to all active webhooks of that workspace subscribed to
+ * the event, signs the body with HMAC-SHA256, POSTs it, and records the attempt
+ * in `webhook_deliveries`.
  *
  * Delivery is best-effort and fire-and-forget: failures are logged, never
  * thrown back into the request that triggered them.
@@ -19,6 +20,7 @@ import { webhooks, webhook_deliveries } from "@/db/schema";
 export type WebhookEvent = "post.created" | "post.status_changed" | "vote.created";
 
 export async function dispatchWebhook(
+  workspaceId: string,
   event: WebhookEvent,
   payload: Record<string, unknown>,
 ): Promise<void> {
@@ -27,7 +29,13 @@ export async function dispatchWebhook(
     hooks = await db
       .select({ id: webhooks.id, url: webhooks.url, secret: webhooks.secret })
       .from(webhooks)
-      .where(and(eq(webhooks.active, true), sql`${event} = ANY(${webhooks.events})`));
+      .where(
+        and(
+          eq(webhooks.workspace_id, workspaceId),
+          eq(webhooks.active, true),
+          sql`${event} = ANY(${webhooks.events})`,
+        ),
+      );
   } catch (err) {
     console.error("[webhooks] failed to load subscribers:", err);
     return;

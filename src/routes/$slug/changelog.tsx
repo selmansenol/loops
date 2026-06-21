@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
 import { listPostsFn } from "@/lib/posts.functions";
 
-export const Route = createFileRoute("/changelog")({
+export const Route = createFileRoute("/$slug/changelog")({
   head: () => ({
     meta: [
       { title: "Loops · Changelog" },
@@ -26,12 +26,13 @@ type ShippedPost = {
 };
 
 function ChangelogPage() {
+  const { slug } = Route.useParams();
   const { t, i18n } = useTranslation();
   const [items, setItems] = useState<ShippedPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listPostsFn().then((data) => {
+    listPostsFn({ data: { slug } }).then((data) => {
       const shipped = (data ?? [])
         .filter((p) => p.status === "done")
         .map<ShippedPost>((p) => ({
@@ -50,7 +51,7 @@ function ChangelogPage() {
       setItems(shipped);
       setLoading(false);
     });
-  }, []);
+  }, [slug]);
 
   // group by month
   const groups: Record<string, ShippedPost[]> = {};
@@ -76,7 +77,8 @@ function ChangelogPage() {
             <p className="text-muted-foreground mt-2">{t("changelog.lead")}</p>
           </div>
           <Link
-            to="/board"
+            to="/$slug"
+            params={{ slug }}
             className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-medium hover:bg-foreground/90 transition-colors shrink-0"
           >
             {t("changelog.suggest")}
@@ -121,8 +123,8 @@ function ChangelogPage() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <Link
-                                to="/posts/$id"
-                                params={{ id: p.id }}
+                                to="/$slug/posts/$id"
+                                params={{ slug, id: p.id }}
                                 className="font-medium hover:underline"
                               >
                                 {p.title}

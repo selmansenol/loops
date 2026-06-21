@@ -20,7 +20,7 @@ export const Route = createFileRoute("/api/v1/posts/$id")({
 
         const { getPostById } = await import("@/lib/posts.repo");
         try {
-          const data = await getPostById(params.id);
+          const data = await getPostById(auth.key.workspace_id, params.id);
           if (!data) return errorResponse("not_found", "Post bulunamadı.", 404);
           return jsonResponse({ data });
         } catch (err) {
@@ -61,7 +61,7 @@ export const Route = createFileRoute("/api/v1/posts/$id")({
 
         const { updatePost } = await import("@/lib/posts.repo");
         try {
-          const data = await updatePost(params.id, update);
+          const data = await updatePost(auth.key.workspace_id, params.id, update);
           if (!data) return errorResponse("not_found", "Post bulunamadı.", 404);
           return jsonResponse({ data });
         } catch (err) {
@@ -81,7 +81,7 @@ export const Route = createFileRoute("/api/v1/posts/$id")({
 
         const { deletePost } = await import("@/lib/posts.repo");
         try {
-          await deletePost(params.id);
+          await deletePost(auth.key.workspace_id, params.id);
           return jsonResponse({ ok: true });
         } catch (err) {
           return errorResponse(

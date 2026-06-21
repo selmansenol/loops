@@ -20,7 +20,6 @@ import {
   primaryKey,
   text,
   timestamp,
-  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -82,11 +81,52 @@ export const verification = pgTable("verification", {
 // Enums
 // ============================================================
 
-export const appRole = pgEnum("app_role", ["admin", "user"]);
 export const postStatus = pgEnum("post_status", ["planned", "progress", "done"]);
 // Roadmap priority bucket — a dimension separate from `status`, set by the
 // admin AI Roadmap Generator (now = doing it, next = soon, later = backlog).
 export const priorityBucket = pgEnum("priority_bucket", ["now", "next", "later"]);
+// Per-workspace role (replaces the old global app_role).
+export const workspaceRole = pgEnum("workspace_role", ["owner", "admin", "member"]);
+
+// ============================================================
+// Tenancy: workspaces & members
+// ============================================================
+
+// A workspace is one tenant's feedback board, reached at /<slug>. All app data
+// (posts, api keys, webhooks, AI keys) is scoped to a workspace_id.
+export const workspaces = pgTable(
+  "workspaces",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull().unique(),
+    name: text("name").notNull(),
+    created_by: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("workspaces_slug_idx").on(t.slug)],
+);
+
+export const workspace_members = pgTable(
+  "workspace_members",
+  {
+    workspace_id: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    user_id: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    role: workspaceRole("role").notNull().default("member"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspace_id, t.user_id] }),
+    index("workspace_members_user_idx").on(t.user_id),
+  ],
+);
 
 // ============================================================
 // Application tables
@@ -105,25 +145,13 @@ export const profiles = pgTable("profiles", {
     .defaultNow(),
 });
 
-export const user_roles = pgTable(
-  "user_roles",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    user_id: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    role: appRole("role").notNull(),
-    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
-      .notNull()
-      .defaultNow(),
-  },
-  (t) => [uniqueIndex("user_roles_user_role_uq").on(t.user_id, t.role)],
-);
-
 export const posts = pgTable(
   "posts",
   {
     id: uuid("id").primaryKey().defaultRandom(),
+    workspace_id: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
     author_id: text("author_id").references(() => user.id, { onDelete: "set null" }),
     title: text("title").notNull(),
     description: text("description"),
@@ -142,9 +170,9 @@ export const posts = pgTable(
       .defaultNow(),
   },
   (t) => [
-    index("posts_status_idx").on(t.status),
-    index("posts_votes_idx").on(t.votes_count.desc()),
-    index("posts_created_idx").on(t.created_at.desc()),
+    index("posts_ws_status_idx").on(t.workspace_id, t.status),
+    index("posts_ws_votes_idx").on(t.workspace_id, t.votes_count.desc()),
+    index("posts_ws_created_idx").on(t.workspace_id, t.created_at.desc()),
   ],
 );
 
@@ -191,6 +219,9 @@ export const api_keys = pgTable(
   "api_keys",
   {
     id: uuid("id").primaryKey().defaultRandom(),
+    workspace_id: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     key_prefix: text("key_prefix").notNull(),
     key_hash: text("key_hash").notNull().unique(),
@@ -213,6 +244,9 @@ export const api_keys = pgTable(
 
 export const webhooks = pgTable("webhooks", {
   id: uuid("id").primaryKey().defaultRandom(),
+  workspace_id: uuid("workspace_id")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   url: text("url").notNull(),
   events: text("events")
@@ -255,19 +289,28 @@ export const webhook_deliveries = pgTable(
   (t) => [index("idx_deliveries_webhook").on(t.webhook_id, t.attempted_at.desc())],
 );
 
-export const ai_provider_keys = pgTable("ai_provider_keys", {
-  provider: text("provider").primaryKey(), // 'openai' | 'anthropic' | 'google'
-  api_key: text("api_key").notNull(),
-  updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
-    .notNull()
-    .defaultNow(),
-  updated_by: text("updated_by").references(() => user.id, { onDelete: "set null" }),
-});
+export const ai_provider_keys = pgTable(
+  "ai_provider_keys",
+  {
+    workspace_id: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    provider: text("provider").notNull(), // 'openai' | 'anthropic' | 'google'
+    api_key: text("api_key").notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    updated_by: text("updated_by").references(() => user.id, { onDelete: "set null" }),
+  },
+  (t) => [primaryKey({ columns: [t.workspace_id, t.provider] })],
+);
 
 // ============================================================
 // Inferred types
 // ============================================================
 
+export type Workspace = typeof workspaces.$inferSelect;
+export type WorkspaceMember = typeof workspace_members.$inferSelect;
 export type Post = typeof posts.$inferSelect;
 export type NewPost = typeof posts.$inferInsert;
 export type Vote = typeof votes.$inferSelect;

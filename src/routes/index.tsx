@@ -1,8 +1,16 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { SiteHeader, SiteFooter, LoopMark, GITHUB_URL } from "@/components/site-header";
 
 export const Route = createFileRoute("/")({
+  // Single-tenant (self-host) → the app is one board; skip the marketing page.
+  beforeLoad: async () => {
+    const { getAppModeFn } = await import("@/lib/workspace.functions");
+    const mode = await getAppModeFn();
+    if (mode.singleTenantSlug) {
+      throw redirect({ to: "/$slug", params: { slug: mode.singleTenantSlug } });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Loops — Open-source feedback board organized by AI" },
@@ -115,7 +123,7 @@ function PreviewCard() {
         <span className="h-2.5 w-2.5 rounded-full bg-destructive/60" />
         <span className="h-2.5 w-2.5 rounded-full bg-status-progress/60" />
         <span className="h-2.5 w-2.5 rounded-full bg-status-done/60" />
-        <span className="ml-3 text-xs text-muted-foreground font-mono">loop.app/board/acme</span>
+        <span className="ml-3 text-xs text-muted-foreground font-mono">getloops.co/acme</span>
       </div>
       <div className="grid md:grid-cols-[1fr_280px] gap-0">
         <div className="p-6 space-y-3">

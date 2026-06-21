@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
 import { useAuth } from "@/lib/auth-context";
+import { useIsWorkspaceAdmin } from "@/lib/workspace-context";
 import {
   getAiSettings,
   saveAiProviderKey,
@@ -12,7 +13,7 @@ import {
   type AiProviderStatus,
 } from "@/lib/ai-settings.functions";
 
-export const Route = createFileRoute("/settings/ai")({
+export const Route = createFileRoute("/$slug/settings/ai")({
   ssr: false,
   head: () => ({
     meta: [
@@ -27,8 +28,10 @@ export const Route = createFileRoute("/settings/ai")({
 });
 
 function AiSettingsPage() {
+  const { slug } = Route.useParams();
   const { t } = useTranslation();
-  const { user, isAdmin, loading } = useAuth();
+  const { user, loading } = useAuth();
+  const isAdmin = useIsWorkspaceAdmin();
   const fetchSettings = useServerFn(getAiSettings);
   const [settings, setSettings] = useState<AiSettingsResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +41,7 @@ function AiSettingsPage() {
     setRefreshing(true);
     setError(null);
     try {
-      setSettings(await fetchSettings());
+      setSettings(await fetchSettings({ data: { slug } }));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -61,7 +64,8 @@ function AiSettingsPage() {
           <h1 className="font-display text-3xl font-medium tracking-tight">{t("common.denied")}</h1>
           <p className="text-muted-foreground mt-3">{t("settingsAi.deniedDesc")}</p>
           <Link
-            to="/board"
+            to="/$slug"
+            params={{ slug }}
             className="inline-flex mt-6 rounded-full bg-foreground text-background px-5 py-2 text-sm font-medium"
           >
             {t("settingsAi.back")}
@@ -134,7 +138,7 @@ function AiSettingsPage() {
             </h2>
             <div className="grid gap-4 mb-10">
               {settings.providers.map((p) => (
-                <ProviderCard key={p.id} provider={p} onChanged={load} />
+                <ProviderCard key={p.id} slug={slug} provider={p} onChanged={load} />
               ))}
             </div>
 
@@ -159,9 +163,11 @@ LOOP_AI_MODEL=gpt-4o-mini    # optional model override`}
 }
 
 function ProviderCard({
+  slug,
   provider,
   onChanged,
 }: {
+  slug: string;
   provider: AiProviderStatus;
   onChanged: () => void | Promise<void>;
 }) {
@@ -179,7 +185,7 @@ function ProviderCard({
     setBusy(true);
     setErr(null);
     try {
-      await save({ data: { provider: provider.id, apiKey: key.trim() } });
+      await save({ data: { slug, provider: provider.id, apiKey: key.trim() } });
       setKey("");
       setOpen(false);
       await onChanged();
@@ -195,7 +201,7 @@ function ProviderCard({
     setBusy(true);
     setErr(null);
     try {
-      await del({ data: { provider: provider.id } });
+      await del({ data: { slug, provider: provider.id } });
       await onChanged();
     } catch (e) {
       setErr((e as Error).message);

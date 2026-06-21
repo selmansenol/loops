@@ -308,7 +308,7 @@ function Quickstart() {
           {c.step1b}
         </Step>
         <Step n={2}>
-          <Link to="/settings/api-keys" className="text-foreground underline underline-offset-4">
+          <Link to="/dashboard" className="text-foreground underline underline-offset-4">
             {c.step2a}
           </Link>
           {c.step2b}

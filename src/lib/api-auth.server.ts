@@ -52,6 +52,7 @@ export function generateApiKey(type: KeyType): { plain: string; prefix: string; 
 
 export type AuthedKey = {
   id: string;
+  workspace_id: string;
   scopes: string[];
   key_type: KeyType;
   created_by: string;
@@ -83,6 +84,7 @@ export async function authenticateRequest(
     const rows = await db
       .select({
         id: api_keys.id,
+        workspace_id: api_keys.workspace_id,
         scopes: api_keys.scopes,
         key_type: api_keys.key_type,
         created_by: api_keys.created_by,

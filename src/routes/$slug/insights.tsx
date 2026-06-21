@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
 import { useAuth } from "@/lib/auth-context";
+import { useIsWorkspaceAdmin } from "@/lib/workspace-context";
 import { listPostsFn } from "@/lib/posts.functions";
 import {
   analyzeFeedback,
@@ -12,7 +13,7 @@ import {
   type AnalyzeResult,
 } from "@/lib/ai-analyze.functions";
 
-export const Route = createFileRoute("/insights")({
+export const Route = createFileRoute("/$slug/insights")({
   ssr: false,
   head: () => ({
     meta: [
@@ -78,7 +79,9 @@ function formatRelative(ts: number, lang: string): string {
 }
 
 function InsightsPage() {
-  const { user, isAdmin, loading } = useAuth();
+  const { slug } = Route.useParams();
+  const { user, loading } = useAuth();
+  const isAdmin = useIsWorkspaceAdmin();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const runAnalyze = useServerFn(analyzeFeedback);
@@ -96,7 +99,7 @@ function InsightsPage() {
   const postIndex = useMemo(() => new Map(posts.map((p) => [p.id, p])), [posts]);
 
   const refreshPosts = async () => {
-    const data = await listPostsFn();
+    const data = await listPostsFn({ data: { slug } });
     setPosts((data as PostLite[]) ?? []);
   };
 
@@ -107,7 +110,8 @@ function InsightsPage() {
       setResult(cached.result);
       setResultAt(cached.at);
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
 
   useEffect(() => {
     if (!toast) return;
@@ -119,7 +123,7 @@ function InsightsPage() {
     setBusy(true);
     setError(null);
     try {
-      const r = await runAnalyze();
+      const r = await runAnalyze({ data: { slug } });
       setResult(r);
       const now = Date.now();
       setResultAt(now);
@@ -186,7 +190,8 @@ function InsightsPage() {
           </h1>
           <p className="text-muted-foreground mb-6">{t("insights.adminOnly.desc")}</p>
           <Link
-            to="/board"
+            to="/$slug"
+            params={{ slug }}
             className="rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-medium hover:bg-foreground/90"
           >
             {t("insights.adminOnly.back")}
@@ -270,7 +275,7 @@ function InsightsPage() {
                     setActionBusy(`tag-${i}`);
                     try {
                       const res = await runApplyTag({
-                        data: { post_ids: cluster.post_ids, tag: cluster.suggested_tag },
+                        data: { slug, post_ids: cluster.post_ids, tag: cluster.suggested_tag },
                       });
                       setToast(
                         t("insights.toast.tagApplied", {
@@ -292,6 +297,7 @@ function InsightsPage() {
                     try {
                       const res = await runMerge({
                         data: {
+                          slug,
                           post_ids: cluster.post_ids,
                           title: cluster.theme,
                           description: cluster.summary,

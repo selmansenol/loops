@@ -9,32 +9,30 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RoadmapRouteImport } from './routes/roadmap'
-import { Route as InsightsRouteImport } from './routes/insights'
+import { Route as NewRouteImport } from './routes/new'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DemoRouteImport } from './routes/demo'
-import { Route as ChangelogRouteImport } from './routes/changelog'
-import { Route as BoardRouteImport } from './routes/board'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as SlugRouteRouteImport } from './routes/$slug/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SettingsWebhooksRouteImport } from './routes/settings.webhooks'
-import { Route as SettingsApiKeysRouteImport } from './routes/settings.api-keys'
-import { Route as SettingsAiRouteImport } from './routes/settings.ai'
-import { Route as PostsIdRouteImport } from './routes/posts.$id'
+import { Route as SlugIndexRouteImport } from './routes/$slug/index'
 import { Route as ApiFeedbackChatRouteImport } from './routes/api/feedback-chat'
+import { Route as SlugRoadmapRouteImport } from './routes/$slug/roadmap'
+import { Route as SlugInsightsRouteImport } from './routes/$slug/insights'
+import { Route as SlugChangelogRouteImport } from './routes/$slug/changelog'
 import { Route as ApiV1PostsRouteImport } from './routes/api/v1/posts'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as SlugSettingsWebhooksRouteImport } from './routes/$slug/settings.webhooks'
+import { Route as SlugSettingsApiKeysRouteImport } from './routes/$slug/settings.api-keys'
+import { Route as SlugSettingsAiRouteImport } from './routes/$slug/settings.ai'
+import { Route as SlugPostsIdRouteImport } from './routes/$slug/posts.$id'
 import { Route as ApiV1PostsIdRouteImport } from './routes/api/v1/posts.$id'
 import { Route as ApiV1PostsIdVoteRouteImport } from './routes/api/v1/posts.$id.vote'
 
-const RoadmapRoute = RoadmapRouteImport.update({
-  id: '/roadmap',
-  path: '/roadmap',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InsightsRoute = InsightsRouteImport.update({
-  id: '/insights',
-  path: '/insights',
+const NewRoute = NewRouteImport.update({
+  id: '/new',
+  path: '/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocsRoute = DocsRouteImport.update({
@@ -47,14 +45,9 @@ const DemoRoute = DemoRouteImport.update({
   path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChangelogRoute = ChangelogRouteImport.update({
-  id: '/changelog',
-  path: '/changelog',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BoardRoute = BoardRouteImport.update({
-  id: '/board',
-  path: '/board',
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -62,35 +55,40 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SlugRouteRoute = SlugRouteRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsWebhooksRoute = SettingsWebhooksRouteImport.update({
-  id: '/settings/webhooks',
-  path: '/settings/webhooks',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsApiKeysRoute = SettingsApiKeysRouteImport.update({
-  id: '/settings/api-keys',
-  path: '/settings/api-keys',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsAiRoute = SettingsAiRouteImport.update({
-  id: '/settings/ai',
-  path: '/settings/ai',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PostsIdRoute = PostsIdRouteImport.update({
-  id: '/posts/$id',
-  path: '/posts/$id',
-  getParentRoute: () => rootRouteImport,
+const SlugIndexRoute = SlugIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SlugRouteRoute,
 } as any)
 const ApiFeedbackChatRoute = ApiFeedbackChatRouteImport.update({
   id: '/api/feedback-chat',
   path: '/api/feedback-chat',
   getParentRoute: () => rootRouteImport,
+} as any)
+const SlugRoadmapRoute = SlugRoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => SlugRouteRoute,
+} as any)
+const SlugInsightsRoute = SlugInsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
+  getParentRoute: () => SlugRouteRoute,
+} as any)
+const SlugChangelogRoute = SlugChangelogRouteImport.update({
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => SlugRouteRoute,
 } as any)
 const ApiV1PostsRoute = ApiV1PostsRouteImport.update({
   id: '/api/v1/posts',
@@ -101,6 +99,26 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
+} as any)
+const SlugSettingsWebhooksRoute = SlugSettingsWebhooksRouteImport.update({
+  id: '/settings/webhooks',
+  path: '/settings/webhooks',
+  getParentRoute: () => SlugRouteRoute,
+} as any)
+const SlugSettingsApiKeysRoute = SlugSettingsApiKeysRouteImport.update({
+  id: '/settings/api-keys',
+  path: '/settings/api-keys',
+  getParentRoute: () => SlugRouteRoute,
+} as any)
+const SlugSettingsAiRoute = SlugSettingsAiRouteImport.update({
+  id: '/settings/ai',
+  path: '/settings/ai',
+  getParentRoute: () => SlugRouteRoute,
+} as any)
+const SlugPostsIdRoute = SlugPostsIdRouteImport.update({
+  id: '/posts/$id',
+  path: '/posts/$id',
+  getParentRoute: () => SlugRouteRoute,
 } as any)
 const ApiV1PostsIdRoute = ApiV1PostsIdRouteImport.update({
   id: '/$id',
@@ -115,18 +133,21 @@ const ApiV1PostsIdVoteRoute = ApiV1PostsIdVoteRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$slug': typeof SlugRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/board': typeof BoardRoute
-  '/changelog': typeof ChangelogRoute
+  '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
-  '/insights': typeof InsightsRoute
-  '/roadmap': typeof RoadmapRoute
+  '/new': typeof NewRoute
+  '/$slug/changelog': typeof SlugChangelogRoute
+  '/$slug/insights': typeof SlugInsightsRoute
+  '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
-  '/posts/$id': typeof PostsIdRoute
-  '/settings/ai': typeof SettingsAiRoute
-  '/settings/api-keys': typeof SettingsApiKeysRoute
-  '/settings/webhooks': typeof SettingsWebhooksRoute
+  '/$slug/': typeof SlugIndexRoute
+  '/$slug/posts/$id': typeof SlugPostsIdRoute
+  '/$slug/settings/ai': typeof SlugSettingsAiRoute
+  '/$slug/settings/api-keys': typeof SlugSettingsApiKeysRoute
+  '/$slug/settings/webhooks': typeof SlugSettingsWebhooksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/v1/posts': typeof ApiV1PostsRouteWithChildren
   '/api/v1/posts/$id': typeof ApiV1PostsIdRouteWithChildren
@@ -135,17 +156,19 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/board': typeof BoardRoute
-  '/changelog': typeof ChangelogRoute
+  '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
-  '/insights': typeof InsightsRoute
-  '/roadmap': typeof RoadmapRoute
+  '/new': typeof NewRoute
+  '/$slug/changelog': typeof SlugChangelogRoute
+  '/$slug/insights': typeof SlugInsightsRoute
+  '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
-  '/posts/$id': typeof PostsIdRoute
-  '/settings/ai': typeof SettingsAiRoute
-  '/settings/api-keys': typeof SettingsApiKeysRoute
-  '/settings/webhooks': typeof SettingsWebhooksRoute
+  '/$slug': typeof SlugIndexRoute
+  '/$slug/posts/$id': typeof SlugPostsIdRoute
+  '/$slug/settings/ai': typeof SlugSettingsAiRoute
+  '/$slug/settings/api-keys': typeof SlugSettingsApiKeysRoute
+  '/$slug/settings/webhooks': typeof SlugSettingsWebhooksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/v1/posts': typeof ApiV1PostsRouteWithChildren
   '/api/v1/posts/$id': typeof ApiV1PostsIdRouteWithChildren
@@ -154,18 +177,21 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$slug': typeof SlugRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/board': typeof BoardRoute
-  '/changelog': typeof ChangelogRoute
+  '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRoute
-  '/insights': typeof InsightsRoute
-  '/roadmap': typeof RoadmapRoute
+  '/new': typeof NewRoute
+  '/$slug/changelog': typeof SlugChangelogRoute
+  '/$slug/insights': typeof SlugInsightsRoute
+  '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
-  '/posts/$id': typeof PostsIdRoute
-  '/settings/ai': typeof SettingsAiRoute
-  '/settings/api-keys': typeof SettingsApiKeysRoute
-  '/settings/webhooks': typeof SettingsWebhooksRoute
+  '/$slug/': typeof SlugIndexRoute
+  '/$slug/posts/$id': typeof SlugPostsIdRoute
+  '/$slug/settings/ai': typeof SlugSettingsAiRoute
+  '/$slug/settings/api-keys': typeof SlugSettingsApiKeysRoute
+  '/$slug/settings/webhooks': typeof SlugSettingsWebhooksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/v1/posts': typeof ApiV1PostsRouteWithChildren
   '/api/v1/posts/$id': typeof ApiV1PostsIdRouteWithChildren
@@ -175,18 +201,21 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$slug'
     | '/auth'
-    | '/board'
-    | '/changelog'
+    | '/dashboard'
     | '/demo'
     | '/docs'
-    | '/insights'
-    | '/roadmap'
+    | '/new'
+    | '/$slug/changelog'
+    | '/$slug/insights'
+    | '/$slug/roadmap'
     | '/api/feedback-chat'
-    | '/posts/$id'
-    | '/settings/ai'
-    | '/settings/api-keys'
-    | '/settings/webhooks'
+    | '/$slug/'
+    | '/$slug/posts/$id'
+    | '/$slug/settings/ai'
+    | '/$slug/settings/api-keys'
+    | '/$slug/settings/webhooks'
     | '/api/auth/$'
     | '/api/v1/posts'
     | '/api/v1/posts/$id'
@@ -195,17 +224,19 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/board'
-    | '/changelog'
+    | '/dashboard'
     | '/demo'
     | '/docs'
-    | '/insights'
-    | '/roadmap'
+    | '/new'
+    | '/$slug/changelog'
+    | '/$slug/insights'
+    | '/$slug/roadmap'
     | '/api/feedback-chat'
-    | '/posts/$id'
-    | '/settings/ai'
-    | '/settings/api-keys'
-    | '/settings/webhooks'
+    | '/$slug'
+    | '/$slug/posts/$id'
+    | '/$slug/settings/ai'
+    | '/$slug/settings/api-keys'
+    | '/$slug/settings/webhooks'
     | '/api/auth/$'
     | '/api/v1/posts'
     | '/api/v1/posts/$id'
@@ -213,18 +244,21 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$slug'
     | '/auth'
-    | '/board'
-    | '/changelog'
+    | '/dashboard'
     | '/demo'
     | '/docs'
-    | '/insights'
-    | '/roadmap'
+    | '/new'
+    | '/$slug/changelog'
+    | '/$slug/insights'
+    | '/$slug/roadmap'
     | '/api/feedback-chat'
-    | '/posts/$id'
-    | '/settings/ai'
-    | '/settings/api-keys'
-    | '/settings/webhooks'
+    | '/$slug/'
+    | '/$slug/posts/$id'
+    | '/$slug/settings/ai'
+    | '/$slug/settings/api-keys'
+    | '/$slug/settings/webhooks'
     | '/api/auth/$'
     | '/api/v1/posts'
     | '/api/v1/posts/$id'
@@ -233,36 +267,24 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SlugRouteRoute: typeof SlugRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  BoardRoute: typeof BoardRoute
-  ChangelogRoute: typeof ChangelogRoute
+  DashboardRoute: typeof DashboardRoute
   DemoRoute: typeof DemoRoute
   DocsRoute: typeof DocsRoute
-  InsightsRoute: typeof InsightsRoute
-  RoadmapRoute: typeof RoadmapRoute
+  NewRoute: typeof NewRoute
   ApiFeedbackChatRoute: typeof ApiFeedbackChatRoute
-  PostsIdRoute: typeof PostsIdRoute
-  SettingsAiRoute: typeof SettingsAiRoute
-  SettingsApiKeysRoute: typeof SettingsApiKeysRoute
-  SettingsWebhooksRoute: typeof SettingsWebhooksRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiV1PostsRoute: typeof ApiV1PostsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/roadmap': {
-      id: '/roadmap'
-      path: '/roadmap'
-      fullPath: '/roadmap'
-      preLoaderRoute: typeof RoadmapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/insights': {
-      id: '/insights'
-      path: '/insights'
-      fullPath: '/insights'
-      preLoaderRoute: typeof InsightsRouteImport
+    '/new': {
+      id: '/new'
+      path: '/new'
+      fullPath: '/new'
+      preLoaderRoute: typeof NewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/docs': {
@@ -279,18 +301,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/changelog': {
-      id: '/changelog'
-      path: '/changelog'
-      fullPath: '/changelog'
-      preLoaderRoute: typeof ChangelogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/board': {
-      id: '/board'
-      path: '/board'
-      fullPath: '/board'
-      preLoaderRoute: typeof BoardRouteImport
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -300,6 +315,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$slug': {
+      id: '/$slug'
+      path: '/$slug'
+      fullPath: '/$slug'
+      preLoaderRoute: typeof SlugRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -307,33 +329,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings/webhooks': {
-      id: '/settings/webhooks'
-      path: '/settings/webhooks'
-      fullPath: '/settings/webhooks'
-      preLoaderRoute: typeof SettingsWebhooksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/api-keys': {
-      id: '/settings/api-keys'
-      path: '/settings/api-keys'
-      fullPath: '/settings/api-keys'
-      preLoaderRoute: typeof SettingsApiKeysRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/ai': {
-      id: '/settings/ai'
-      path: '/settings/ai'
-      fullPath: '/settings/ai'
-      preLoaderRoute: typeof SettingsAiRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/posts/$id': {
-      id: '/posts/$id'
-      path: '/posts/$id'
-      fullPath: '/posts/$id'
-      preLoaderRoute: typeof PostsIdRouteImport
-      parentRoute: typeof rootRouteImport
+    '/$slug/': {
+      id: '/$slug/'
+      path: '/'
+      fullPath: '/$slug/'
+      preLoaderRoute: typeof SlugIndexRouteImport
+      parentRoute: typeof SlugRouteRoute
     }
     '/api/feedback-chat': {
       id: '/api/feedback-chat'
@@ -341,6 +342,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/feedback-chat'
       preLoaderRoute: typeof ApiFeedbackChatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/$slug/roadmap': {
+      id: '/$slug/roadmap'
+      path: '/roadmap'
+      fullPath: '/$slug/roadmap'
+      preLoaderRoute: typeof SlugRoadmapRouteImport
+      parentRoute: typeof SlugRouteRoute
+    }
+    '/$slug/insights': {
+      id: '/$slug/insights'
+      path: '/insights'
+      fullPath: '/$slug/insights'
+      preLoaderRoute: typeof SlugInsightsRouteImport
+      parentRoute: typeof SlugRouteRoute
+    }
+    '/$slug/changelog': {
+      id: '/$slug/changelog'
+      path: '/changelog'
+      fullPath: '/$slug/changelog'
+      preLoaderRoute: typeof SlugChangelogRouteImport
+      parentRoute: typeof SlugRouteRoute
     }
     '/api/v1/posts': {
       id: '/api/v1/posts'
@@ -355,6 +377,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/$slug/settings/webhooks': {
+      id: '/$slug/settings/webhooks'
+      path: '/settings/webhooks'
+      fullPath: '/$slug/settings/webhooks'
+      preLoaderRoute: typeof SlugSettingsWebhooksRouteImport
+      parentRoute: typeof SlugRouteRoute
+    }
+    '/$slug/settings/api-keys': {
+      id: '/$slug/settings/api-keys'
+      path: '/settings/api-keys'
+      fullPath: '/$slug/settings/api-keys'
+      preLoaderRoute: typeof SlugSettingsApiKeysRouteImport
+      parentRoute: typeof SlugRouteRoute
+    }
+    '/$slug/settings/ai': {
+      id: '/$slug/settings/ai'
+      path: '/settings/ai'
+      fullPath: '/$slug/settings/ai'
+      preLoaderRoute: typeof SlugSettingsAiRouteImport
+      parentRoute: typeof SlugRouteRoute
+    }
+    '/$slug/posts/$id': {
+      id: '/$slug/posts/$id'
+      path: '/posts/$id'
+      fullPath: '/$slug/posts/$id'
+      preLoaderRoute: typeof SlugPostsIdRouteImport
+      parentRoute: typeof SlugRouteRoute
     }
     '/api/v1/posts/$id': {
       id: '/api/v1/posts/$id'
@@ -372,6 +422,32 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface SlugRouteRouteChildren {
+  SlugChangelogRoute: typeof SlugChangelogRoute
+  SlugInsightsRoute: typeof SlugInsightsRoute
+  SlugRoadmapRoute: typeof SlugRoadmapRoute
+  SlugIndexRoute: typeof SlugIndexRoute
+  SlugPostsIdRoute: typeof SlugPostsIdRoute
+  SlugSettingsAiRoute: typeof SlugSettingsAiRoute
+  SlugSettingsApiKeysRoute: typeof SlugSettingsApiKeysRoute
+  SlugSettingsWebhooksRoute: typeof SlugSettingsWebhooksRoute
+}
+
+const SlugRouteRouteChildren: SlugRouteRouteChildren = {
+  SlugChangelogRoute: SlugChangelogRoute,
+  SlugInsightsRoute: SlugInsightsRoute,
+  SlugRoadmapRoute: SlugRoadmapRoute,
+  SlugIndexRoute: SlugIndexRoute,
+  SlugPostsIdRoute: SlugPostsIdRoute,
+  SlugSettingsAiRoute: SlugSettingsAiRoute,
+  SlugSettingsApiKeysRoute: SlugSettingsApiKeysRoute,
+  SlugSettingsWebhooksRoute: SlugSettingsWebhooksRoute,
+}
+
+const SlugRouteRouteWithChildren = SlugRouteRoute._addFileChildren(
+  SlugRouteRouteChildren,
+)
 
 interface ApiV1PostsIdRouteChildren {
   ApiV1PostsIdVoteRoute: typeof ApiV1PostsIdVoteRoute
@@ -399,18 +475,13 @@ const ApiV1PostsRouteWithChildren = ApiV1PostsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SlugRouteRoute: SlugRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  BoardRoute: BoardRoute,
-  ChangelogRoute: ChangelogRoute,
+  DashboardRoute: DashboardRoute,
   DemoRoute: DemoRoute,
   DocsRoute: DocsRoute,
-  InsightsRoute: InsightsRoute,
-  RoadmapRoute: RoadmapRoute,
+  NewRoute: NewRoute,
   ApiFeedbackChatRoute: ApiFeedbackChatRoute,
-  PostsIdRoute: PostsIdRoute,
-  SettingsAiRoute: SettingsAiRoute,
-  SettingsApiKeysRoute: SettingsApiKeysRoute,
-  SettingsWebhooksRoute: SettingsWebhooksRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiV1PostsRoute: ApiV1PostsRouteWithChildren,
 }

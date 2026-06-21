@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
 import { useAuth } from "@/lib/auth-context";
+import { useIsWorkspaceAdmin } from "@/lib/workspace-context";
 import {
   listWebhooks,
   createWebhook,
@@ -11,7 +12,7 @@ import {
   toggleWebhook,
 } from "@/lib/webhooks.functions";
 
-export const Route = createFileRoute("/settings/webhooks")({
+export const Route = createFileRoute("/$slug/settings/webhooks")({
   ssr: false,
   head: () => ({ meta: [{ title: "Loops · Webhooks" }] }),
   component: WebhooksPage,
@@ -33,8 +34,10 @@ type Webhook = {
 };
 
 function WebhooksPage() {
+  const { slug } = Route.useParams();
   const { t } = useTranslation();
-  const { user, isAdmin, loading } = useAuth();
+  const { user, loading } = useAuth();
+  const isAdmin = useIsWorkspaceAdmin();
   const create = useServerFn(createWebhook);
   const del = useServerFn(deleteWebhook);
   const toggle = useServerFn(toggleWebhook);
@@ -46,13 +49,14 @@ function WebhooksPage() {
   const [error, setError] = useState<string | null>(null);
 
   const refresh = async () => {
-    const data = await list();
+    const data = await list({ data: { slug } });
     setHooks((data as Webhook[]) ?? []);
   };
 
   useEffect(() => {
     if (isAdmin) refresh();
-  }, [isAdmin]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdmin, slug]);
 
   if (loading)
     return (
@@ -66,7 +70,8 @@ function WebhooksPage() {
         <h1 className="font-display text-3xl font-medium mb-3">{t("common.denied")}</h1>
         <p className="text-muted-foreground mb-6">{t("settings.webhooks.deniedDesc")}</p>
         <Link
-          to="/board"
+          to="/$slug"
+          params={{ slug }}
           className="rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-medium"
         >
           {t("settings.webhooks.back")}
@@ -121,7 +126,7 @@ function WebhooksPage() {
                       <button
                         onClick={async () => {
                           try {
-                            await toggle({ data: { id: h.id, active: !h.active } });
+                            await toggle({ data: { slug, id: h.id, active: !h.active } });
                             await refresh();
                           } catch (e) {
                             setError(e instanceof Error ? e.message : String(e));
@@ -166,7 +171,7 @@ function WebhooksPage() {
                     onClick={async () => {
                       if (!confirm(t("settings.webhooks.confirmDelete"))) return;
                       try {
-                        await del({ data: { id: h.id } });
+                        await del({ data: { slug, id: h.id } });
                         await refresh();
                       } catch (e) {
                         setError(e instanceof Error ? e.message : String(e));
@@ -208,7 +213,7 @@ function WebhooksPage() {
             setBusy(true);
             setError(null);
             try {
-              await create({ data: input });
+              await create({ data: { slug, ...input } });
               setOpen(false);
               await refresh();
             } catch (e) {

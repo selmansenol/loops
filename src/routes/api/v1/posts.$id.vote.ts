@@ -50,10 +50,11 @@ export const Route = createFileRoute("/api/v1/posts/$id/vote")({
 
         try {
           const { getPostById, toggleVote } = await import("@/lib/posts.repo");
-          const post = await getPostById(params.id);
+          const wsId = auth.key.workspace_id;
+          const post = await getPostById(wsId, params.id);
           if (!post) return errorResponse("not_found", "Post bulunamadı.", 404);
 
-          const result = await toggleVote(params.id, userUuid, externalUser);
+          const result = await toggleVote(wsId, params.id, userUuid, externalUser);
           return jsonResponse(result);
         } catch (err) {
           return errorResponse(

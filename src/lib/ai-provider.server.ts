@@ -1,18 +1,13 @@
 /**
- * Provider-agnostic AI selection for Loops.
+ * Provider-agnostic AI selection for Loops — scoped per workspace.
  *
- * Keys are stored in the `ai_provider_keys` table via the admin UI
- * (Settings → AI). The DB takes precedence; if no DB key is set,
- * the helper falls back to env vars so self-hosters can still wire
- * keys through .env if they prefer:
+ * Each workspace stores its own keys in `ai_provider_keys` (Settings → AI).
+ * Env-var fallback (OPENAI_API_KEY / ANTHROPIC_API_KEY /
+ * GOOGLE_GENERATIVE_AI_API_KEY, alias GEMINI_API_KEY) only applies in
+ * single-tenant self-host mode — in multi-tenant hosting the operator's env
+ * keys must not leak across tenants, so each workspace brings its own.
  *
- *   - OPENAI_API_KEY
- *   - ANTHROPIC_API_KEY
- *   - GOOGLE_GENERATIVE_AI_API_KEY  (alias: GEMINI_API_KEY)
- *
- * Optional override:
- *   - LOOP_AI_PROVIDER = "openai" | "anthropic" | "google"
- *   - LOOP_AI_MODEL    = any provider-specific model id
+ * Optional override (single-tenant): LOOP_AI_PROVIDER, LOOP_AI_MODEL.
  */
 
 import { createOpenAI } from "@ai-sdk/openai";
@@ -54,7 +49,13 @@ export const SUPPORTED_PROVIDERS: AiProviderInfo[] = [
   },
 ];
 
+// Env keys only count in single-tenant mode (self-host).
+function envAllowed(): boolean {
+  return !!process.env.SINGLE_TENANT_SLUG?.trim();
+}
+
 function envKey(p: AiProviderId): string | undefined {
+  if (!envAllowed()) return undefined;
   if (p === "openai") return process.env.OPENAI_API_KEY || undefined;
   if (p === "anthropic") return process.env.ANTHROPIC_API_KEY || undefined;
   return process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || undefined;
@@ -62,14 +63,16 @@ function envKey(p: AiProviderId): string | undefined {
 
 export type ResolvedKey = { provider: AiProviderId; apiKey: string; source: "db" | "env" };
 
-export async function loadAllKeys(): Promise<
-  Record<AiProviderId, { source: "db" | "env"; last4: string } | null>
-> {
+export async function loadAllKeys(
+  workspaceId: string,
+): Promise<Record<AiProviderId, { source: "db" | "env"; last4: string } | null>> {
   const { db } = await import("@/db");
   const { ai_provider_keys } = await import("@/db/schema");
+  const { eq } = await import("drizzle-orm");
   const data = await db
     .select({ provider: ai_provider_keys.provider, api_key: ai_provider_keys.api_key })
-    .from(ai_provider_keys);
+    .from(ai_provider_keys)
+    .where(eq(ai_provider_keys.workspace_id, workspaceId));
   const dbMap = new Map<string, string>();
   for (const row of data ?? []) dbMap.set(row.provider, row.api_key);
 
@@ -92,21 +95,21 @@ export class NoAiProviderError extends Error {
   }
 }
 
-async function resolveKey(): Promise<ResolvedKey> {
-  const all = await loadAllKeys();
-  const overrideRaw = process.env.LOOP_AI_PROVIDER?.toLowerCase();
+async function resolveKey(workspaceId: string): Promise<ResolvedKey> {
+  const all = await loadAllKeys(workspaceId);
+  const overrideRaw = envAllowed() ? process.env.LOOP_AI_PROVIDER?.toLowerCase() : undefined;
   const override = SUPPORTED_PROVIDERS.find((p) => p.id === overrideRaw)?.id;
 
   if (override && all[override]) {
     const src = all[override]!.source;
-    const apiKey = src === "db" ? await loadRawDbKey(override) : envKey(override)!;
+    const apiKey = src === "db" ? await loadRawDbKey(workspaceId, override) : envKey(override)!;
     return { provider: override, apiKey, source: src };
   }
 
   // preference order = SUPPORTED_PROVIDERS order, prefer DB over env
   for (const p of SUPPORTED_PROVIDERS) {
     if (all[p.id]?.source === "db") {
-      return { provider: p.id, apiKey: await loadRawDbKey(p.id), source: "db" };
+      return { provider: p.id, apiKey: await loadRawDbKey(workspaceId, p.id), source: "db" };
     }
   }
   for (const p of SUPPORTED_PROVIDERS) {
@@ -117,28 +120,30 @@ async function resolveKey(): Promise<ResolvedKey> {
   throw new NoAiProviderError();
 }
 
-async function loadRawDbKey(provider: AiProviderId): Promise<string> {
+async function loadRawDbKey(workspaceId: string, provider: AiProviderId): Promise<string> {
   const { db } = await import("@/db");
   const { ai_provider_keys } = await import("@/db/schema");
-  const { eq } = await import("drizzle-orm");
+  const { and, eq } = await import("drizzle-orm");
   const rows = await db
     .select({ api_key: ai_provider_keys.api_key })
     .from(ai_provider_keys)
-    .where(eq(ai_provider_keys.provider, provider))
+    .where(
+      and(eq(ai_provider_keys.workspace_id, workspaceId), eq(ai_provider_keys.provider, provider)),
+    )
     .limit(1);
   if (!rows[0]) throw new NoAiProviderError();
   return rows[0].api_key;
 }
 
-export async function resolveAiModel(): Promise<{
+export async function resolveAiModel(workspaceId: string): Promise<{
   model: LanguageModel;
   provider: AiProviderId;
   modelId: string;
   source: "db" | "env";
 }> {
-  const { provider, apiKey, source } = await resolveKey();
+  const { provider, apiKey, source } = await resolveKey(workspaceId);
   const info = SUPPORTED_PROVIDERS.find((p) => p.id === provider)!;
-  const modelId = process.env.LOOP_AI_MODEL || info.defaultModel;
+  const modelId = (envAllowed() && process.env.LOOP_AI_MODEL) || info.defaultModel;
 
   let model: LanguageModel;
   if (provider === "openai") model = createOpenAI({ apiKey })(modelId);

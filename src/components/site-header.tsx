@@ -2,6 +2,7 @@ import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth-context";
+import { useWorkspace, useIsWorkspaceAdmin } from "@/lib/workspace-context";
 import { applyClientLanguage, LOCALES } from "@/lib/i18n";
 
 export const GITHUB_URL = "https://github.com/selmansenol/loops";
@@ -16,7 +17,9 @@ function HeartIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
 }
 
 export function SiteHeader() {
-  const { user, isAdmin, loading, signOut } = useAuth();
+  const { user, loading, signOut } = useAuth();
+  const ws = useWorkspace();
+  const isAdmin = useIsWorkspaceAdmin();
   const router = useRouter();
   const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
@@ -31,24 +34,46 @@ export function SiteHeader() {
     await router.invalidate();
   };
 
+  const slug = ws?.slug;
+
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-border">
       <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
           <LoopMark />
           <span className="font-display text-xl font-semibold tracking-tight">Loops</span>
+          {ws && (
+            <span className="hidden sm:inline text-sm text-muted-foreground border-l border-border pl-2 ml-1 max-w-[12rem] truncate">
+              {ws.name}
+            </span>
+          )}
         </Link>
         <nav className="hidden md:flex items-center gap-1 text-sm text-muted-foreground">
-          <NavItem to="/board" label={t("nav.board")} />
-          <NavItem to="/roadmap" label={t("roadmap.eyebrow")} />
-          <NavItem to="/changelog" label={t("changelog.eyebrow")} />
-          {mounted && isAdmin && (
+          {slug ? (
             <>
-              <NavItem to="/insights" label={t("nav.insights")} accent="ai" />
-              <NavItem to="/settings/ai" label={t("nav.ai")} />
-              <NavItem to="/settings/api-keys" label={t("nav.api")} />
-              <NavItem to="/settings/webhooks" label={t("nav.webhooks")} />
+              <NavItem to="/$slug" params={{ slug }} exact label={t("nav.board")} />
+              <NavItem to="/$slug/roadmap" params={{ slug }} label={t("roadmap.eyebrow")} />
+              <NavItem to="/$slug/changelog" params={{ slug }} label={t("changelog.eyebrow")} />
+              {mounted && isAdmin && (
+                <>
+                  <NavItem
+                    to="/$slug/insights"
+                    params={{ slug }}
+                    label={t("nav.insights")}
+                    accent="ai"
+                  />
+                  <NavItem to="/$slug/settings/ai" params={{ slug }} label={t("nav.ai")} />
+                  <NavItem to="/$slug/settings/api-keys" params={{ slug }} label={t("nav.api")} />
+                  <NavItem
+                    to="/$slug/settings/webhooks"
+                    params={{ slug }}
+                    label={t("nav.webhooks")}
+                  />
+                </>
+              )}
             </>
+          ) : (
+            mounted && user && <NavItem to="/dashboard" label={t("nav.dashboard")} />
           )}
           <NavItem to="/docs" label={t("nav.docs")} />
           <a
@@ -200,14 +225,36 @@ function LanguageMenu({ mounted }: { mounted: boolean }) {
   );
 }
 
-function NavItem({ to, label, accent }: { to: string; label: string; accent?: "ai" }) {
+function NavItem({
+  to,
+  params,
+  label,
+  accent,
+  exact,
+}: {
+  to: string;
+  params?: Record<string, string>;
+  label: string;
+  accent?: "ai";
+  exact?: boolean;
+}) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isActive = to === "/" ? pathname === "/" : pathname === to || pathname.startsWith(to + "/");
+  // Resolve `$slug`-style segments against params so active detection works.
+  const resolved = params
+    ? Object.entries(params).reduce((p, [k, v]) => p.replace(`$${k}`, v), to)
+    : to;
+  const isActive =
+    resolved === "/"
+      ? pathname === "/"
+      : exact
+        ? pathname === resolved
+        : pathname === resolved || pathname.startsWith(resolved + "/");
   const base = "px-3 py-1.5 rounded-full transition-colors text-sm";
   if (isActive) {
     return (
       <Link
         to={to}
+        params={params}
         aria-current="page"
         className={`${base} bg-foreground text-background font-medium shadow-soft`}
       >
@@ -220,7 +267,7 @@ function NavItem({ to, label, accent }: { to: string; label: string; accent?: "a
       ? "text-ai/80 hover:text-ai hover:bg-ai-soft"
       : "text-muted-foreground hover:text-foreground hover:bg-accent";
   return (
-    <Link to={to} className={`${base} ${idle}`}>
+    <Link to={to} params={params} className={`${base} ${idle}`}>
       {label}
     </Link>
   );

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
 import { useAuth } from "@/lib/auth-context";
+import { useIsWorkspaceAdmin } from "@/lib/workspace-context";
 import {
   listPostsFn,
   createPostFn,
@@ -13,7 +14,7 @@ import {
 import { listMyVotesFn, toggleVoteFn } from "@/lib/votes.functions";
 import { FeedbackChat } from "@/components/feedback-chat";
 
-export const Route = createFileRoute("/board")({
+export const Route = createFileRoute("/$slug/")({
   head: () => ({
     meta: [
       { title: "Loops · Feedback board" },
@@ -41,8 +42,10 @@ type Post = {
 };
 
 function BoardPage() {
+  const { slug } = Route.useParams();
   const { t } = useTranslation();
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
+  const isAdmin = useIsWorkspaceAdmin();
   const [posts, setPosts] = useState<Post[]>([]);
   const [voted, setVoted] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -55,10 +58,10 @@ function BoardPage() {
   const [tagFilter, setTagFilter] = useState<string>("all");
 
   const refresh = async () => {
-    const postsData = await listPostsFn();
+    const postsData = await listPostsFn({ data: { slug } });
     setPosts((postsData as Post[]) ?? []);
     if (user) {
-      const votedIds = await listMyVotesFn();
+      const votedIds = await listMyVotesFn({ data: { slug } });
       setVoted(new Set(votedIds));
     } else {
       setVoted(new Set());
@@ -68,7 +71,8 @@ function BoardPage() {
 
   useEffect(() => {
     refresh();
-  }, [user?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, slug]);
 
   const allTags = useMemo(() => {
     const set = new Set<string>();
@@ -165,6 +169,7 @@ function BoardPage() {
 
         {tab === "board" ? (
           <BoardView
+            slug={slug}
             posts={filtered}
             allPosts={posts}
             voted={voted}
@@ -189,6 +194,7 @@ function BoardPage() {
 
       {composerOpen && (
         <Composer
+          slug={slug}
           onClose={() => setComposerOpen(false)}
           onCreated={() => {
             setComposerOpen(false);
@@ -199,6 +205,7 @@ function BoardPage() {
 
       {chatOpen && (
         <FeedbackChat
+          slug={slug}
           onClose={() => setChatOpen(false)}
           onCreated={() => {
             setChatOpen(false);
@@ -213,6 +220,7 @@ function BoardPage() {
 }
 
 function BoardView({
+  slug,
   posts,
   allPosts,
   voted,
@@ -230,6 +238,7 @@ function BoardView({
   setTagFilter,
   allTags,
 }: {
+  slug: string;
   posts: Post[];
   allPosts: Post[];
   voted: Set<string>;
@@ -255,18 +264,18 @@ function BoardView({
       navigate({ to: "/auth" });
       return;
     }
-    await toggleVoteFn({ data: { postId: post.id } });
+    await toggleVoteFn({ data: { slug, postId: post.id } });
     onChange();
   };
 
   const changeStatus = async (post: Post, status: Status) => {
-    await updatePostStatusFn({ data: { id: post.id, status } });
+    await updatePostStatusFn({ data: { slug, id: post.id, status } });
     onChange();
   };
 
   const removePost = async (post: Post) => {
     if (!confirm(t("board.confirmDelete"))) return;
-    await deletePostFn({ data: { id: post.id } });
+    await deletePostFn({ data: { slug, id: post.id } });
     onChange();
   };
 
@@ -370,6 +379,7 @@ function BoardView({
             {posts.map((p) => (
               <PostRow
                 key={p.id}
+                slug={slug}
                 post={p}
                 voted={voted.has(p.id)}
                 isAdmin={isAdmin}
@@ -403,7 +413,8 @@ function BoardView({
         </div>
         {isAdmin && (
           <Link
-            to="/insights"
+            to="/$slug/insights"
+            params={{ slug }}
             className="group block rounded-2xl border border-ai/30 bg-gradient-to-br from-ai-soft/60 to-surface p-4 hover:border-ai/50 transition-colors"
           >
             <div className="flex items-center gap-2 mb-2">
@@ -429,6 +440,7 @@ function BoardView({
 }
 
 function PostRow({
+  slug,
   post,
   voted,
   isAdmin,
@@ -436,6 +448,7 @@ function PostRow({
   onStatus,
   onDelete,
 }: {
+  slug: string;
   post: Post;
   voted: boolean;
   isAdmin: boolean;
@@ -466,7 +479,11 @@ function PostRow({
         <span className="text-sm font-semibold tabular-nums mt-0.5">{post.votes_count}</span>
       </button>
       <div className="flex-1 min-w-0">
-        <Link to="/posts/$id" params={{ id: post.id }} className="font-medium hover:underline">
+        <Link
+          to="/$slug/posts/$id"
+          params={{ slug, id: post.id }}
+          className="font-medium hover:underline"
+        >
           {post.title}
         </Link>
         {post.description && (
@@ -573,7 +590,15 @@ type SimilarHint = {
   score: number;
 };
 
-function Composer({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+function Composer({
+  slug,
+  onClose,
+  onCreated,
+}: {
+  slug: string;
+  onClose: () => void;
+  onCreated: () => void;
+}) {
   const { t } = useTranslation();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -592,7 +617,7 @@ function Composer({ onClose, onCreated }: { onClose: () => void; onCreated: () =
     }
     let cancelled = false;
     const tm = setTimeout(() => {
-      findSimilarPostsFn({ data: { query: q } })
+      findSimilarPostsFn({ data: { slug, query: q } })
         .then((rows) => {
           if (!cancelled) setSimilar((rows as SimilarHint[]) ?? []);
         })
@@ -604,12 +629,12 @@ function Composer({ onClose, onCreated }: { onClose: () => void; onCreated: () =
       cancelled = true;
       clearTimeout(tm);
     };
-  }, [title]);
+  }, [title, slug]);
 
   const voteExisting = async (postId: string) => {
     setVotingId(postId);
     try {
-      await toggleVoteFn({ data: { postId } });
+      await toggleVoteFn({ data: { slug, postId } });
       onCreated(); // closes the composer + refreshes the board
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -624,6 +649,7 @@ function Composer({ onClose, onCreated }: { onClose: () => void; onCreated: () =
     try {
       await createPostFn({
         data: {
+          slug,
           title: title.trim(),
           description: description.trim() || null,
           tag: tag.trim() || null,

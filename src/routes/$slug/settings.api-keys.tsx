@@ -4,9 +4,10 @@ import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
 import { useAuth } from "@/lib/auth-context";
+import { useIsWorkspaceAdmin } from "@/lib/workspace-context";
 import { listApiKeys, createApiKey, revokeApiKey } from "@/lib/api-keys.functions";
 
-export const Route = createFileRoute("/settings/api-keys")({
+export const Route = createFileRoute("/$slug/settings/api-keys")({
   ssr: false,
   head: () => ({ meta: [{ title: "Loops · API Keys" }] }),
   component: ApiKeysPage,
@@ -26,8 +27,10 @@ type ApiKey = {
 type Scope = "read" | "write" | "admin";
 
 function ApiKeysPage() {
+  const { slug } = Route.useParams();
   const { t, i18n } = useTranslation();
-  const { user, isAdmin, loading } = useAuth();
+  const { user, loading } = useAuth();
+  const isAdmin = useIsWorkspaceAdmin();
   const create = useServerFn(createApiKey);
   const revoke = useServerFn(revokeApiKey);
   const list = useServerFn(listApiKeys);
@@ -41,13 +44,14 @@ function ApiKeysPage() {
   const locale = i18n.language?.startsWith("en") ? "en-US" : "tr-TR";
 
   const refresh = async () => {
-    const data = await list();
+    const data = await list({ data: { slug } });
     setKeys((data as ApiKey[]) ?? []);
   };
 
   useEffect(() => {
     if (isAdmin) refresh();
-  }, [isAdmin]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdmin, slug]);
 
   if (loading)
     return (
@@ -61,7 +65,8 @@ function ApiKeysPage() {
         <h1 className="font-display text-3xl font-medium mb-3">{t("common.denied")}</h1>
         <p className="text-muted-foreground mb-6">{t("settings.apiKeys.deniedDesc")}</p>
         <Link
-          to="/board"
+          to="/$slug"
+          params={{ slug }}
           className="rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-medium"
         >
           {t("settings.apiKeys.back")}
@@ -145,7 +150,7 @@ function ApiKeysPage() {
                     onClick={async () => {
                       if (!confirm(t("settings.apiKeys.confirmRevoke"))) return;
                       try {
-                        await revoke({ data: { id: k.id } });
+                        await revoke({ data: { slug, id: k.id } });
                         await refresh();
                       } catch (e) {
                         setError(e instanceof Error ? e.message : String(e));
@@ -186,7 +191,7 @@ function ApiKeysPage() {
             setBusy(true);
             setError(null);
             try {
-              const r = await create({ data: input });
+              const r = await create({ data: { slug, ...input } });
               setNewKey({ plain: r.plain_key, name: r.name });
               setOpen(false);
               await refresh();

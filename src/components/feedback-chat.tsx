@@ -10,9 +10,11 @@ type Msg = { role: "user" | "assistant"; content: string };
  * the assistant's reply. When the assistant creates a post, surfaces a link.
  */
 export function FeedbackChat({
+  slug,
   onClose,
   onCreated,
 }: {
+  slug: string;
   onClose: () => void;
   onCreated: () => void;
 }) {
@@ -43,7 +45,7 @@ export function FeedbackChat({
       const res = await fetch("/api/feedback-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next }),
+        body: JSON.stringify({ messages: next, slug }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => null);
@@ -109,8 +111,8 @@ export function FeedbackChat({
             <div className="rounded-2xl border border-status-done/40 bg-status-done/10 px-3.5 py-3 text-sm">
               <p className="font-medium">{t("chat.created")}</p>
               <Link
-                to="/posts/$id"
-                params={{ id: createdId }}
+                to="/$slug/posts/$id"
+                params={{ slug, id: createdId }}
                 className="text-primary hover:underline"
                 onClick={onCreated}
               >

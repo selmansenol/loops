@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
 import { useAuth } from "@/lib/auth-context";
+import { useIsWorkspaceAdmin } from "@/lib/workspace-context";
 import { getPostFn, updatePostStatusFn } from "@/lib/posts.functions";
 import { listMyVotesFn, toggleVoteFn } from "@/lib/votes.functions";
 import {
@@ -13,7 +14,7 @@ import {
 } from "@/lib/comments.functions";
 import { getProfilesFn } from "@/lib/profiles.functions";
 
-export const Route = createFileRoute("/posts/$id")({
+export const Route = createFileRoute("/$slug/posts/$id")({
   head: () => ({
     meta: [
       { title: "Loops · Feedback" },
@@ -45,8 +46,9 @@ type CommentRow = {
 type Profile = { id: string; username: string | null; avatar_url: string | null };
 
 function PostDetailPage() {
-  const { id } = Route.useParams();
-  const { user, isAdmin } = useAuth();
+  const { slug, id } = Route.useParams();
+  const { user } = useAuth();
+  const isAdmin = useIsWorkspaceAdmin();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -59,7 +61,7 @@ function PostDetailPage() {
   const [copied, setCopied] = useState(false);
 
   const refresh = async () => {
-    const p = await getPostFn({ data: { id } });
+    const p = await getPostFn({ data: { slug, id } });
     if (!p) {
       setNotFound(true);
       setLoading(false);
@@ -67,7 +69,7 @@ function PostDetailPage() {
     }
     setPost(p as PostRow);
 
-    const list = ((await listCommentsFn({ data: { postId: id } })) ?? []) as CommentRow[];
+    const list = ((await listCommentsFn({ data: { slug, postId: id } })) ?? []) as CommentRow[];
     setComments(list);
 
     const ids = Array.from(
@@ -85,7 +87,7 @@ function PostDetailPage() {
     }
 
     if (user) {
-      const votedIds = await listMyVotesFn();
+      const votedIds = await listMyVotesFn({ data: { slug } });
       setVoted(votedIds.includes(id));
     } else {
       setVoted(false);
@@ -95,7 +97,8 @@ function PostDetailPage() {
 
   useEffect(() => {
     refresh();
-  }, [id, user?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, slug, user?.id]);
 
   const toggleVote = async () => {
     if (!user) {
@@ -103,13 +106,13 @@ function PostDetailPage() {
       return;
     }
     if (!post) return;
-    await toggleVoteFn({ data: { postId: post.id } });
+    await toggleVoteFn({ data: { slug, postId: post.id } });
     refresh();
   };
 
   const changeStatus = async (status: Status) => {
     if (!post) return;
-    await updatePostStatusFn({ data: { id: post.id, status } });
+    await updatePostStatusFn({ data: { slug, id: post.id, status } });
     refresh();
   };
 
@@ -140,7 +143,11 @@ function PostDetailPage() {
         <SiteHeader />
         <div className="mx-auto max-w-3xl px-6 py-16">
           <p className="text-muted-foreground">{t("post.notFound")}</p>
-          <Link to="/board" className="text-primary hover:underline mt-4 inline-block">
+          <Link
+            to="/$slug"
+            params={{ slug }}
+            className="text-primary hover:underline mt-4 inline-block"
+          >
             {t("post.backToBoard")}
           </Link>
         </div>
@@ -166,7 +173,11 @@ function PostDetailPage() {
       <SiteHeader />
 
       <div className="mx-auto max-w-3xl px-6 py-10">
-        <Link to="/board" className="text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          to="/$slug"
+          params={{ slug }}
+          className="text-sm text-muted-foreground hover:text-foreground"
+        >
           {t("post.backToBoard")}
         </Link>
 
@@ -230,6 +241,7 @@ function PostDetailPage() {
         </div>
 
         <CommentsSection
+          slug={slug}
           postId={post.id}
           comments={comments}
           profiles={profiles}
@@ -245,6 +257,7 @@ function PostDetailPage() {
 }
 
 function CommentsSection({
+  slug,
   postId,
   comments,
   profiles,
@@ -252,6 +265,7 @@ function CommentsSection({
   isAdmin,
   onChange,
 }: {
+  slug: string;
   postId: string;
   comments: CommentRow[];
   profiles: Record<string, Profile>;
@@ -268,7 +282,7 @@ function CommentsSection({
     if (!user || !body.trim()) return;
     setBusy(true);
     try {
-      await createCommentFn({ data: { postId, body: body.trim() } });
+      await createCommentFn({ data: { slug, postId, body: body.trim() } });
       setBody("");
       onChange();
     } finally {
@@ -278,12 +292,12 @@ function CommentsSection({
 
   const remove = async (id: string) => {
     if (!confirm(t("comments.confirmDelete"))) return;
-    await deleteCommentFn({ data: { id } });
+    await deleteCommentFn({ data: { slug, id } });
     onChange();
   };
 
   const toggleOfficial = async (c: CommentRow) => {
-    await toggleOfficialFn({ data: { id: c.id, isOfficial: !c.is_official } });
+    await toggleOfficialFn({ data: { slug, id: c.id, isOfficial: !c.is_official } });
     onChange();
   };
 

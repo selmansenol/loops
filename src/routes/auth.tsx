@@ -30,7 +30,7 @@ function AuthPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate({ to: "/board", replace: true });
+      navigate({ to: "/dashboard", replace: true });
     }
   }, [user, loading, navigate]);
 
@@ -59,12 +59,12 @@ function AuthPage() {
         });
         if (error) throw new Error(error.message ?? "Sign up failed");
         await router.invalidate();
-        navigate({ to: "/board", replace: true });
+        navigate({ to: "/dashboard", replace: true });
       } else {
         const { error } = await authClient.signIn.email({ email, password });
         if (error) throw new Error(error.message ?? "Sign in failed");
         await router.invalidate();
-        navigate({ to: "/board", replace: true });
+        navigate({ to: "/dashboard", replace: true });
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -80,7 +80,7 @@ function AuthPage() {
     try {
       const { error } = await authClient.signIn.social({
         provider,
-        callbackURL: `${window.location.origin}/board`,
+        callbackURL: `${window.location.origin}/dashboard`,
       });
       if (error) {
         setError(error.message ?? String(error));
@@ -200,7 +200,7 @@ function AuthPage() {
             </p>
           </div>
           <p className="text-center text-xs text-muted-foreground mt-6">
-            <Link to="/board" className="hover:text-foreground">
+            <Link to="/" className="hover:text-foreground">
               {t("auth.justBrowse")}
             </Link>
           </p>

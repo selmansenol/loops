@@ -4,10 +4,10 @@ import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
 import { listPostsFn } from "@/lib/posts.functions";
-import { useAuth } from "@/lib/auth-context";
+import { useIsWorkspaceAdmin } from "@/lib/workspace-context";
 import { generateRoadmapFn, applyRoadmapFn, type RoadmapProposal } from "@/lib/roadmap.functions";
 
-export const Route = createFileRoute("/roadmap")({
+export const Route = createFileRoute("/$slug/roadmap")({
   head: () => ({
     meta: [
       { title: "Loops · Roadmap" },
@@ -29,13 +29,14 @@ type Post = {
 };
 
 function RoadmapPage() {
+  const { slug } = Route.useParams();
   const { t } = useTranslation();
-  const { isAdmin } = useAuth();
+  const isAdmin = useIsWorkspaceAdmin();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
   const reload = () => {
-    listPostsFn().then((data) => {
+    listPostsFn({ data: { slug } }).then((data) => {
       setPosts((data as Post[]) ?? []);
       setLoading(false);
     });
@@ -43,7 +44,8 @@ function RoadmapPage() {
 
   useEffect(() => {
     reload();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
 
   const cols: { key: Status; color: string }[] = [
     { key: "planned", color: "bg-status-planned" },
@@ -66,14 +68,15 @@ function RoadmapPage() {
             <p className="text-muted-foreground mt-2 max-w-2xl">{t("roadmap.lead")}</p>
           </div>
           <Link
-            to="/board"
+            to="/$slug"
+            params={{ slug }}
             className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-medium hover:bg-foreground/90 transition-colors shrink-0"
           >
             {t("roadmap.suggest")}
           </Link>
         </div>
 
-        {isAdmin && <RoadmapGenerator onApplied={reload} />}
+        {isAdmin && <RoadmapGenerator slug={slug} onApplied={reload} />}
 
         {loading ? (
           <div className="text-muted-foreground text-center py-12">{t("common.loading")}</div>
@@ -96,8 +99,8 @@ function RoadmapPage() {
                     {list.map((p) => (
                       <li key={p.id}>
                         <Link
-                          to="/posts/$id"
-                          params={{ id: p.id }}
+                          to="/$slug/posts/$id"
+                          params={{ slug, id: p.id }}
                           className="block rounded-xl border border-border bg-background p-3 hover:border-border-strong transition-colors"
                         >
                           <p className="text-sm font-medium">{p.title}</p>
@@ -133,7 +136,7 @@ const BUCKETS = [
   { key: "later", color: "bg-secondary" },
 ] as const;
 
-function RoadmapGenerator({ onApplied }: { onApplied: () => void }) {
+function RoadmapGenerator({ slug, onApplied }: { slug: string; onApplied: () => void }) {
   const { t } = useTranslation();
   const generate = useServerFn(generateRoadmapFn);
   const apply = useServerFn(applyRoadmapFn);
@@ -148,7 +151,7 @@ function RoadmapGenerator({ onApplied }: { onApplied: () => void }) {
     setError(null);
     setDone(false);
     try {
-      const result = await generate();
+      const result = await generate({ data: { slug } });
       setProposal(result as RoadmapProposal);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -165,6 +168,7 @@ function RoadmapGenerator({ onApplied }: { onApplied: () => void }) {
     try {
       await apply({
         data: {
+          slug,
           now: proposal.now.map((i) => i.id),
           next: proposal.next.map((i) => i.id),
           later: proposal.later.map((i) => i.id),

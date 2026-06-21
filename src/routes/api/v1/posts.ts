@@ -27,10 +27,11 @@ export const Route = createFileRoute("/api/v1/posts")({
         const offset = Math.max(Number(url.searchParams.get("offset") ?? 0), 0);
 
         const { listPosts, countPosts } = await import("@/lib/posts.repo");
+        const wsId = auth.key.workspace_id;
         try {
           const [data, total] = await Promise.all([
-            listPosts({ status, tag, limit, offset }),
-            countPosts({ status, tag }),
+            listPosts(wsId, { status, tag, limit, offset }),
+            countPosts(wsId, { status, tag }),
           ]);
           return jsonResponse({ data, total, limit, offset });
         } catch (err) {
@@ -74,6 +75,7 @@ export const Route = createFileRoute("/api/v1/posts")({
         const { createPost } = await import("@/lib/posts.repo");
         try {
           const data = await createPost({
+            workspace_id: auth.key.workspace_id,
             title,
             description,
             tag,

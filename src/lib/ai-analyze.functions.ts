@@ -25,17 +25,18 @@ export type AnalyzeResult = z.infer<typeof ClusterSchema> & {
   _model?: string;
 };
 
+const slugInput = z.object({ slug: z.string().max(40) });
+
 export const analyzeFeedback = createServerFn({ method: "POST" })
   .middleware([requireAuth])
-  .handler(async ({ context }): Promise<AnalyzeResult> => {
-    const { isAdmin } = await import("@/lib/authz");
-    if (!(await isAdmin(context.userId))) {
-      throw new Error("Only admins can run AI analysis.");
-    }
+  .validator((input: unknown) => slugInput.parse(input))
+  .handler(async ({ data, context }): Promise<AnalyzeResult> => {
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
 
     const { db } = await import("@/db");
     const { posts: postsTable } = await import("@/db/schema");
-    const { desc } = await import("drizzle-orm");
+    const { and, desc, eq } = await import("drizzle-orm");
     const posts = await db
       .select({
         id: postsTable.id,
@@ -46,6 +47,7 @@ export const analyzeFeedback = createServerFn({ method: "POST" })
         votes_count: postsTable.votes_count,
       })
       .from(postsTable)
+      .where(and(eq(postsTable.workspace_id, ws.id)))
       .orderBy(desc(postsTable.votes_count))
       .limit(200);
     if (!posts || posts.length === 0) {
@@ -56,7 +58,7 @@ export const analyzeFeedback = createServerFn({ method: "POST" })
     const { resolveAiModel, NoAiProviderError } = await import("./ai-provider.server");
     let resolved: Awaited<ReturnType<typeof resolveAiModel>>;
     try {
-      resolved = await resolveAiModel();
+      resolved = await resolveAiModel(ws.id);
     } catch (e) {
       if (e instanceof NoAiProviderError) {
         const err = new Error("NO_AI_PROVIDER") as Error & { code?: string };
@@ -126,7 +128,7 @@ function extractJson(raw: string): unknown {
   }
 }
 
-const TagInput = z.object({
+const TagInput = slugInput.extend({
   post_ids: z.array(z.string().uuid()).min(1).max(200),
   tag: z.string().trim().min(1).max(40),
 });
@@ -135,16 +137,19 @@ export const applyClusterTag = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .validator((input: unknown) => TagInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { isAdmin } = await import("@/lib/authz");
-    if (!(await isAdmin(context.userId))) throw new Error("Only admins can run this action.");
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
     const { db } = await import("@/db");
     const { posts } = await import("@/db/schema");
-    const { inArray } = await import("drizzle-orm");
-    await db.update(posts).set({ tag: data.tag }).where(inArray(posts.id, data.post_ids));
+    const { and, eq, inArray } = await import("drizzle-orm");
+    await db
+      .update(posts)
+      .set({ tag: data.tag })
+      .where(and(eq(posts.workspace_id, ws.id), inArray(posts.id, data.post_ids)));
     return { ok: true, updated: data.post_ids.length };
   });
 
-const MergeInput = z.object({
+const MergeInput = slugInput.extend({
   post_ids: z.array(z.string().uuid()).min(2).max(50),
   title: z.string().trim().min(3).max(140),
   description: z.string().trim().max(2000).optional(),
@@ -155,16 +160,18 @@ export const mergeClusterPosts = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .validator((input: unknown) => MergeInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { isAdmin } = await import("@/lib/authz");
-    if (!(await isAdmin(context.userId))) throw new Error("Only admins can run this action.");
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
 
     const { db } = await import("@/db");
     const { posts, votes } = await import("@/db/schema");
-    const { inArray } = await import("drizzle-orm");
+    const { and, eq, inArray } = await import("drizzle-orm");
+    const { listVoterKeysForPosts } = await import("@/lib/posts.repo");
 
     const [created] = await db
       .insert(posts)
       .values({
+        workspace_id: ws.id,
         title: data.title,
         description: data.description ?? null,
         tag: data.tag ?? null,
@@ -174,11 +181,8 @@ export const mergeClusterPosts = createServerFn({ method: "POST" })
       .returning({ id: posts.id });
     if (!created) throw new Error("Failed to create merged post.");
 
-    const oldVotes = await db
-      .select({ user_id: votes.user_id })
-      .from(votes)
-      .where(inArray(votes.post_id, data.post_ids));
-    const uniqueVoters = Array.from(new Set(oldVotes.map((v) => v.user_id)));
+    // Voters of the (workspace-owned) source posts → transfer to merged post.
+    const uniqueVoters = await listVoterKeysForPosts(ws.id, data.post_ids);
     if (uniqueVoters.length > 0) {
       await db
         .insert(votes)
@@ -186,7 +190,9 @@ export const mergeClusterPosts = createServerFn({ method: "POST" })
         .onConflictDoNothing();
     }
 
-    await db.delete(posts).where(inArray(posts.id, data.post_ids));
+    await db
+      .delete(posts)
+      .where(and(eq(posts.workspace_id, ws.id), inArray(posts.id, data.post_ids)));
 
     return { ok: true, merged_into: created.id, transferred_votes: uniqueVoters.length };
   });

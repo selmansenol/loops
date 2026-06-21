@@ -24,12 +24,16 @@ export const Route = createFileRoute("/api/feedback-chat")({
         const userId = session?.user?.id;
         if (!userId) return jsonError("unauthorized", "Sign in to use the assistant.", 401);
 
-        let body: { messages?: unknown };
+        let body: { messages?: unknown; slug?: unknown };
         try {
           body = await request.json();
         } catch {
           return jsonError("invalid_body", "Expected JSON.", 400);
         }
+        const slug = typeof body.slug === "string" ? body.slug : "";
+        const { getWorkspaceBySlug } = await import("@/lib/workspace.server");
+        const ws = slug ? await getWorkspaceBySlug(slug) : null;
+        if (!ws) return jsonError("not_found", "Workspace not found.", 404);
         const rawMessages = Array.isArray(body.messages) ? body.messages : [];
         const messages = rawMessages
           .filter(
@@ -49,7 +53,7 @@ export const Route = createFileRoute("/api/feedback-chat")({
 
         let model;
         try {
-          ({ model } = await resolveAiModel());
+          ({ model } = await resolveAiModel(ws.id));
         } catch (e) {
           if (e instanceof NoAiProviderError) {
             return jsonError("no_ai_provider", "No AI provider configured.", 503);
@@ -66,7 +70,7 @@ export const Route = createFileRoute("/api/feedback-chat")({
               "Search existing feedback posts for ones similar to a query. Always call this before submitting, to avoid duplicates.",
             inputSchema: z.object({ query: z.string() }),
             execute: async ({ query }) => {
-              const rows = await findSimilarPosts(query, { limit: 5 });
+              const rows = await findSimilarPosts(ws.id, query, { limit: 5 });
               lastSimilar = rows;
               return rows;
             },
@@ -81,6 +85,7 @@ export const Route = createFileRoute("/api/feedback-chat")({
             }),
             execute: async ({ title, description, tag }) => {
               const post = await createPost({
+                workspace_id: ws.id,
                 title,
                 description: description ?? null,
                 tag: tag ?? null,

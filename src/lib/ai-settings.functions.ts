@@ -19,21 +19,18 @@ export type AiSettingsResult = {
   modelOverride: string | null;
 };
 
-async function assertAiAdmin(userId: string) {
-  const { isAdmin } = await import("@/lib/authz");
-  if (!(await isAdmin(userId))) {
-    throw new Error("Only admins can manage AI provider settings.");
-  }
-}
+const slugInput = z.object({ slug: z.string().max(40) });
 
 export const getAiSettings = createServerFn({ method: "GET" })
   .middleware([requireAuth])
-  .handler(async ({ context }): Promise<AiSettingsResult> => {
-    await assertAiAdmin(context.userId);
+  .validator((input: unknown) => slugInput.parse(input))
+  .handler(async ({ data, context }): Promise<AiSettingsResult> => {
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
 
     const { SUPPORTED_PROVIDERS, loadAllKeys, resolveAiModel } =
       await import("./ai-provider.server");
-    const keys = await loadAllKeys();
+    const keys = await loadAllKeys(ws.id);
     const providers: AiProviderStatus[] = SUPPORTED_PROVIDERS.map((p) => {
       const k = keys[p.id];
       return {
@@ -49,7 +46,7 @@ export const getAiSettings = createServerFn({ method: "GET" })
 
     let active: AiSettingsResult["active"] = null;
     try {
-      const r = await resolveAiModel();
+      const r = await resolveAiModel(ws.id);
       active = { provider: r.provider, modelId: r.modelId, source: r.source };
     } catch {
       active = null;
@@ -63,7 +60,7 @@ export const getAiSettings = createServerFn({ method: "GET" })
     };
   });
 
-const SaveInput = z.object({
+const SaveInput = slugInput.extend({
   provider: z.enum(["openai", "anthropic", "google"]),
   apiKey: z.string().trim().min(10).max(500),
 });
@@ -72,14 +69,20 @@ export const saveAiProviderKey = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .validator((input: unknown) => SaveInput.parse(input))
   .handler(async ({ data, context }) => {
-    await assertAiAdmin(context.userId);
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
     const { db } = await import("@/db");
     const { ai_provider_keys } = await import("@/db/schema");
     await db
       .insert(ai_provider_keys)
-      .values({ provider: data.provider, api_key: data.apiKey, updated_by: context.userId })
+      .values({
+        workspace_id: ws.id,
+        provider: data.provider,
+        api_key: data.apiKey,
+        updated_by: context.userId,
+      })
       .onConflictDoUpdate({
-        target: ai_provider_keys.provider,
+        target: [ai_provider_keys.workspace_id, ai_provider_keys.provider],
         set: {
           api_key: data.apiKey,
           updated_by: context.userId,
@@ -89,16 +92,21 @@ export const saveAiProviderKey = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-const DeleteInput = z.object({ provider: z.enum(["openai", "anthropic", "google"]) });
+const DeleteInput = slugInput.extend({ provider: z.enum(["openai", "anthropic", "google"]) });
 
 export const deleteAiProviderKey = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .validator((input: unknown) => DeleteInput.parse(input))
   .handler(async ({ data, context }) => {
-    await assertAiAdmin(context.userId);
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
     const { db } = await import("@/db");
     const { ai_provider_keys } = await import("@/db/schema");
-    const { eq } = await import("drizzle-orm");
-    await db.delete(ai_provider_keys).where(eq(ai_provider_keys.provider, data.provider));
+    const { and, eq } = await import("drizzle-orm");
+    await db
+      .delete(ai_provider_keys)
+      .where(
+        and(eq(ai_provider_keys.workspace_id, ws.id), eq(ai_provider_keys.provider, data.provider)),
+      );
     return { ok: true };
   });
