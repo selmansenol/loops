@@ -5,13 +5,14 @@
 <h1 align="center">Loops</h1>
 
 <p align="center">
-  <strong>An open-source, self-hostable feedback board — a Canny alternative.</strong><br/>
+  <strong>The open-source, AI-native feedback board — a self-hostable Canny alternative.</strong><br/>
   Collect feature requests, let users vote and discuss, plan a roadmap, ship a public
   changelog, and let AI cluster and prioritize the noise for you.
 </p>
 
 <p align="center">
-  <a href="#-quick-start-docker"><img src="https://img.shields.io/badge/Quick%20start-Docker%20Compose-2496ED?logo=docker&logoColor=white" alt="Quick start with Docker"/></a>
+  <a href="https://getloops.co"><img src="https://img.shields.io/badge/Live-getloops.co-7C9CFF?style=flat&logo=vercel&logoColor=white" alt="Live demo"/></a>
+  <a href="#-quick-start"><img src="https://img.shields.io/badge/npx-create--loops-CB3837?logo=npm&logoColor=white" alt="npx create-loops"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22c55e.svg" alt="License: MIT"/></a>
   <img src="https://img.shields.io/badge/PRs-welcome-7C9CFF.svg" alt="PRs welcome"/>
   <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React 19"/>
@@ -19,27 +20,36 @@
 </p>
 
 <p align="center">
+  <a href="#-what-is-this">What is this?</a> ·
   <a href="#-features">Features</a> ·
   <a href="#-ai-native-extras">AI extras</a> ·
-  <a href="#-quick-start-docker">Quick start</a> ·
-  <a href="#-local-development">Development</a> ·
-  <a href="#-configuration">Configuration</a> ·
+  <a href="#-quick-start">Quick start</a> ·
+  <a href="#-self-hosting">Self-hosting</a> ·
+  <a href="#-configuration">Config</a> ·
   <a href="#-public-api">API</a> ·
-  <a href="#-contributing">Contributing</a>
+  <a href="#-contributing">Contributing</a> ·
+  <a href="#-sponsors">Sponsors</a>
 </p>
 
 ---
 
-## Why Loops?
+## 🧭 What is this?
 
 Most feedback tools just **collect** requests and leave you to drown in them. Loops is
 **AI-native**: as feedback comes in it detects duplicates, can turn a vague chat into a
 clean post, and drafts your roadmap for you — all on infrastructure you own (just
 **Node + Postgres**, no proprietary backend, no per-seat pricing).
 
+There are two ways to use it:
+
+- **Hosted** — sign up at **[getloops.co](https://getloops.co)** and manage your board at
+  `getloops.co/<your-slug>`. Free tier, bring your own AI key, nothing to install.
+- **Self-hosted** — run your own single board anywhere with one command (see below). Same
+  codebase, zero vendor lock-in.
+
 > [!NOTE]
-> Loops is fully self-hostable and ships with zero vendor lock-in. Bring your own
-> Postgres and (optionally) your own AI provider key.
+> One codebase serves both. Setting `SINGLE_TENANT_SLUG` turns Loops into a single-board
+> self-host install; leaving it unset runs the multi-tenant hosted experience.
 
 ## ✨ Features
 
@@ -47,16 +57,18 @@ clean post, and drafts your roadmap for you — all on infrastructure you own (j
 - 🗺️ **Roadmap** — planned / in progress / shipped columns
 - 📰 **Changelog** — shipped items grouped by month, shareable
 - 💬 **Comments** — discuss posts; admins can mark official responses
+- 🏢 **Multi-board / workspaces** — host many boards at `/<slug>`, each with its own
+  members, roles (owner / admin / member) and settings
 - 🔐 **Auth** — email/password + optional Google & GitHub OAuth (cookie sessions)
-- 🔑 **Public REST API** with scoped API keys (`/api/v1/*`)
+- 🔑 **Public REST API** with scoped, per-workspace API keys (`/api/v1/*`)
 - 🪝 **Webhooks** — HMAC-signed delivery on post/vote events
-- 🌍 **i18n** — English & Turkish out of the box
+- 🌍 **i18n** — 17 languages out of the box, with RTL support
 - 🧩 **Embeddable widget** — drop feedback capture into any site with one script tag
 
 ## 🤖 AI-native extras
 
 These are what set Loops apart from a classic Canny clone — and they work with **any**
-provider (OpenAI, Anthropic or Google):
+provider (OpenAI, Anthropic or Google), using **your own API key** per workspace:
 
 - 🪄 **AI duplicate detection** — the composer surfaces similar existing posts as you
   type, so users upvote instead of opening duplicates.
@@ -66,42 +78,41 @@ provider (OpenAI, Anthropic or Google):
   Later** with one click.
 - 🧠 **AI Insights** — cluster, summarize and prioritize all feedback into themes.
 
-## 🛠️ Tech stack
+## 🚀 Quick start
 
-| Concern          | Choice                                                                 |
-| ---------------- | ---------------------------------------------------------------------- |
-| Framework        | [TanStack Start](https://tanstack.com/start) (React 19) + Vite + nitro |
-| Database         | PostgreSQL                                                             |
-| ORM / migrations | [Drizzle](https://orm.drizzle.team)                                    |
-| Auth             | [better-auth](https://better-auth.com) (cookie sessions)               |
-| Styling          | Tailwind CSS v4 + Radix UI                                             |
-| AI               | [Vercel AI SDK](https://sdk.vercel.ai) (provider-agnostic)             |
+Scaffold a ready-to-run board with one command (requires **git** + **Docker**):
 
-> **Architecture note:** the browser never talks to the database directly. All data
-> access goes through TanStack **server functions** and the REST API; authorization is
-> enforced in the application layer (`src/lib/authz.ts`). See [AGENTS.md](AGENTS.md) for
-> the conventions contributors should follow.
+```bash
+npx create-loops my-board
+cd my-board
+docker compose up --build
+```
 
-## 📸 Screenshots
+That's it — open **http://localhost:3000**. The scaffolder generates a `.env` with a
+fresh auth secret and single-board mode enabled; migrations run automatically on boot,
+and the **first user to sign up becomes the owner**.
 
-|                                                       |                                                       |
-| ----------------------------------------------------- | ----------------------------------------------------- |
-| ![Loops landing page](.github/screenshot-landing.png) | ![Loops feedback board](.github/screenshot-board.png) |
-| _Landing_                                             | _Feedback board_                                      |
+> Prefer to clone yourself, or want multi-tenant mode? See **[Self-hosting](#-self-hosting)**.
 
-## 🚀 Quick start (Docker)
+## 🏗️ Self-hosting
 
-The fastest way to run the whole stack (app + Postgres):
+### Option A — clone with Docker Compose (app + Postgres)
 
 ```bash
 git clone https://github.com/selmansenol/loops.git
 cd loops
 cp .env.example .env
 # Set a real secret:  openssl rand -base64 32  → BETTER_AUTH_SECRET
+# Single board? Uncomment SINGLE_TENANT_SLUG="main" in .env
 docker compose up --build
 ```
 
-Open **http://localhost:3000**. Migrations run automatically on boot.
+### Option B — multi-tenant (the getloops.co experience)
+
+Leave `SINGLE_TENANT_SLUG` **unset**. `/` becomes the marketing landing, users sign up at
+`/auth`, create boards from `/dashboard` → `/new`, and each board lives at `/<slug>`.
+Put a reverse proxy (Caddy/Nginx) in front for HTTPS — see
+[**Deploy to production**](#-deploy-to-production).
 
 ## 💻 Local development
 
@@ -134,6 +145,30 @@ docker run -d --name loop-pg -p 5432:5432 \
 | `npm run db:studio`               | Open Drizzle Studio                                    |
 | `npm run lint` / `npm run format` | Lint / format                                          |
 
+## 🛠️ Tech stack
+
+| Concern          | Choice                                                                 |
+| ---------------- | ---------------------------------------------------------------------- |
+| Framework        | [TanStack Start](https://tanstack.com/start) (React 19) + Vite + nitro |
+| Database         | PostgreSQL                                                             |
+| ORM / migrations | [Drizzle](https://orm.drizzle.team)                                    |
+| Auth             | [better-auth](https://better-auth.com) (cookie sessions)               |
+| Styling          | Tailwind CSS v4 + Radix UI                                             |
+| AI               | [Vercel AI SDK](https://sdk.vercel.ai) (provider-agnostic)             |
+
+> **Architecture note:** the browser never talks to the database directly. All data
+> access goes through TanStack **server functions** and the REST API. There is no
+> row-level security — every query is scoped to a workspace in the application layer
+> (`src/lib/workspace.server.ts`), so workspace isolation is enforced in code. See
+> [AGENTS.md](AGENTS.md) for the conventions contributors should follow.
+
+## 📸 Screenshots
+
+|                                                       |                                                       |
+| ----------------------------------------------------- | ----------------------------------------------------- |
+| ![Loops landing page](.github/screenshot-landing.png) | ![Loops feedback board](.github/screenshot-board.png) |
+| _Landing_                                             | _Feedback board_                                      |
+
 ## ⚙️ Configuration
 
 All configuration is via environment variables — see [`.env.example`](.env.example).
@@ -143,9 +178,11 @@ All configuration is via environment variables — see [`.env.example`](.env.exa
 | `DATABASE_URL`                                                          | ✅       | Postgres connection string                         |
 | `BETTER_AUTH_SECRET`                                                    | ✅       | Random 32+ byte secret (`openssl rand -base64 32`) |
 | `BETTER_AUTH_URL`                                                       | ✅       | Public base URL (OAuth callbacks, cookies)         |
+| `SINGLE_TENANT_SLUG`                                                    | –        | Run as one board at `/` (self-host). Unset = multi-tenant |
+| `DEMO_WORKSPACE_SLUG`                                                   | –        | Multi-tenant: slug the "Try the demo" button opens |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`                             | –        | Enable Google login                                |
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET`                             | –        | Enable GitHub login                                |
-| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GOOGLE_GENERATIVE_AI_API_KEY` | –        | AI features (also settable in Settings → AI)       |
+| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GOOGLE_GENERATIVE_AI_API_KEY` | –        | AI features (env keys apply in single-tenant mode) |
 | `LOOP_AI_PROVIDER` / `LOOP_AI_MODEL`                                    | –        | Force a specific AI provider/model                 |
 
 OAuth callback URLs to register with each provider:
@@ -155,21 +192,20 @@ OAuth callback URLs to register with each provider:
 <BETTER_AUTH_URL>/api/auth/callback/github
 ```
 
-### Make yourself an admin
+### Roles & admin
 
-Admin-only features (status changes, AI tools, API keys, webhooks) need an `admin` row
-in `user_roles`. After signing up:
+Roles are **per workspace** (`owner` / `admin` / `member`) — there is no global admin.
 
-```sql
-INSERT INTO user_roles (user_id, role)
-SELECT id, 'admin' FROM "user" WHERE email = 'you@example.com';
-```
+- **Single-tenant** (`SINGLE_TENANT_SLUG` set): the **first user to sign in becomes the
+  owner**; everyone after them joins as a member. No SQL needed.
+- **Multi-tenant**: whoever creates a board is its owner and can promote others.
 
-(`npm run db:studio` is a convenient way to run this.)
+Owners and admins get the moderation tools (status changes, AI Insights, API keys,
+webhooks); members can post, vote and comment.
 
 ## 🔌 Public API
 
-Authenticate with an API key (created in **Settings → API Keys**) via
+Authenticate with a per-workspace API key (created in **Settings → API Keys**) via
 `Authorization: Bearer <key>`.
 
 ```bash
@@ -188,31 +224,28 @@ curl -X POST http://localhost:3000/api/v1/posts/<id>/vote \
   -H "X-Loop-External-User: user-123"
 ```
 
+Each key is bound to one workspace, so the API is automatically scoped to that board.
+
 ## 🌐 Deploy to production
 
 Loops is a standard Node server (`node .output/server/index.mjs`) + a Postgres
 database — host it anywhere (a VPS, Fly.io, Railway, Render, your own box…).
 
-**With your own domain (e.g. `feedback.yourdomain.com`):**
-
-1. Point the domain at your server and terminate TLS (HTTPS) with a reverse proxy
+1. Point your domain at the server and terminate TLS (HTTPS) with a reverse proxy
    (Caddy, Nginx, Traefik) or your host's built-in TLS.
 2. Set the production environment:
    ```bash
    DATABASE_URL="postgres://…/loops"
-   BETTER_AUTH_SECRET="…"                       # openssl rand -base64 32
+   BETTER_AUTH_SECRET="…"                          # openssl rand -base64 32
    BETTER_AUTH_URL="https://feedback.yourdomain.com"   # your public URL
+   # SINGLE_TENANT_SLUG="main"                      # set for a single self-host board
    ```
-3. If you use OAuth, register these callback URLs with each provider:
-   ```
-   https://feedback.yourdomain.com/api/auth/callback/google
-   https://feedback.yourdomain.com/api/auth/callback/github
-   ```
-4. Run it. Easiest is Docker Compose (app + Postgres):
+3. If you use OAuth, register the callback URLs above with each provider.
+4. Run it — easiest is Docker Compose (app + Postgres):
    ```bash
    docker compose up -d --build
    ```
-   Or build and run on a Node host directly: `npm ci && npm run build && npm run db:migrate && npm start`.
+   Or on a Node host directly: `npm ci && npm run build && npm run db:migrate && npm start`.
 
 ### One-command HTTPS (Caddy)
 
@@ -234,11 +267,12 @@ Caddy obtains and renews TLS certificates automatically (ports 80/443 must be op
 
 ## 🗺️ Roadmap
 
+- [x] Multi-board / workspace support
 - [ ] Email notifications (Resend)
-- [ ] Multi-board / workspace support
+- [ ] Team invites by email
 - [ ] Semantic (embedding-based) duplicate detection
 - [ ] Two-way GitHub / Linear / Jira sync
-- [ ] More locales
+- [ ] Billing & plans for the hosted edition
 
 Have an idea? [Open an issue](../../issues/new/choose) — Loops is built on feedback. 🙂
 
@@ -249,9 +283,11 @@ Contributions are very welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) a
 
 1. Fork & clone, then follow [Local development](#-local-development).
 2. Run `npm run lint` and `npm run build` before opening a PR.
-3. Keep user-facing strings in both locales (`src/lib/i18n.ts`).
+3. Keep new user-facing strings in `src/lib/i18n.ts` (English + Turkish; other locales
+   fall back to English).
+4. Every DB query must be scoped to a workspace — never read or write across tenants.
 
-## 💛 Sponsors & Support
+## 💛 Sponsors
 
 Loops is free and open-source (MIT). If it saves you time or money, please consider
 sponsoring — it directly funds bug fixes and new features, and keeps the project

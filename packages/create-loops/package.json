@@ -1,0 +1,33 @@
+{
+  "name": "create-loops",
+  "version": "1.0.0",
+  "description": "Scaffold a self-hosted Loops feedback board in one command.",
+  "type": "module",
+  "bin": {
+    "create-loops": "index.js"
+  },
+  "files": [
+    "index.js"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "loops",
+    "feedback-board",
+    "canny-alternative",
+    "create",
+    "scaffold",
+    "self-hosted"
+  ],
+  "homepage": "https://github.com/selmansenol/loops#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/selmansenol/loops.git",
+    "directory": "packages/create-loops"
+  },
+  "bugs": {
+    "url": "https://github.com/selmansenol/loops/issues"
+  },
+  "license": "MIT"
+}
