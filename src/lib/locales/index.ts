@@ -15,6 +15,8 @@ import it from "./it";
 import pt from "./pt";
 import ru from "./ru";
 import nl from "./nl";
+import az from "./az";
+import el from "./el";
 
 export type LocaleMeta = { code: string; label: string; dir: "ltr" | "rtl" };
 
@@ -49,6 +51,8 @@ export const extraTranslations: Record<string, Record<string, unknown>> = {
   pt,
   ru,
   nl,
+  az,
+  el,
 };
 
 const RTL_CODES = new Set(LOCALES.filter((l) => l.dir === "rtl").map((l) => l.code));
