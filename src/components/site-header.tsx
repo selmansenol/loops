@@ -1,8 +1,8 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth-context";
-import { applyClientLanguage } from "@/lib/i18n";
+import { applyClientLanguage, LOCALES } from "@/lib/i18n";
 
 export const GITHUB_URL = "https://github.com/selmansenol/loops";
 export const SPONSOR_URL = "https://github.com/sponsors/selmansenol";
@@ -18,7 +18,7 @@ function HeartIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
 export function SiteHeader() {
   const { user, isAdmin, loading, signOut } = useAuth();
   const router = useRouter();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -30,18 +30,6 @@ export function SiteHeader() {
     await signOut();
     await router.invalidate();
   };
-
-  const toggleLang = () => {
-    const next = i18n.language?.startsWith("en") ? "tr" : "en";
-    try {
-      localStorage.setItem("loop_lang", next);
-    } catch {
-      /* ignore */
-    }
-    i18n.changeLanguage(next);
-  };
-
-  const currentLang = mounted && i18n.language?.startsWith("en") ? "EN" : "TR";
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-border">
@@ -83,25 +71,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={toggleLang}
-            aria-label="Toggle language"
-            title={currentLang === "TR" ? "Switch to English" : "Türkçe'ye geç"}
-            className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1.5 text-[11px] font-semibold tracking-wider text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              className="h-3 w-3"
-              aria-hidden
-            >
-              <circle cx="12" cy="12" r="9" />
-              <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
-            </svg>
-            {currentLang}
-          </button>
+          <LanguageMenu mounted={mounted} />
           {loading ? (
             <div className="h-8 w-20 rounded-full bg-muted animate-pulse" />
           ) : user ? (
@@ -128,6 +98,57 @@ export function SiteHeader() {
         </div>
       </div>
     </header>
+  );
+}
+
+function LanguageMenu({ mounted }: { mounted: boolean }) {
+  const { i18n } = useTranslation();
+  const ref = useRef<HTMLDetailsElement>(null);
+  const current = (mounted ? i18n.language || "en" : "en").split("-")[0];
+  const currentMeta = LOCALES.find((l) => l.code === current) ?? LOCALES[0];
+
+  const choose = (code: string) => {
+    try {
+      localStorage.setItem("loop_lang", code);
+    } catch {
+      /* ignore */
+    }
+    i18n.changeLanguage(code);
+    if (ref.current) ref.current.open = false;
+  };
+
+  return (
+    <details ref={ref} className="relative">
+      <summary className="list-none cursor-pointer inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1.5 text-[11px] font-semibold tracking-wider text-muted-foreground hover:text-foreground hover:bg-accent transition-colors [&::-webkit-details-marker]:hidden">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          className="h-3 w-3"
+          aria-hidden
+        >
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+        </svg>
+        {currentMeta.code.toUpperCase()}
+      </summary>
+      <div className="absolute right-0 mt-2 max-h-[70vh] w-48 overflow-auto rounded-xl border border-border bg-surface shadow-lifted py-1 z-50">
+        {LOCALES.map((l) => (
+          <button
+            key={l.code}
+            onClick={() => choose(l.code)}
+            dir={l.dir}
+            className={`flex w-full items-center justify-between px-3 py-1.5 text-sm hover:bg-accent transition-colors ${
+              l.code === current ? "text-foreground font-medium" : "text-muted-foreground"
+            }`}
+          >
+            <span>{l.label}</span>
+            {l.code === current && <span className="text-primary">✓</span>}
+          </button>
+        ))}
+      </div>
+    </details>
   );
 }
 

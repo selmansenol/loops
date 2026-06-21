@@ -1,8 +1,11 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import { LOCALES, SUPPORTED_CODES, extraTranslations, dirFor, isSupported } from "./locales";
 
-// SSR'da daima "tr" ile render et (hydration mismatch'i önlemek için).
-// Client'ta mount sonrası `applyClientLanguage()` localStorage'dan dili yükler.
+// SSR always renders in English for a stable default; after mount
+// `applyClientLanguage()` switches to the stored choice or the browser language.
+// Missing keys in any language fall back to English (fallbackLng).
+export { LOCALES };
 
 const tr = {
   nav: {
@@ -862,35 +865,60 @@ const en: typeof tr = {
   },
 };
 
+// en + tr ship here; every other language is merged from the registry.
+const resources: Record<string, { translation: Record<string, unknown> }> = {
+  en: { translation: en },
+  tr: { translation: tr },
+};
+for (const [code, dict] of Object.entries(extraTranslations)) {
+  resources[code] = { translation: dict };
+}
+
+function applyDir(lng: string) {
+  if (typeof document === "undefined") return;
+  document.documentElement.lang = lng;
+  document.documentElement.dir = dirFor(lng);
+}
+
 if (!i18n.isInitialized) {
   i18n.use(initReactI18next).init({
-    resources: { tr: { translation: tr }, en: { translation: en } },
-    lng: "tr",
-    fallbackLng: "tr",
-    supportedLngs: ["tr", "en"],
+    resources,
+    lng: "en",
+    fallbackLng: "en",
+    supportedLngs: SUPPORTED_CODES,
+    nonExplicitSupportedLngs: true,
     interpolation: { escapeValue: false },
     react: { useSuspense: false },
   });
+  i18n.on("languageChanged", applyDir);
 } else {
   // HMR / re-eval: refresh bundles so new keys are visible without restart.
-  i18n.addResourceBundle("tr", "translation", tr, true, true);
-  i18n.addResourceBundle("en", "translation", en, true, true);
-  if (
-    typeof window !== "undefined" &&
-    i18n.language !== "tr" &&
-    !localStorage.getItem("loop_lang")
-  ) {
-    i18n.changeLanguage("tr");
+  for (const [code, bundle] of Object.entries(resources)) {
+    i18n.addResourceBundle(code, "translation", bundle.translation, true, true);
   }
+}
+
+/** Best browser language match among supported locales, else null. */
+function detectBrowserLanguage(): string | null {
+  if (typeof navigator === "undefined") return null;
+  const langs = navigator.languages?.length ? navigator.languages : [navigator.language];
+  for (const raw of langs) {
+    if (!raw) continue;
+    const base = raw.toLowerCase().split("-")[0];
+    if (isSupported(base)) return base;
+  }
+  return null;
 }
 
 export function applyClientLanguage() {
   if (typeof window === "undefined") return;
   try {
-    const stored = localStorage.getItem("loop_lang");
-    if (stored && (stored === "tr" || stored === "en") && i18n.language !== stored) {
-      i18n.changeLanguage(stored);
-    }
+    let stored: string | null = localStorage.getItem("loop_lang");
+    // Migrate the legacy key if present.
+    if (!stored) stored = localStorage.getItem("loops_lang");
+    const target = isSupported(stored) ? stored! : (detectBrowserLanguage() ?? "en");
+    if (i18n.language !== target) i18n.changeLanguage(target);
+    applyDir(target);
   } catch {
     /* ignore */
   }
