@@ -20,6 +20,8 @@ import el from "./el";
 import ja from "./ja";
 import ko from "./ko";
 import zh from "./zh";
+import fa from "./fa";
+import he from "./he";
 
 export type LocaleMeta = { code: string; label: string; dir: "ltr" | "rtl" };
 
@@ -59,6 +61,8 @@ export const extraTranslations: Record<string, Record<string, unknown>> = {
   ja,
   ko,
   zh,
+  fa,
+  he,
 };
 
 const RTL_CODES = new Set(LOCALES.filter((l) => l.dir === "rtl").map((l) => l.code));
