@@ -1,0 +1,6 @@
+# Caddy reverse proxy with automatic HTTPS (Let's Encrypt).
+# Replace the domain with yours. Used by docker-compose.prod.yml.
+getloops.co, www.getloops.co {
+	encode gzip zstd
+	reverse_proxy app:3000
+}

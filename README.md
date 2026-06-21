@@ -214,6 +214,20 @@ database — host it anywhere (a VPS, Fly.io, Railway, Render, your own box…).
    ```
    Or build and run on a Node host directly: `npm ci && npm run build && npm run db:migrate && npm start`.
 
+### One-command HTTPS (Caddy)
+
+For a single server with your own domain, [`docker-compose.prod.yml`](docker-compose.prod.yml)
+runs **app + Postgres + Caddy** with **automatic Let's Encrypt HTTPS**:
+
+```bash
+# On the server, after pointing your domain's A record at it:
+cp .env.example .env            # set BETTER_AUTH_URL, BETTER_AUTH_SECRET, POSTGRES_PASSWORD
+# edit the domain in ./Caddyfile
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+Caddy obtains and renews TLS certificates automatically (ports 80/443 must be open).
+
 > [!IMPORTANT]
 > `BETTER_AUTH_URL` **must** match the public HTTPS URL, or sign-in cookies and
 > OAuth redirects will fail. Always serve production over HTTPS.
