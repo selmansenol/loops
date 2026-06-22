@@ -110,7 +110,7 @@ const DOCS_TR = {
     eyebrow: "Outgoing",
     title: "Webhooks",
     leadA:
-      "Loops'ta yeni post / oy / durum değişimi olduğunda kendi URL'ne POST atılır. Bir Discord veya Slack webhook URL'i eklersen mesaj otomatik o platformun formatında gönderilir — ekstra kod/relay gerekmez. Diğer her şey (Linear, GitHub Issues, kendi sunucun) imzalı genel JSON alır.",
+      "Loops'ta yeni post / oy / durum değişimi olduğunda kendi URL'ne POST atılır. Discord, Slack veya Telegram webhook URL'i eklersen mesaj otomatik o platformun formatında gönderilir — ekstra kod/relay gerekmez. Telegram için URL şu biçimde olmalı: https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<ID>. Diğer her şey (Linear, GitHub Issues, kendi sunucun) imzalı genel JSON alır.",
     leadB1: "Her istek ",
     leadB2: " header'ı taşır: webhook gizli anahtarınla ",
     leadB3: ". Aşağıda Node ile doğrulama:",
@@ -204,7 +204,7 @@ const DOCS_EN: DocsCopy = {
     eyebrow: "Outgoing",
     title: "Webhooks",
     leadA:
-      "When a new post / vote / status change happens in Loops, we POST to your URL. Paste a Discord or Slack incoming-webhook URL and we format the message for that platform automatically — no relay needed. Everything else (Linear, GitHub Issues, your own server) gets the signed generic JSON.",
+      "When a new post / vote / status change happens in Loops, we POST to your URL. Paste a Discord, Slack or Telegram webhook URL and we format the message for that platform automatically — no relay needed. For Telegram the URL must look like https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<ID>. Everything else (Linear, GitHub Issues, your own server) gets the signed generic JSON.",
     leadB1: "Every request carries an ",
     leadB2: " header — your webhook secret signed with ",
     leadB3: ". Node verification example below:",

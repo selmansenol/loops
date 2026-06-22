@@ -3,7 +3,7 @@
  * a workspace; this module owns slug rules, lookup, creation, and per-workspace
  * authorization (replaces the old global `user_roles` admin).
  */
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { workspaces, workspace_members, type Workspace } from "@/db/schema";
 
@@ -120,6 +120,24 @@ export async function listMyWorkspaces(userId: string): Promise<WorkspaceWithRol
     .where(eq(workspace_members.user_id, userId))
     .orderBy(desc(workspaces.created_at));
   return rows.map((r) => ({ id: r.id, slug: r.slug, name: r.name, role: r.role as WorkspaceRole }));
+}
+
+/**
+ * Free-tier limit on how many boards a single user may own (create). Set via
+ * `FREE_TIER_MAX_BOARDS`; unset or 0 means unlimited (the self-host default).
+ */
+export function maxBoardsPerUser(): number | null {
+  const raw = parseInt(process.env.FREE_TIER_MAX_BOARDS ?? "", 10);
+  return Number.isFinite(raw) && raw > 0 ? raw : null;
+}
+
+/** How many workspaces this user owns (i.e. created). */
+export async function countOwnedWorkspaces(userId: string): Promise<number> {
+  const [row] = await db
+    .select({ n: count() })
+    .from(workspace_members)
+    .where(and(eq(workspace_members.user_id, userId), eq(workspace_members.role, "owner")));
+  return row?.n ?? 0;
 }
 
 /** Creates a workspace and makes the creator its owner (atomic). */

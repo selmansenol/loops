@@ -53,6 +53,9 @@ const tr = {
       taken: "Bu adres zaten alınmış.",
     },
     submit: "Panoyu oluştur",
+    usage: "{{used}} / {{max}} pano kullanıldı",
+    limitReached:
+      "Ücretsiz planda en fazla {{count}} pano oluşturabilirsin. Daha fazlası için bizimle iletişime geç.",
   },
   common: {
     loading: "Yükleniyor…",
@@ -546,6 +549,8 @@ const en: typeof tr = {
       taken: "That address is already taken.",
     },
     submit: "Create board",
+    usage: "{{used}} / {{max}} boards used",
+    limitReached: "The free plan allows up to {{count}} boards. Contact us if you need more.",
   },
   common: {
     loading: "Loading…",

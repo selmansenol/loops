@@ -18,6 +18,10 @@ function DashboardPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [workspaces, setWorkspaces] = useState<Workspace[] | null>(null);
+  const [limit, setLimit] = useState<number | null>(null);
+
+  const owned = workspaces?.filter((w) => w.role === "owner").length ?? 0;
+  const atLimit = limit !== null && owned >= limit;
 
   useEffect(() => {
     if (loading) return;
@@ -36,7 +40,10 @@ function DashboardPage() {
         return;
       }
       const list = (await listMyWorkspacesFn()) as Workspace[];
-      if (!cancelled) setWorkspaces(list ?? []);
+      if (!cancelled) {
+        setWorkspaces(list ?? []);
+        setLimit(mode.maxBoards);
+      }
     })();
     return () => {
       cancelled = true;
@@ -56,13 +63,27 @@ function DashboardPage() {
               {t("dashboard.title")}
             </h1>
             <p className="text-muted-foreground mt-2">{t("dashboard.lead")}</p>
+            {limit !== null && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("newWs.usage", { used: owned, max: limit })}
+              </p>
+            )}
           </div>
-          <Link
-            to="/new"
-            className="shrink-0 inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-medium hover:bg-foreground/90"
-          >
-            {t("dashboard.newBoard")}
-          </Link>
+          {atLimit ? (
+            <span
+              title={t("newWs.limitReached", { count: limit })}
+              className="shrink-0 inline-flex items-center gap-2 rounded-full bg-secondary text-muted-foreground px-5 py-2.5 text-sm font-medium cursor-not-allowed"
+            >
+              {t("dashboard.newBoard")}
+            </span>
+          ) : (
+            <Link
+              to="/new"
+              className="shrink-0 inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-medium hover:bg-foreground/90"
+            >
+              {t("dashboard.newBoard")}
+            </Link>
+          )}
         </div>
 
         {workspaces === null ? (

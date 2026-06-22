@@ -15,8 +15,9 @@ export const getAppModeFn = createServerFn({ method: "GET" }).handler(
     demoSlug: string | null;
     emailVerification: boolean;
     social: { google: boolean; github: boolean };
+    maxBoards: number | null;
   }> => {
-    const { singleTenantSlug } = await import("@/lib/workspace.server");
+    const { singleTenantSlug, maxBoardsPerUser } = await import("@/lib/workspace.server");
     const { emailEnabled } = await import("@/lib/email.server");
     return {
       singleTenantSlug: singleTenantSlug(),
@@ -26,6 +27,7 @@ export const getAppModeFn = createServerFn({ method: "GET" }).handler(
         google: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
         github: !!(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET),
       },
+      maxBoards: maxBoardsPerUser(),
     };
   },
 );
@@ -80,7 +82,12 @@ export const createWorkspaceFn = createServerFn({ method: "POST" })
   .middleware([requireAuth])
   .validator((input: unknown) => CreateInput.parse(input))
   .handler(async ({ data, context }): Promise<{ slug: string }> => {
-    const { createWorkspace, normalizeSlug } = await import("@/lib/workspace.server");
+    const { createWorkspace, normalizeSlug, maxBoardsPerUser, countOwnedWorkspaces } =
+      await import("@/lib/workspace.server");
+    const limit = maxBoardsPerUser();
+    if (limit !== null && (await countOwnedWorkspaces(context.userId)) >= limit) {
+      throw new Error(`BOARD_LIMIT:${limit}`);
+    }
     const ws = await createWorkspace({
       name: data.name,
       slug: normalizeSlug(data.slug),

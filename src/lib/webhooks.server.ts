@@ -26,22 +26,24 @@ export type WebhookEvent = "post.created" | "post.status_changed" | "vote.create
  * Discord/Slack webhook URL and it works, no relay needed. Everything else gets
  * the signed generic JSON for custom consumers.
  */
-function targetKind(url: string): "discord" | "slack" | "generic" {
+function targetKind(url: string): "discord" | "slack" | "telegram" | "generic" {
   if (/discord(?:app)?\.com\/api\/webhooks\//i.test(url)) return "discord";
   if (/hooks\.slack\.com\//i.test(url)) return "slack";
+  if (/api\.telegram\.org\/bot/i.test(url)) return "telegram";
   return "generic";
 }
 
-function humanMessage(event: WebhookEvent, d: Record<string, unknown>): string {
+function humanMessage(event: WebhookEvent, d: Record<string, unknown>, markdown = true): string {
+  const b = (s: string) => (markdown ? `**${s}**` : s);
   const title = (d.title as string) || (d.post_id as string) || "feedback";
-  const tag = d.tag ? ` _(${d.tag})_` : "";
+  const tag = d.tag ? (markdown ? ` _(${d.tag})_` : ` (${d.tag})`) : "";
   switch (event) {
     case "post.created":
-      return `🆕 **New feedback:** ${title}${tag}`;
+      return `🆕 ${b("New feedback:")} ${title}${tag}`;
     case "post.status_changed":
-      return `🔄 **${title}** → ${d.new_status}`;
+      return `🔄 ${b(title)} → ${d.new_status}`;
     case "vote.created":
-      return `▲ **New vote** on ${title}${d.votes_count != null ? ` (${d.votes_count})` : ""}`;
+      return `▲ ${b("New vote")} on ${title}${d.votes_count != null ? ` (${d.votes_count})` : ""}`;
     default:
       return `Loops: ${event}`;
   }
@@ -51,12 +53,28 @@ function bodyFor(
   kind: ReturnType<typeof targetKind>,
   event: WebhookEvent,
   payload: Record<string, unknown>,
+  url: string,
 ): string {
   if (kind === "discord") {
     return JSON.stringify({ username: "Loops", content: humanMessage(event, payload) });
   }
   if (kind === "slack") {
     return JSON.stringify({ text: humanMessage(event, payload) });
+  }
+  if (kind === "telegram") {
+    // The bot token is in the URL path; chat_id is expected as a query param:
+    //   https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<ID>
+    let chatId = "";
+    try {
+      chatId = new URL(url).searchParams.get("chat_id") || "";
+    } catch {
+      /* ignore */
+    }
+    return JSON.stringify({
+      chat_id: chatId,
+      text: humanMessage(event, payload, false),
+      disable_web_page_preview: true,
+    });
   }
   return JSON.stringify({ event, timestamp: Math.floor(Date.now() / 1000), data: payload });
 }
@@ -87,7 +105,7 @@ export async function dispatchWebhook(
   await Promise.allSettled(
     hooks.map(async (hook) => {
       const kind = targetKind(hook.url);
-      const body = bodyFor(kind, event, payload);
+      const body = bodyFor(kind, event, payload, hook.url);
       const signature = createHmac("sha256", hook.secret).update(body).digest("hex");
       try {
         const res = await fetch(hook.url, {

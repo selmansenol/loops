@@ -3,7 +3,12 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
 import { useAuth } from "@/lib/auth-context";
-import { checkSlugFn, createWorkspaceFn } from "@/lib/workspace.functions";
+import {
+  checkSlugFn,
+  createWorkspaceFn,
+  getAppModeFn,
+  listMyWorkspacesFn,
+} from "@/lib/workspace.functions";
 
 export const Route = createFileRoute("/new")({
   ssr: false,
@@ -38,10 +43,24 @@ function NewWorkspacePage() {
   const [slugState, setSlugState] = useState<SlugState>({ status: "idle" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Free-tier usage: how many boards the user owns vs the allowed max.
+  const [limit, setLimit] = useState<number | null>(null);
+  const [owned, setOwned] = useState<number | null>(null);
+  const atLimit = limit !== null && owned !== null && owned >= limit;
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", replace: true });
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([getAppModeFn(), listMyWorkspacesFn()])
+      .then(([m, ws]) => {
+        setLimit(m.maxBoards);
+        setOwned((ws as Array<{ role: string }>).filter((w) => w.role === "owner").length);
+      })
+      .catch(() => {});
+  }, [user]);
 
   // Keep slug in sync with the name until the user edits it directly.
   useEffect(() => {
@@ -75,7 +94,11 @@ function NewWorkspacePage() {
   }, [slug]);
 
   const canSubmit =
-    name.trim().length >= 2 && slug.trim().length >= 2 && slugState.status === "ok" && !busy;
+    name.trim().length >= 2 &&
+    slug.trim().length >= 2 &&
+    slugState.status === "ok" &&
+    !busy &&
+    !atLimit;
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -89,7 +112,10 @@ function NewWorkspacePage() {
       // Land on AI settings so the owner can add their key right away.
       navigate({ to: "/$slug/settings/ai", params: { slug: created } });
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(
+        msg.startsWith("BOARD_LIMIT") ? t("newWs.limitReached", { count: limit ?? 0 }) : msg,
+      );
       setBusy(false);
     }
   };
@@ -104,7 +130,21 @@ function NewWorkspacePage() {
         <h1 className="font-display text-4xl font-medium tracking-tight mt-4">
           {t("newWs.title")}
         </h1>
-        <p className="text-muted-foreground mt-2 mb-8">{t("newWs.lead")}</p>
+        <p className="text-muted-foreground mt-2 mb-4">{t("newWs.lead")}</p>
+
+        {limit !== null && owned !== null && (
+          <div
+            className={`mb-6 rounded-xl border px-4 py-3 text-sm ${
+              atLimit
+                ? "border-destructive/30 bg-destructive/5 text-destructive"
+                : "border-border bg-surface text-muted-foreground"
+            }`}
+          >
+            {atLimit
+              ? t("newWs.limitReached", { count: limit })
+              : t("newWs.usage", { used: owned, max: limit })}
+          </div>
+        )}
 
         <form
           onSubmit={submit}
