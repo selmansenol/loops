@@ -302,20 +302,18 @@ const tr = {
   docs: {
     metaTitle: "Loops · Developer Docs",
     metaDesc:
-      "Loops'u her dilden, her platformdan kullan: REST API, embed widget, Telegram/WhatsApp/Discord bot örnekleri.",
+      "Loops'u her dilden kullan: REST API, embed widget, webhooks (Discord/Slack) ve Discord bot örneği.",
     sidebarTitle: "Developer Docs",
     licenseTitle: "MIT Lisanslı",
     licenseDesc: "Loops açık kaynak. Forkla, değiştir, kendi sunucunda çalıştır.",
     heroTitle: "Loops'u her şeye bağla",
     heroLead:
-      "Loops'un public REST API'si dile bağımsızdır. Web siteleri, mobil uygulamalar, WhatsApp/Telegram/Discord botları, Slack, GitHub Actions, hatta cron job'lar — Bearer token'la herhangi bir HTTP istemcisi yeter.",
+      "Loops'un public REST API'si dile bağımsızdır. Web siteleri, mobil uygulamalar, Slack, Discord, GitHub Actions, hatta cron job'lar — Bearer token'la herhangi bir HTTP istemcisi yeter.",
     sections: {
       quickstart: "Hızlı başla",
       embed: "Embed widget",
       api: "REST API",
       webhooks: "Webhooks",
-      telegram: "Telegram bot",
-      whatsapp: "WhatsApp bot",
       discord: "Discord bot",
     },
   },
@@ -343,7 +341,7 @@ const tr = {
       modalTitle: "Yeni API key",
       modalLead: "Aşağıdaki bilgileri gir, key bir kere gösterilecek.",
       fName: "İsim",
-      fNamePh: "Örn: Telegram bot, mobil app, CI script",
+      fNamePh: "Örn: Mobil app, CI script, CRM",
       fType: "Tip",
       typeSecretDesc: "Sunucu/bot",
       typePubDesc: "Tarayıcı/embed",
@@ -785,20 +783,18 @@ const en: typeof tr = {
   docs: {
     metaTitle: "Loops · Developer Docs",
     metaDesc:
-      "Use Loops from any language, any platform: REST API, embed widget, Telegram/WhatsApp/Discord bot examples.",
+      "Use Loops from any language: REST API, embed widget, webhooks (Discord/Slack), and a Discord bot example.",
     sidebarTitle: "Developer Docs",
     licenseTitle: "MIT Licensed",
     licenseDesc: "Loops is open source. Fork it, change it, run it on your own server.",
     heroTitle: "Connect Loops to anything",
     heroLead:
-      "Loops' public REST API is language-agnostic. Websites, mobile apps, WhatsApp/Telegram/Discord bots, Slack, GitHub Actions, even cron jobs — any HTTP client with a bearer token works.",
+      "Loops' public REST API is language-agnostic. Websites, mobile apps, Slack, Discord, GitHub Actions, even cron jobs — any HTTP client with a bearer token works.",
     sections: {
       quickstart: "Quick start",
       embed: "Embed widget",
       api: "REST API",
       webhooks: "Webhooks",
-      telegram: "Telegram bot",
-      whatsapp: "WhatsApp bot",
       discord: "Discord bot",
     },
   },
@@ -826,7 +822,7 @@ const en: typeof tr = {
       modalTitle: "New API key",
       modalLead: "Fill in the details, the key is shown only once.",
       fName: "Name",
-      fNamePh: "e.g. Telegram bot, mobile app, CI script",
+      fNamePh: "e.g. Mobile app, CI script, CRM",
       fType: "Type",
       typeSecretDesc: "Server/bot",
       typePubDesc: "Browser/embed",

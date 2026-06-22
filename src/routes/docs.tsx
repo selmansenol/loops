@@ -10,7 +10,7 @@ export const Route = createFileRoute("/docs")({
       {
         name: "description",
         content:
-          "Use Loops from any language, any platform: REST API, embed widget, Telegram/WhatsApp/Discord bot examples.",
+          "Use Loops from any language: REST API, embed widget, webhooks (Discord/Slack), and a Discord bot example.",
       },
       { property: "og:title", content: "Loops · Developer Docs" },
       {
@@ -22,22 +22,12 @@ export const Route = createFileRoute("/docs")({
   component: DocsPage,
 });
 
-const SECTION_IDS = [
-  "quickstart",
-  "embed",
-  "api",
-  "webhooks",
-  "telegram",
-  "whatsapp",
-  "discord",
-] as const;
+const SECTION_IDS = ["quickstart", "embed", "api", "webhooks", "discord"] as const;
 const SECTION_HASH: Record<(typeof SECTION_IDS)[number], string> = {
   quickstart: "quickstart",
   embed: "embed",
   api: "api",
   webhooks: "webhooks",
-  telegram: "bot-telegram",
-  whatsapp: "bot-whatsapp",
   discord: "bot-discord",
 };
 
@@ -89,7 +79,7 @@ const DOCS_TR = {
           description: "opsiyonel",
           tag: "opsiyonel",
           external: "anonim kullanıcı kimliği (bot/embed için)",
-          source: "örn: telegram, embed, mobile",
+          source: "örn: embed, mobile, crm",
         },
       },
       vote: {
@@ -110,23 +100,11 @@ const DOCS_TR = {
     eyebrow: "Outgoing",
     title: "Webhooks",
     leadA:
-      "Loops'ta yeni post / oy / durum değişimi olduğunda kendi URL'ne POST atılır. Discord, Slack veya Telegram webhook URL'i eklersen mesaj otomatik o platformun formatında gönderilir — ekstra kod/relay gerekmez. Telegram için URL şu biçimde olmalı: https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<ID>. Diğer her şey (Linear, GitHub Issues, kendi sunucun) imzalı genel JSON alır.",
+      "Loops'ta yeni post / oy / durum değişimi olduğunda kendi URL'ne POST atılır. Bir Discord veya Slack webhook URL'i eklersen mesaj otomatik o platformun formatında gönderilir — ekstra kod/relay gerekmez. Diğer her şey (Linear, GitHub Issues, kendi sunucun) imzalı genel JSON alır.",
     leadB1: "Her istek ",
     leadB2: " header'ı taşır: webhook gizli anahtarınla ",
     leadB3: ". Aşağıda Node ile doğrulama:",
     payload: "Webhook payload örneği: ",
-  },
-  telegram: {
-    eyebrow: "Python",
-    title: "Telegram bot",
-    leadA: "",
-    leadB: " komutuyla Loops'a post atan bot. ~30 satır.",
-    cmd: "/feedback <metin>",
-  },
-  whatsapp: {
-    eyebrow: "Node + Twilio",
-    title: "WhatsApp bot",
-    lead: "Twilio WhatsApp Sandbox'a gelen mesajı Loops post'una çevirir. Webhook olarak Twilio'ya bu Express endpoint'ini ver.",
   },
   discord: {
     eyebrow: "Node + discord.js",
@@ -183,7 +161,7 @@ const DOCS_EN: DocsCopy = {
           description: "optional",
           tag: "optional",
           external: "anonymous user id (for bots/embed)",
-          source: "e.g. telegram, embed, mobile",
+          source: "e.g. embed, mobile, crm",
         },
       },
       vote: {
@@ -204,23 +182,11 @@ const DOCS_EN: DocsCopy = {
     eyebrow: "Outgoing",
     title: "Webhooks",
     leadA:
-      "When a new post / vote / status change happens in Loops, we POST to your URL. Paste a Discord, Slack or Telegram webhook URL and we format the message for that platform automatically — no relay needed. For Telegram the URL must look like https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<ID>. Everything else (Linear, GitHub Issues, your own server) gets the signed generic JSON.",
+      "When a new post / vote / status change happens in Loops, we POST to your URL. Paste a Discord or Slack incoming-webhook URL and we format the message for that platform automatically — no relay needed. Everything else (Linear, GitHub Issues, your own server) gets the signed generic JSON.",
     leadB1: "Every request carries an ",
     leadB2: " header — your webhook secret signed with ",
     leadB3: ". Node verification example below:",
     payload: "Sample webhook payload: ",
-  },
-  telegram: {
-    eyebrow: "Python",
-    title: "Telegram bot",
-    leadA: "Bot that posts to Loops with the ",
-    leadB: " command. ~30 lines.",
-    cmd: "/feedback <text>",
-  },
-  whatsapp: {
-    eyebrow: "Node + Twilio",
-    title: "WhatsApp bot",
-    lead: "Convert messages received via Twilio's WhatsApp Sandbox into Loops posts. Point Twilio's webhook at this Express endpoint.",
   },
   discord: {
     eyebrow: "Node + discord.js",
@@ -269,8 +235,6 @@ function DocsPage() {
           <Embed />
           <ApiRef />
           <Webhooks />
-          <BotTelegram />
-          <BotWhatsApp />
           <BotDiscord />
         </main>
       </div>
@@ -416,7 +380,7 @@ resp, _ := http.DefaultClient.Do(req)`,
           samples={{
             curl: `curl -X POST -H "Authorization: Bearer loop_sk_..." \\
   -H "Content-Type: application/json" \\
-  -d '{"title":"Dark theme please","tag":"UI","source":"telegram"}' \\
+  -d '{"title":"Dark theme please","tag":"UI","source":"crm"}' \\
   https://getloops.co/api/v1/posts`,
             js: `await fetch("https://getloops.co/api/v1/posts", {
   method: "POST",
@@ -529,96 +493,6 @@ function verify(req, secret) {
         {c.payload}
         <code className="bg-secondary px-1.5 py-0.5 rounded">{`{ event: "post.created", post: { id, title, ... }, timestamp }`}</code>
       </p>
-    </Section>
-  );
-}
-
-function BotTelegram() {
-  const c = useDocsCopy().telegram;
-  const en = c === DOCS_EN.telegram;
-  return (
-    <Section id="bot-telegram" title={c.title} eyebrow={c.eyebrow}>
-      <p className="text-sm text-muted-foreground mb-4">
-        {en && c.leadA}
-        <code className="text-xs bg-secondary px-1.5 py-0.5 rounded">{c.cmd}</code>
-        {c.leadB}
-      </p>
-      <Code language="bash">{`pip install python-telegram-bot requests
-export TELEGRAM_TOKEN=...
-export LOOP_KEY=loop_sk_...
-export LOOP_HOST=https://getloops.co`}</Code>
-      <Code language="python">{`import os, requests
-from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes
-
-LOOP_HOST = os.environ["LOOP_HOST"]
-LOOP_KEY  = os.environ["LOOP_KEY"]
-
-async def feedback(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    text = " ".join(ctx.args).strip()
-    if len(text) < 3:
-        await update.message.reply_text("Usage: /feedback <your idea>")
-        return
-    user = update.effective_user
-    r = requests.post(
-        f"{LOOP_HOST}/api/v1/posts",
-        headers={"Authorization": f"Bearer {LOOP_KEY}"},
-        json={
-            "title": text[:140],
-            "source": "telegram",
-            "external_user_id": f"tg_{user.id}",
-            "tag": "telegram",
-        },
-    )
-    if r.ok:
-        await update.message.reply_text("✓ Got it, check the board.")
-    else:
-        await update.message.reply_text(f"Error: {r.text}")
-
-app = Application.builder().token(os.environ["TELEGRAM_TOKEN"]).build()
-app.add_handler(CommandHandler("feedback", feedback))
-app.run_polling()`}</Code>
-    </Section>
-  );
-}
-
-function BotWhatsApp() {
-  const c = useDocsCopy().whatsapp;
-  return (
-    <Section id="bot-whatsapp" title={c.title} eyebrow={c.eyebrow}>
-      <p className="text-sm text-muted-foreground mb-4">{c.lead}</p>
-      <Code language="bash">{`npm i express twilio body-parser
-# Twilio Sandbox webhook URL: https://your-bot.com/wa`}</Code>
-      <Code language="js">{`import express from "express";
-import twilio from "twilio";
-
-const app = express();
-app.use(express.urlencoded({ extended: false }));
-
-app.post("/wa", async (req, res) => {
-  const body = (req.body.Body || "").trim();
-  const from = req.body.From; // "whatsapp:+90555..."
-
-  const r = await fetch(\`\${process.env.LOOP_HOST}/api/v1/posts\`, {
-    method: "POST",
-    headers: {
-      Authorization: \`Bearer \${process.env.LOOP_KEY}\`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      title: body.slice(0, 140),
-      source: "whatsapp",
-      external_user_id: from,
-      tag: "whatsapp",
-    }),
-  });
-
-  const twiml = new twilio.twiml.MessagingResponse();
-  twiml.message(r.ok ? "✓ Got it, posted to the board." : "❌ Something went wrong.");
-  res.type("text/xml").send(twiml.toString());
-});
-
-app.listen(3000);`}</Code>
     </Section>
   );
 }
