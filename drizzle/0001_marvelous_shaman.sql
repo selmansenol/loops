@@ -1,0 +1,1 @@
+ALTER TABLE "ai_provider_keys" ADD COLUMN "model" text;

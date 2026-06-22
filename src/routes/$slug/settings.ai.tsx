@@ -9,6 +9,7 @@ import {
   getAiSettings,
   saveAiProviderKey,
   deleteAiProviderKey,
+  updateProviderModel,
   type AiSettingsResult,
   type AiProviderStatus,
 } from "@/lib/ai-settings.functions";
@@ -174,10 +175,14 @@ function ProviderCard({
   const { t } = useTranslation();
   const save = useServerFn(saveAiProviderKey);
   const del = useServerFn(deleteAiProviderKey);
+  const updModel = useServerFn(updateProviderModel);
   const [open, setOpen] = useState(false);
   const [key, setKey] = useState("");
+  const [model, setModel] = useState(provider.model || provider.defaultModel);
+  const [savingModel, setSavingModel] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const listId = `models-${provider.id}`;
 
   const configured = provider.source !== null;
 
@@ -185,7 +190,9 @@ function ProviderCard({
     setBusy(true);
     setErr(null);
     try {
-      await save({ data: { slug, provider: provider.id, apiKey: key.trim() } });
+      await save({
+        data: { slug, provider: provider.id, apiKey: key.trim(), model: model.trim() },
+      });
       setKey("");
       setOpen(false);
       await onChanged();
@@ -195,6 +202,28 @@ function ProviderCard({
       setBusy(false);
     }
   };
+
+  const handleSaveModel = async () => {
+    setSavingModel(true);
+    setErr(null);
+    try {
+      await updModel({ data: { slug, provider: provider.id, model: model.trim() } });
+      await onChanged();
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setSavingModel(false);
+    }
+  };
+
+  // Shared <datalist> of suggested models for this provider.
+  const datalist = (
+    <datalist id={listId}>
+      {provider.models.map((m) => (
+        <option key={m} value={m} />
+      ))}
+    </datalist>
+  );
 
   const handleDelete = async () => {
     if (!confirm(t("settingsAi.deleteConfirm"))) return;
@@ -255,6 +284,31 @@ function ProviderCard({
         </div>
       </div>
 
+      {/* Model selector for an already-configured key (change without re-entering it). */}
+      {configured && provider.source === "db" && !open && (
+        <div className="mt-4 flex flex-wrap items-end gap-2">
+          <label className="flex-1 min-w-[12rem] block text-xs text-muted-foreground">
+            {t("settingsAi.model")}
+            <input
+              list={listId}
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              placeholder={provider.defaultModel}
+              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-mono"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={handleSaveModel}
+            disabled={savingModel || !model.trim() || model.trim() === (provider.model ?? "")}
+            className="rounded-full bg-foreground text-background px-4 py-2 text-xs font-medium disabled:opacity-50"
+          >
+            {savingModel ? t("common.loading") : t("settingsAi.saveModel")}
+          </button>
+          {datalist}
+        </div>
+      )}
+
       {open && (
         <div className="mt-4 space-y-2">
           <label className="block text-xs text-muted-foreground">{t("settingsAi.apiKey")}</label>
@@ -266,6 +320,17 @@ function ProviderCard({
             autoComplete="off"
             className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-mono"
           />
+          <label className="block text-xs text-muted-foreground pt-1">
+            {t("settingsAi.model")}
+          </label>
+          <input
+            list={listId}
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+            placeholder={provider.defaultModel}
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-mono"
+          />
+          {datalist}
           <div className="flex gap-2 pt-1">
             <button
               onClick={handleSave}

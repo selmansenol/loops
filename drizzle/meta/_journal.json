@@ -8,6 +8,13 @@
       "when": 1782055573397,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782111899040,
+      "tag": "0001_marvelous_shaman",
+      "breakpoints": true
     }
   ]
 }

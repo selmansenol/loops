@@ -297,6 +297,7 @@ export const ai_provider_keys = pgTable(
       .references(() => workspaces.id, { onDelete: "cascade" }),
     provider: text("provider").notNull(), // 'openai' | 'anthropic' | 'google'
     api_key: text("api_key").notNull(),
+    model: text("model"), // null = use the provider's default model
     updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
       .notNull()
       .defaultNow(),

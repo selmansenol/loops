@@ -10,6 +10,10 @@ export type AiProviderStatus = {
   keyHint: string;
   source: "db" | "env" | null;
   last4: string | null;
+  /** The workspace's chosen model for this provider (null = use default). */
+  model: string | null;
+  /** Suggested model ids for the picker. */
+  models: string[];
 };
 
 export type AiSettingsResult = {
@@ -41,6 +45,8 @@ export const getAiSettings = createServerFn({ method: "GET" })
         keyHint: p.keyHint,
         source: k?.source ?? null,
         last4: k?.last4 ?? null,
+        model: k?.model ?? null,
+        models: p.models,
       };
     });
 
@@ -63,6 +69,7 @@ export const getAiSettings = createServerFn({ method: "GET" })
 const SaveInput = slugInput.extend({
   provider: z.enum(["openai", "anthropic", "google"]),
   apiKey: z.string().trim().min(10).max(500),
+  model: z.string().trim().max(80).optional(),
 });
 
 export const saveAiProviderKey = createServerFn({ method: "POST" })
@@ -71,6 +78,7 @@ export const saveAiProviderKey = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
     const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
+    const model = data.model?.trim() || null;
     const { db } = await import("@/db");
     const { ai_provider_keys } = await import("@/db/schema");
     await db
@@ -79,16 +87,42 @@ export const saveAiProviderKey = createServerFn({ method: "POST" })
         workspace_id: ws.id,
         provider: data.provider,
         api_key: data.apiKey,
+        model,
         updated_by: context.userId,
       })
       .onConflictDoUpdate({
         target: [ai_provider_keys.workspace_id, ai_provider_keys.provider],
         set: {
           api_key: data.apiKey,
+          model,
           updated_by: context.userId,
           updated_at: new Date().toISOString(),
         },
       });
+    return { ok: true };
+  });
+
+// Change just the model for an already-configured provider (no re-entering the key).
+const ModelInput = slugInput.extend({
+  provider: z.enum(["openai", "anthropic", "google"]),
+  model: z.string().trim().max(80),
+});
+
+export const updateProviderModel = createServerFn({ method: "POST" })
+  .middleware([requireAuth])
+  .validator((input: unknown) => ModelInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
+    const { db } = await import("@/db");
+    const { ai_provider_keys } = await import("@/db/schema");
+    const { and, eq } = await import("drizzle-orm");
+    await db
+      .update(ai_provider_keys)
+      .set({ model: data.model.trim() || null, updated_at: new Date().toISOString() })
+      .where(
+        and(eq(ai_provider_keys.workspace_id, ws.id), eq(ai_provider_keys.provider, data.provider)),
+      );
     return { ok: true };
   });
 
