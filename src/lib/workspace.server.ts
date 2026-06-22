@@ -39,6 +39,9 @@ export const RESERVED_SLUGS = new Set([
   "pricing",
   "sponsors",
   "app",
+  "vs",
+  "robots",
+  "sitemap",
 ]);
 
 export function normalizeSlug(input: string): string {

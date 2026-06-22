@@ -75,20 +75,31 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Loops — Open source AI-powered feedback board" },
+      { title: "Loops — Open-source Canny alternative (AI feedback board)" },
       {
         name: "description",
         content:
-          "Open source feedback board that doesn't just collect user requests — it organizes them for you with AI clustering, tagging and summaries.",
+          "Loops is a free, open-source, self-hostable Canny alternative. Collect feature requests, let users vote, plan a roadmap, ship a changelog — and let AI cluster and prioritize feedback. Bring your own AI key.",
       },
       { name: "author", content: "Loops" },
-      { property: "og:title", content: "Loops — AI-Powered Feedback Board" },
+      {
+        name: "keywords",
+        content:
+          "canny alternative, open source canny alternative, free canny alternative, open source feedback board, self-hosted feedback tool, feature request board, feature voting, product roadmap tool, uservoice alternative",
+      },
+      { property: "og:title", content: "Loops — Open-source Canny alternative" },
       {
         property: "og:description",
-        content: "Like Canny, but AI organizes feedback for you — and open source.",
+        content: "Free, open-source, AI-native feedback board. Self-host or use getloops.co.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://getloops.co/" },
+      { property: "og:site_name", content: "Loops" },
+      { property: "og:image", content: "https://getloops.co/og.png" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Loops — Open-source Canny alternative" },
+      { name: "twitter:description", content: "Free, open-source, AI-native feedback board." },
+      { name: "twitter:image", content: "https://getloops.co/og.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },

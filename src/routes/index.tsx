@@ -41,9 +41,26 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
 });
 
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Loops",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web, Docker, Node.js",
+  url: "https://getloops.co",
+  description:
+    "Open-source, AI-native, self-hostable Canny alternative — collect feature requests, vote, roadmap, changelog, with AI clustering and prioritization.",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  sameAs: ["https://github.com/selmansenol/loops"],
+};
+
 function LandingPage() {
   return (
     <div className="min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+      />
       <SiteHeader />
       <Hero />
       <SocialProof />

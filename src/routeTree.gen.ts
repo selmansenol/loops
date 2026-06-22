@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NewRouteImport } from './routes/new'
@@ -21,6 +23,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SlugRouteRouteImport } from './routes/$slug/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SlugIndexRouteImport } from './routes/$slug/index'
+import { Route as VsCannyRouteImport } from './routes/vs.canny'
 import { Route as ApiFeedbackChatRouteImport } from './routes/api/feedback-chat'
 import { Route as SlugRoadmapRouteImport } from './routes/$slug/roadmap'
 import { Route as SlugInsightsRouteImport } from './routes/$slug/insights'
@@ -38,6 +41,16 @@ import { Route as ApiV1PostsIdVoteRouteImport } from './routes/api/v1/posts.$id.
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -94,6 +107,11 @@ const SlugIndexRoute = SlugIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => SlugRouteRoute,
+} as any)
+const VsCannyRoute = VsCannyRouteImport.update({
+  id: '/vs/canny',
+  path: '/vs/canny',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiFeedbackChatRoute = ApiFeedbackChatRouteImport.update({
   id: '/api/feedback-chat',
@@ -172,11 +190,14 @@ export interface FileRoutesByFullPath {
   '/new': typeof NewRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/$slug/changelog': typeof SlugChangelogRoute
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
+  '/vs/canny': typeof VsCannyRoute
   '/$slug/': typeof SlugIndexRoute
   '/$slug/posts/$id': typeof SlugPostsIdRoute
   '/$slug/settings/ai': typeof SlugSettingsAiRoute
@@ -198,11 +219,14 @@ export interface FileRoutesByTo {
   '/new': typeof NewRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/$slug/changelog': typeof SlugChangelogRoute
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
+  '/vs/canny': typeof VsCannyRoute
   '/$slug': typeof SlugIndexRoute
   '/$slug/posts/$id': typeof SlugPostsIdRoute
   '/$slug/settings/ai': typeof SlugSettingsAiRoute
@@ -226,11 +250,14 @@ export interface FileRoutesById {
   '/new': typeof NewRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/$slug/changelog': typeof SlugChangelogRoute
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
+  '/vs/canny': typeof VsCannyRoute
   '/$slug/': typeof SlugIndexRoute
   '/$slug/posts/$id': typeof SlugPostsIdRoute
   '/$slug/settings/ai': typeof SlugSettingsAiRoute
@@ -255,11 +282,14 @@ export interface FileRouteTypes {
     | '/new'
     | '/privacy'
     | '/reset-password'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/terms'
     | '/$slug/changelog'
     | '/$slug/insights'
     | '/$slug/roadmap'
     | '/api/feedback-chat'
+    | '/vs/canny'
     | '/$slug/'
     | '/$slug/posts/$id'
     | '/$slug/settings/ai'
@@ -281,11 +311,14 @@ export interface FileRouteTypes {
     | '/new'
     | '/privacy'
     | '/reset-password'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/terms'
     | '/$slug/changelog'
     | '/$slug/insights'
     | '/$slug/roadmap'
     | '/api/feedback-chat'
+    | '/vs/canny'
     | '/$slug'
     | '/$slug/posts/$id'
     | '/$slug/settings/ai'
@@ -308,11 +341,14 @@ export interface FileRouteTypes {
     | '/new'
     | '/privacy'
     | '/reset-password'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/terms'
     | '/$slug/changelog'
     | '/$slug/insights'
     | '/$slug/roadmap'
     | '/api/feedback-chat'
+    | '/vs/canny'
     | '/$slug/'
     | '/$slug/posts/$id'
     | '/$slug/settings/ai'
@@ -336,8 +372,11 @@ export interface RootRouteChildren {
   NewRoute: typeof NewRoute
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ApiFeedbackChatRoute: typeof ApiFeedbackChatRoute
+  VsCannyRoute: typeof VsCannyRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiV1PostsRoute: typeof ApiV1PostsRouteWithChildren
 }
@@ -349,6 +388,20 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -427,6 +480,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$slug/'
       preLoaderRoute: typeof SlugIndexRouteImport
       parentRoute: typeof SlugRouteRoute
+    }
+    '/vs/canny': {
+      id: '/vs/canny'
+      path: '/vs/canny'
+      fullPath: '/vs/canny'
+      preLoaderRoute: typeof VsCannyRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/feedback-chat': {
       id: '/api/feedback-chat'
@@ -585,8 +645,11 @@ const rootRouteChildren: RootRouteChildren = {
   NewRoute: NewRoute,
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ApiFeedbackChatRoute: ApiFeedbackChatRoute,
+  VsCannyRoute: VsCannyRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiV1PostsRoute: ApiV1PostsRouteWithChildren,
 }
