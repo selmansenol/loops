@@ -21,7 +21,6 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SlugRouteRouteImport } from './routes/$slug/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SlugIndexRouteImport } from './routes/$slug/index'
-import { Route as ApiIpcheckRouteImport } from './routes/api/ipcheck'
 import { Route as ApiFeedbackChatRouteImport } from './routes/api/feedback-chat'
 import { Route as SlugRoadmapRouteImport } from './routes/$slug/roadmap'
 import { Route as SlugInsightsRouteImport } from './routes/$slug/insights'
@@ -29,6 +28,7 @@ import { Route as SlugChangelogRouteImport } from './routes/$slug/changelog'
 import { Route as ApiV1PostsRouteImport } from './routes/api/v1/posts'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as SlugSettingsWebhooksRouteImport } from './routes/$slug/settings.webhooks'
+import { Route as SlugSettingsShareRouteImport } from './routes/$slug/settings.share'
 import { Route as SlugSettingsApiKeysRouteImport } from './routes/$slug/settings.api-keys'
 import { Route as SlugSettingsAiRouteImport } from './routes/$slug/settings.ai'
 import { Route as SlugPostsIdRouteImport } from './routes/$slug/posts.$id'
@@ -95,11 +95,6 @@ const SlugIndexRoute = SlugIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SlugRouteRoute,
 } as any)
-const ApiIpcheckRoute = ApiIpcheckRouteImport.update({
-  id: '/api/ipcheck',
-  path: '/api/ipcheck',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiFeedbackChatRoute = ApiFeedbackChatRouteImport.update({
   id: '/api/feedback-chat',
   path: '/api/feedback-chat',
@@ -133,6 +128,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 const SlugSettingsWebhooksRoute = SlugSettingsWebhooksRouteImport.update({
   id: '/settings/webhooks',
   path: '/settings/webhooks',
+  getParentRoute: () => SlugRouteRoute,
+} as any)
+const SlugSettingsShareRoute = SlugSettingsShareRouteImport.update({
+  id: '/settings/share',
+  path: '/settings/share',
   getParentRoute: () => SlugRouteRoute,
 } as any)
 const SlugSettingsApiKeysRoute = SlugSettingsApiKeysRouteImport.update({
@@ -177,11 +177,11 @@ export interface FileRoutesByFullPath {
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
-  '/api/ipcheck': typeof ApiIpcheckRoute
   '/$slug/': typeof SlugIndexRoute
   '/$slug/posts/$id': typeof SlugPostsIdRoute
   '/$slug/settings/ai': typeof SlugSettingsAiRoute
   '/$slug/settings/api-keys': typeof SlugSettingsApiKeysRoute
+  '/$slug/settings/share': typeof SlugSettingsShareRoute
   '/$slug/settings/webhooks': typeof SlugSettingsWebhooksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/v1/posts': typeof ApiV1PostsRouteWithChildren
@@ -203,11 +203,11 @@ export interface FileRoutesByTo {
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
-  '/api/ipcheck': typeof ApiIpcheckRoute
   '/$slug': typeof SlugIndexRoute
   '/$slug/posts/$id': typeof SlugPostsIdRoute
   '/$slug/settings/ai': typeof SlugSettingsAiRoute
   '/$slug/settings/api-keys': typeof SlugSettingsApiKeysRoute
+  '/$slug/settings/share': typeof SlugSettingsShareRoute
   '/$slug/settings/webhooks': typeof SlugSettingsWebhooksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/v1/posts': typeof ApiV1PostsRouteWithChildren
@@ -231,11 +231,11 @@ export interface FileRoutesById {
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
-  '/api/ipcheck': typeof ApiIpcheckRoute
   '/$slug/': typeof SlugIndexRoute
   '/$slug/posts/$id': typeof SlugPostsIdRoute
   '/$slug/settings/ai': typeof SlugSettingsAiRoute
   '/$slug/settings/api-keys': typeof SlugSettingsApiKeysRoute
+  '/$slug/settings/share': typeof SlugSettingsShareRoute
   '/$slug/settings/webhooks': typeof SlugSettingsWebhooksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/v1/posts': typeof ApiV1PostsRouteWithChildren
@@ -260,11 +260,11 @@ export interface FileRouteTypes {
     | '/$slug/insights'
     | '/$slug/roadmap'
     | '/api/feedback-chat'
-    | '/api/ipcheck'
     | '/$slug/'
     | '/$slug/posts/$id'
     | '/$slug/settings/ai'
     | '/$slug/settings/api-keys'
+    | '/$slug/settings/share'
     | '/$slug/settings/webhooks'
     | '/api/auth/$'
     | '/api/v1/posts'
@@ -286,11 +286,11 @@ export interface FileRouteTypes {
     | '/$slug/insights'
     | '/$slug/roadmap'
     | '/api/feedback-chat'
-    | '/api/ipcheck'
     | '/$slug'
     | '/$slug/posts/$id'
     | '/$slug/settings/ai'
     | '/$slug/settings/api-keys'
+    | '/$slug/settings/share'
     | '/$slug/settings/webhooks'
     | '/api/auth/$'
     | '/api/v1/posts'
@@ -313,11 +313,11 @@ export interface FileRouteTypes {
     | '/$slug/insights'
     | '/$slug/roadmap'
     | '/api/feedback-chat'
-    | '/api/ipcheck'
     | '/$slug/'
     | '/$slug/posts/$id'
     | '/$slug/settings/ai'
     | '/$slug/settings/api-keys'
+    | '/$slug/settings/share'
     | '/$slug/settings/webhooks'
     | '/api/auth/$'
     | '/api/v1/posts'
@@ -338,7 +338,6 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
   ApiFeedbackChatRoute: typeof ApiFeedbackChatRoute
-  ApiIpcheckRoute: typeof ApiIpcheckRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiV1PostsRoute: typeof ApiV1PostsRouteWithChildren
 }
@@ -429,13 +428,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SlugIndexRouteImport
       parentRoute: typeof SlugRouteRoute
     }
-    '/api/ipcheck': {
-      id: '/api/ipcheck'
-      path: '/api/ipcheck'
-      fullPath: '/api/ipcheck'
-      preLoaderRoute: typeof ApiIpcheckRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/feedback-chat': {
       id: '/api/feedback-chat'
       path: '/api/feedback-chat'
@@ -485,6 +477,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SlugSettingsWebhooksRouteImport
       parentRoute: typeof SlugRouteRoute
     }
+    '/$slug/settings/share': {
+      id: '/$slug/settings/share'
+      path: '/settings/share'
+      fullPath: '/$slug/settings/share'
+      preLoaderRoute: typeof SlugSettingsShareRouteImport
+      parentRoute: typeof SlugRouteRoute
+    }
     '/$slug/settings/api-keys': {
       id: '/$slug/settings/api-keys'
       path: '/settings/api-keys'
@@ -531,6 +530,7 @@ interface SlugRouteRouteChildren {
   SlugPostsIdRoute: typeof SlugPostsIdRoute
   SlugSettingsAiRoute: typeof SlugSettingsAiRoute
   SlugSettingsApiKeysRoute: typeof SlugSettingsApiKeysRoute
+  SlugSettingsShareRoute: typeof SlugSettingsShareRoute
   SlugSettingsWebhooksRoute: typeof SlugSettingsWebhooksRoute
 }
 
@@ -542,6 +542,7 @@ const SlugRouteRouteChildren: SlugRouteRouteChildren = {
   SlugPostsIdRoute: SlugPostsIdRoute,
   SlugSettingsAiRoute: SlugSettingsAiRoute,
   SlugSettingsApiKeysRoute: SlugSettingsApiKeysRoute,
+  SlugSettingsShareRoute: SlugSettingsShareRoute,
   SlugSettingsWebhooksRoute: SlugSettingsWebhooksRoute,
 }
 
@@ -586,7 +587,6 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
   ApiFeedbackChatRoute: ApiFeedbackChatRoute,
-  ApiIpcheckRoute: ApiIpcheckRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiV1PostsRoute: ApiV1PostsRouteWithChildren,
 }

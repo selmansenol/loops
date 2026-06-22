@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
@@ -255,11 +255,19 @@ function BoardView({
   allTags: string[];
 }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  // Voting is open to everyone — guests vote via a server cookie identity.
+  // Voting is open to guests; if the owner disabled guest voting, send the
+  // visitor to sign in (and back to this board afterward).
   const toggleVote = async (post: Post) => {
-    await toggleVoteFn({ data: { slug, postId: post.id } });
-    onChange();
+    try {
+      await toggleVoteFn({ data: { slug, postId: post.id } });
+      onChange();
+    } catch (e) {
+      if (String((e as Error)?.message ?? e).includes("GUEST_VOTING_OFF")) {
+        navigate({ to: "/auth", search: { redirect: slug } });
+      } else throw e;
+    }
   };
 
   const changeStatus = async (post: Post, status: Status) => {

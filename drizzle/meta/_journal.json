@@ -15,6 +15,13 @@
       "when": 1782111899040,
       "tag": "0001_marvelous_shaman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1782124258247,
+      "tag": "0002_sturdy_famine",
+      "breakpoints": true
     }
   ]
 }

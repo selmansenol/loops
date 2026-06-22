@@ -1,0 +1,1 @@
+ALTER TABLE "workspaces" ADD COLUMN "allow_guest_votes" boolean DEFAULT true NOT NULL;

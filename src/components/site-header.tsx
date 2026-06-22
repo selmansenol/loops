@@ -274,6 +274,14 @@ function SettingsMenu({ slug }: { slug: string }) {
           className="absolute right-0 mt-2 w-44 rounded-2xl border border-border bg-surface p-1.5 shadow-lifted z-50"
         >
           <Link
+            to="/$slug/settings/share"
+            params={{ slug }}
+            onClick={() => setOpen(false)}
+            className={itemClass}
+          >
+            {t("nav.share")}
+          </Link>
+          <Link
             to="/$slug/settings/ai"
             params={{ slug }}
             onClick={() => setOpen(false)}

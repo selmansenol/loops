@@ -2,7 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireAuth } from "@/lib/require-auth";
 
-export type PublicWorkspace = { id: string; slug: string; name: string };
+export type PublicWorkspace = {
+  id: string;
+  slug: string;
+  name: string;
+  allowGuestVotes: boolean;
+};
 
 /**
  * App deployment mode for client routing. In single-tenant (self-host) mode the
@@ -38,7 +43,28 @@ export const getWorkspaceFn = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<PublicWorkspace | null> => {
     const { getWorkspaceBySlug } = await import("@/lib/workspace.server");
     const ws = await getWorkspaceBySlug(data.slug);
-    return ws ? { id: ws.id, slug: ws.slug, name: ws.name } : null;
+    return ws
+      ? { id: ws.id, slug: ws.slug, name: ws.name, allowGuestVotes: ws.allow_guest_votes }
+      : null;
+  });
+
+/** Update board settings (owner/admin). */
+export const updateBoardSettingsFn = createServerFn({ method: "POST" })
+  .middleware([requireAuth])
+  .validator((input: unknown) =>
+    z.object({ slug: z.string().max(40), allowGuestVotes: z.boolean() }).parse(input),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
+    const { db } = await import("@/db");
+    const { workspaces } = await import("@/db/schema");
+    const { eq } = await import("drizzle-orm");
+    await db
+      .update(workspaces)
+      .set({ allow_guest_votes: data.allowGuestVotes })
+      .where(eq(workspaces.id, ws.id));
+    return { ok: true };
   });
 
 /** Workspaces the current user belongs to. Single-tenant: auto-joins default. */

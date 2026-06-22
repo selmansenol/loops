@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
@@ -50,6 +50,7 @@ function PostDetailPage() {
   const { user } = useAuth();
   const isAdmin = useIsWorkspaceAdmin();
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
 
   const [post, setPost] = useState<PostRow | null>(null);
   const [voted, setVoted] = useState(false);
@@ -97,8 +98,14 @@ function PostDetailPage() {
 
   const toggleVote = async () => {
     if (!post) return;
-    await toggleVoteFn({ data: { slug, postId: post.id } });
-    refresh();
+    try {
+      await toggleVoteFn({ data: { slug, postId: post.id } });
+      refresh();
+    } catch (e) {
+      if (String((e as Error)?.message ?? e).includes("GUEST_VOTING_OFF")) {
+        navigate({ to: "/auth", search: { redirect: slug } });
+      } else throw e;
+    }
   };
 
   const changeStatus = async (status: Status) => {

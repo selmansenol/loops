@@ -22,6 +22,7 @@ const tr = {
     signOut: "Çıkış",
     dashboard: "Panolarım",
     settings: "Ayarlar",
+    share: "Paylaş",
   },
   footer: { tagline: "· Açık kaynak, MIT lisanslı", terms: "Şartlar", privacy: "Gizlilik" },
   aiErrors: {
@@ -32,6 +33,28 @@ const tr = {
     invalid_key: "API anahtarın geçersiz görünüyor. Ayarlar → AI'dan kontrol et.",
     model_not_found: "Seçili model kullanılamıyor. Ayarlar → AI'dan başka bir model seç.",
     server: "AI servisine ulaşırken bir sorun oldu. Lütfen tekrar dene.",
+  },
+  share: {
+    eyebrow: "Dağıtım",
+    title: "Paylaş & Embed",
+    lead: "Panonu kullanıcılarınla 3 yoldan buluştur: doğrudan link, siteye gömme veya uygulama içi API.",
+    back: "Panoya dön",
+    linkTitle: "Herkese açık link",
+    linkDesc: "Bu linki paylaş — ziyaretçiler görür, üye olmadan oy verir (misafir oy açıksa).",
+    open: "Aç",
+    participationTitle: "Katılım",
+    guestVotes: "Misafir oya izin ver (üyeliksiz)",
+    guestVotesDesc:
+      "Kapalıysa oy vermek için giriş gerekir. Misafir oy IP bazlı tekilleştirilir; kesin tekil oy için kayıt önerilir.",
+    embedTitle: "Web sitesine göm",
+    embedLead:
+      "Herhangi bir HTML sayfasına tek satırla geri bildirim panosu ekle (vanilla JS, ~8KB). Tarayıcı için publishable anahtar kullanılır.",
+    genKey: "Embed anahtarı oluştur",
+    keyOnce: "Anahtar yalnızca bir kez gösterilir — aşağıdaki kodu kopyala.",
+    apiTitle: "Uygulama içi / mobil (API)",
+    apiLead:
+      "Kendi UI'ında veya mobil uygulamanda REST API'yi kullan. Native mobilde linki WebView'da da açabilirsin.",
+    apiCta: "Geliştirici dokümanları",
   },
   dashboard: {
     eyebrow: "Çalışma alanı",
@@ -533,6 +556,7 @@ const en: typeof tr = {
     signOut: "Sign out",
     dashboard: "My boards",
     settings: "Settings",
+    share: "Share",
   },
   footer: { tagline: "· Open source, MIT licensed", terms: "Terms", privacy: "Privacy" },
   aiErrors: {
@@ -543,6 +567,29 @@ const en: typeof tr = {
     invalid_key: "Your API key looks invalid. Check it in Settings → AI.",
     model_not_found: "The selected model isn't available. Pick another in Settings → AI.",
     server: "Something went wrong reaching the AI service. Please try again.",
+  },
+  share: {
+    eyebrow: "Distribution",
+    title: "Share & Embed",
+    lead: "Get your board in front of users three ways: a direct link, embed on your site, or in-app via the API.",
+    back: "Back to board",
+    linkTitle: "Public link",
+    linkDesc:
+      "Share this link — visitors can view and vote without an account (if guest voting is on).",
+    open: "Open",
+    participationTitle: "Participation",
+    guestVotes: "Allow guest voting (no account)",
+    guestVotesDesc:
+      "When off, voting requires sign-in. Guest votes are de-duplicated by IP; sign-in gives the strongest one-vote guarantee.",
+    embedTitle: "Embed on your website",
+    embedLead:
+      "Drop a feedback board into any HTML page with one line (vanilla JS, ~8KB). Uses a publishable key (safe in the browser).",
+    genKey: "Generate embed key",
+    keyOnce: "The key is shown once — copy the snippet below now.",
+    apiTitle: "In-app / mobile (API)",
+    apiLead:
+      "Use the REST API from your own UI or mobile app. On native mobile you can also open the link in a WebView.",
+    apiCta: "Developer docs",
   },
   dashboard: {
     eyebrow: "Workspace",

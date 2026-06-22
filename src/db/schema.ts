@@ -100,6 +100,7 @@ export const workspaces = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     slug: text("slug").notNull().unique(),
     name: text("name").notNull(),
+    allow_guest_votes: boolean("allow_guest_votes").notNull().default(true),
     created_by: text("created_by").references(() => user.id, { onDelete: "set null" }),
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()

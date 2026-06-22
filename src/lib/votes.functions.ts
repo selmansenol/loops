@@ -31,9 +31,11 @@ export const toggleVoteFn = createServerFn({ method: "POST" })
   .validator((input: unknown) => slugInput.extend({ postId: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
     const { getVoter } = await import("@/lib/voter.server");
-    const { key } = await getVoter();
+    const { key, isGuest } = await getVoter();
     const { resolveWorkspace } = await import("@/lib/workspace.server");
     const { toggleVote } = await import("@/lib/posts.repo");
     const ws = await resolveWorkspace(data.slug);
+    // Owner can require sign-in to vote (guest voting disabled).
+    if (isGuest && !ws.allow_guest_votes) throw new Error("GUEST_VOTING_OFF");
     return toggleVote(ws.id, data.postId, key);
   });
