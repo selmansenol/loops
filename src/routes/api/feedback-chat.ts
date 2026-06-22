@@ -24,13 +24,14 @@ export const Route = createFileRoute("/api/feedback-chat")({
         const userId = session?.user?.id;
         if (!userId) return jsonError("unauthorized", "Sign in to use the assistant.", 401);
 
-        let body: { messages?: unknown; slug?: unknown };
+        let body: { messages?: unknown; slug?: unknown; locale?: unknown };
         try {
           body = await request.json();
         } catch {
           return jsonError("invalid_body", "Expected JSON.", 400);
         }
         const slug = typeof body.slug === "string" ? body.slug : "";
+        const locale = typeof body.locale === "string" ? body.locale.slice(0, 10) : "";
         const { getWorkspaceBySlug } = await import("@/lib/workspace.server");
         const ws = slug ? await getWorkspaceBySlug(slug) : null;
         if (!ws) return jsonError("not_found", "Workspace not found.", 404);
@@ -114,7 +115,9 @@ export const Route = createFileRoute("/api/feedback-chat")({
           "Keep replies short and friendly. Ask at most 1-2 clarifying questions if the request is vague.",
           "Before creating anything, call find_similar to check for duplicates; if a close match exists, suggest the user upvote it instead and ask whether to proceed.",
           "Only call submit_post after the user confirms. After submitting, confirm in one sentence.",
-          "Always answer in the same language the user writes in.",
+          locale
+            ? `Answer in the language with BCP-47 code "${locale}" by default; if the user clearly writes in another language, match theirs.`
+            : "Always answer in the same language the user writes in.",
         ].join(" ");
 
         try {

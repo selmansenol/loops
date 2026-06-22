@@ -123,7 +123,7 @@ function InsightsPage() {
     setBusy(true);
     setError(null);
     try {
-      const r = await runAnalyze({ data: { slug } });
+      const r = await runAnalyze({ data: { slug, locale: i18n.language } });
       setResult(r);
       const now = Date.now();
       setResultAt(now);

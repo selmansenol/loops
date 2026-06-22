@@ -137,7 +137,7 @@ const BUCKETS = [
 ] as const;
 
 function RoadmapGenerator({ slug, onApplied }: { slug: string; onApplied: () => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const generate = useServerFn(generateRoadmapFn);
   const apply = useServerFn(applyRoadmapFn);
   const [proposal, setProposal] = useState<RoadmapProposal | null>(null);
@@ -151,7 +151,7 @@ function RoadmapGenerator({ slug, onApplied }: { slug: string; onApplied: () => 
     setError(null);
     setDone(false);
     try {
-      const result = await generate({ data: { slug } });
+      const result = await generate({ data: { slug, locale: i18n.language } });
       setProposal(result as RoadmapProposal);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);

@@ -18,7 +18,7 @@ export function FeedbackChat({
   onClose: () => void;
   onCreated: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState<Msg[]>([
     { role: "assistant", content: t("chat.greeting") },
   ]);
@@ -45,7 +45,7 @@ export function FeedbackChat({
       const res = await fetch("/api/feedback-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next, slug }),
+        body: JSON.stringify({ messages: next, slug, locale: i18n.language }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => null);

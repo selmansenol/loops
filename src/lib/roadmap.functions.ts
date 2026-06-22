@@ -10,7 +10,7 @@ export type RoadmapProposal = {
   summary: string;
 };
 
-const slugInput = z.object({ slug: z.string().max(40) });
+const slugInput = z.object({ slug: z.string().max(40), locale: z.string().max(10).optional() });
 
 /**
  * AI Roadmap Generator. Buckets the most-voted open posts into Now/Next/Later.
@@ -73,11 +73,13 @@ export const generateRoadmapFn = createServerFn({ method: "POST" })
 
     let object;
     try {
+      const langLine = data.locale
+        ? `Write every reason and the summary in the language with BCP-47 code "${data.locale}", regardless of the feedback's language.`
+        : "Write reasons and summary in the language most of the feedback uses.";
       ({ object } = await generateObject({
         model,
         schema,
-        system:
-          "You are a head of product planning a roadmap. Sort feedback into three buckets: 'now' (highest impact, do immediately), 'next' (soon), 'later' (backlog). Weigh vote counts heavily but also coherence of themes. Use ONLY the provided ids; do not invent ids. Keep each reason to one short sentence. Write reasons and summary in the language most of the feedback uses.",
+        system: `You are a head of product planning a roadmap. Sort feedback into three buckets: 'now' (highest impact, do immediately), 'next' (soon), 'later' (backlog). Weigh vote counts heavily but also coherence of themes. Use ONLY the provided ids; do not invent ids. Keep each reason to one short sentence. ${langLine}`,
         prompt: `Plan a roadmap from these ${rows.length} feedback items. Put the most important in 'now' (cap ~6), the rest across 'next' and 'later'.\n\n${corpus}`,
       }));
     } catch (e) {

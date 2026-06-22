@@ -25,7 +25,7 @@ export type AnalyzeResult = z.infer<typeof ClusterSchema> & {
   _model?: string;
 };
 
-const slugInput = z.object({ slug: z.string().max(40) });
+const slugInput = z.object({ slug: z.string().max(40), locale: z.string().max(10).optional() });
 
 export const analyzeFeedback = createServerFn({ method: "POST" })
   .middleware([requireAuth])
@@ -88,10 +88,12 @@ export const analyzeFeedback = createServerFn({ method: "POST" })
 
     let text: string;
     try {
+      const langLine = data.locale
+        ? `Write ALL output text (theme, summary, priority_reason, overall_insight) in the language with BCP-47 code "${data.locale}", regardless of the language of the feedback.`
+        : "Match the user-facing language of the feedback in your output.";
       ({ text } = await generateText({
         model: resolved.model,
-        system:
-          "You are a product manager. Cluster, summarize and prioritize user feedback. Reply with ONLY valid JSON — no prose, no markdown fences. Match the user-facing language of the feedback in your output. In post_ids, use ONLY ids that appear in the provided [id:...] list.",
+        system: `You are a product manager. Cluster, summarize and prioritize user feedback. Reply with ONLY valid JSON — no prose, no markdown fences. ${langLine} In post_ids, use ONLY ids that appear in the provided [id:...] list.`,
         prompt: `Cluster the following ${posts.length} feedback items into 1-8 meaningful themes. Vote counts and frequency influence priority.\n\nReply strictly in this JSON shape:\n${schemaHint}\n\nFeedback:\n${corpus}`,
       }));
     } catch (e) {
