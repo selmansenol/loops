@@ -123,6 +123,10 @@ export async function updatePost(
       old_status: existing.status,
       new_status: row.status,
     });
+    // Email registered voters about the status change (best-effort).
+    void import("@/lib/notify.server").then((m) =>
+      m.notifyStatusChange(workspaceId, { id: row.id, title: row.title }, row.status as PostStatus),
+    );
   }
   return row as Post;
 }
