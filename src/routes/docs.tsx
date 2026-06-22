@@ -22,13 +22,24 @@ export const Route = createFileRoute("/docs")({
   component: DocsPage,
 });
 
-const SECTION_IDS = ["quickstart", "multiboard", "embed", "api", "webhooks", "discord"] as const;
+const SECTION_IDS = [
+  "quickstart",
+  "multiboard",
+  "embed",
+  "identify",
+  "api",
+  "webhooks",
+  "mobile",
+  "discord",
+] as const;
 const SECTION_HASH: Record<(typeof SECTION_IDS)[number], string> = {
   quickstart: "quickstart",
   multiboard: "multiboard",
   embed: "embed",
+  identify: "identify",
   api: "api",
   webhooks: "webhooks",
+  mobile: "mobile",
   discord: "bot-discord",
 };
 
@@ -72,12 +83,38 @@ const DOCS_TR = {
       ],
     ] as Array<[string, string]>,
   },
+  identify: {
+    eyebrow: "Kullanıcılar",
+    title: "Kullanıcı tanımlama",
+    lead: "Oyları ve önerileri uygulamandaki gerçek kullanıcıya bağla. Tanımlanan kullanıcı cihaz değiştirse bile tek oy hakkına sahip olur; tanımlamazsan ziyaretçi misafir (tarayıcı/IP) olarak sayılır.",
+    webTitle: "Web (widget)",
+    webDesc: "Widget script'ine giriş yapmış kullanıcının id'sini ver:",
+    apiTitle: "API / sunucu",
+    apiDesc:
+      "REST API'de her oy/öneride external_user_id (ya da oy için X-Loop-External-User header'ı) geç. Aynı id = aynı kullanıcı.",
+    note: "İpucu: external_user_id olarak kendi veritabanındaki kullanıcı id'sini kullan. Anonim ziyaretçi için tarayıcıda kalıcı bir id üretip hep onu gönder.",
+  },
+  mobile: {
+    eyebrow: "iOS / Android",
+    title: "Mobil",
+    lead: "Native uygulamada iki yol var:",
+    webviewTitle: "1) WebView (en hızlı)",
+    webviewDesc:
+      "Panonu (veya widget'ı) bir WebView'da aç — kod yazmadan tam çalışır. Giriş yapmış kullanıcı için URL'e ?u=<user_id> ekleyip widget'ta data-user-id olarak kullanabilirsin.",
+    apiTitle: "2) Native + REST API",
+    apiDesc:
+      "Kendi native ekranını çiz, listeleme/oy/öneri için REST API'yi çağır ve external_user_id olarak uygulamandaki kullanıcı id'sini gönder (gizli anahtarı uygulamaya gömme — backend üzerinden geç).",
+  },
   api: {
     eyebrow: "Bearer auth",
     title: "REST API",
     leadA: "Tüm endpoint'ler JSON. CORS açık. Her istekte ",
     leadB: " bekler. Hatalar ",
     leadC: " formatında döner.",
+    scopesTitle: "Anahtarlar & scope'lar",
+    scopes:
+      "secret anahtar (loop_sk_) sunucu içindir, read/write/admin scope'larını taşır. publishable anahtar (loop_pk_) tarayıcı/widget içindir (read + oy/öneri). Listeleme read, post/oy write, durum/etiket/silme admin ister.",
+    responseTitle: "Yanıt şekli",
     endpoints: {
       list: {
         desc: "Tüm geri bildirimleri listele.",
@@ -169,12 +206,38 @@ const DOCS_EN: DocsCopy = {
       ],
     ],
   },
+  identify: {
+    eyebrow: "Users",
+    title: "Identify users",
+    lead: "Tie votes and posts to the real user in your app. An identified user gets one vote even across devices; without it, visitors are counted as guests (browser/IP).",
+    webTitle: "Web (widget)",
+    webDesc: "Pass your logged-in user's id to the widget script:",
+    apiTitle: "API / server",
+    apiDesc:
+      "On the REST API, send external_user_id (or the X-Loop-External-User header for votes) on every vote/post. Same id = same user.",
+    note: "Tip: use your own database user id as external_user_id. For anonymous visitors, generate a persistent id in the browser and always send the same one.",
+  },
+  mobile: {
+    eyebrow: "iOS / Android",
+    title: "Mobile",
+    lead: "Two ways to use Loops in a native app:",
+    webviewTitle: "1) WebView (fastest)",
+    webviewDesc:
+      "Open your board (or the widget) in a WebView — works fully with no code. For a logged-in user, append ?u=<user_id> and pass it to the widget's data-user-id.",
+    apiTitle: "2) Native + REST API",
+    apiDesc:
+      "Build your own native screen and call the REST API for listing/voting/posting, sending your app's user id as external_user_id (never embed a secret key in the app — proxy through your backend).",
+  },
   api: {
     eyebrow: "Bearer auth",
     title: "REST API",
     leadA: "All endpoints are JSON. CORS is open. Every request needs ",
     leadB: ". Errors come back as ",
     leadC: ".",
+    scopesTitle: "Keys & scopes",
+    scopes:
+      "A secret key (loop_sk_) is for your server and carries read/write/admin scopes. A publishable key (loop_pk_) is for the browser/widget (read + vote/post). Listing needs read, posting/voting needs write, status/tag/delete needs admin.",
+    responseTitle: "Response shape",
     endpoints: {
       list: {
         desc: "List all feedback items.",
@@ -265,8 +328,10 @@ function DocsPage() {
           <Quickstart />
           <MultiBoard />
           <Embed />
+          <IdentifyUsers />
           <ApiRef />
           <Webhooks />
+          <Mobile />
           <BotDiscord />
         </main>
       </div>
@@ -378,11 +443,62 @@ function Embed() {
   );
 }
 
+function IdentifyUsers() {
+  const c = useDocsCopy().identify;
+  return (
+    <Section id="identify" title={c.title} eyebrow={c.eyebrow}>
+      <p className="text-sm text-muted-foreground mb-5">{c.lead}</p>
+
+      <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{c.webTitle}</p>
+      <p className="text-sm text-muted-foreground mb-2">{c.webDesc}</p>
+      <Code language="html">{`<script src="https://getloops.co/loop-widget.js"
+        data-key="loop_pk_..."
+        data-user-id="user_42"
+        data-target="#loop-board"></script>`}</Code>
+
+      <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 mt-6">
+        {c.apiTitle}
+      </p>
+      <p className="text-sm text-muted-foreground mb-2">{c.apiDesc}</p>
+      <Code language="bash">{`curl -X POST -H "Authorization: Bearer loop_sk_..." \\
+  -H "X-Loop-External-User: user_42" \\
+  https://getloops.co/api/v1/posts/POST_ID/vote`}</Code>
+
+      <p className="mt-4 text-xs text-muted-foreground">{c.note}</p>
+    </Section>
+  );
+}
+
+function Mobile() {
+  const c = useDocsCopy().mobile;
+  return (
+    <Section id="mobile" title={c.title} eyebrow={c.eyebrow}>
+      <p className="text-sm text-muted-foreground mb-5">{c.lead}</p>
+
+      <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+        {c.webviewTitle}
+      </p>
+      <p className="text-sm text-muted-foreground mb-2">{c.webviewDesc}</p>
+      <Code language="swift">{`// iOS — WKWebView
+let url = URL(string: "https://getloops.co/acme")!
+webView.load(URLRequest(url: url))
+
+// Android — WebView
+webView.loadUrl("https://getloops.co/acme")`}</Code>
+
+      <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 mt-6">
+        {c.apiTitle}
+      </p>
+      <p className="text-sm text-muted-foreground">{c.apiDesc}</p>
+    </Section>
+  );
+}
+
 function ApiRef() {
   const c = useDocsCopy().api;
   return (
     <Section id="api" title={c.title} eyebrow={c.eyebrow}>
-      <p className="text-sm text-muted-foreground mb-6">
+      <p className="text-sm text-muted-foreground mb-4">
         {c.leadA}
         <code className="text-xs bg-secondary px-1.5 py-0.5 rounded">
           Authorization: Bearer &lt;key&gt;
@@ -391,6 +507,29 @@ function ApiRef() {
         <code className="text-xs bg-secondary px-1.5 py-0.5 rounded">{`{ error: { code, message } }`}</code>
         {c.leadC}
       </p>
+
+      <div className="mb-6 rounded-xl border border-border bg-surface p-4 text-sm text-muted-foreground">
+        <strong className="text-foreground">{c.scopesTitle}: </strong>
+        {c.scopes}
+      </div>
+
+      <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+        {c.responseTitle}
+      </p>
+      <Code language="json">{`{
+  "data": [
+    {
+      "id": "b1a2…",
+      "title": "Dark mode",
+      "description": "…",
+      "tag": "UI",
+      "status": "planned",
+      "votes_count": 42,
+      "created_at": "2026-06-22T12:00:00Z"
+    }
+  ]
+}`}</Code>
+      <div className="mt-6" />
 
       <Endpoint method="GET" path="/api/v1/posts" desc={c.endpoints.list.desc}>
         <ParamRow name="status" type="query" desc={c.endpoints.list.params.status} />
