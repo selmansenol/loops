@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
@@ -50,7 +50,6 @@ function PostDetailPage() {
   const { user } = useAuth();
   const isAdmin = useIsWorkspaceAdmin();
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
 
   const [post, setPost] = useState<PostRow | null>(null);
   const [voted, setVoted] = useState(false);
@@ -86,12 +85,8 @@ function PostDetailPage() {
       setProfiles(map);
     }
 
-    if (user) {
-      const votedIds = await listMyVotesFn({ data: { slug } });
-      setVoted(votedIds.includes(id));
-    } else {
-      setVoted(false);
-    }
+    const votedIds = await listMyVotesFn({ data: { slug } });
+    setVoted(votedIds.includes(id));
     setLoading(false);
   };
 
@@ -101,10 +96,6 @@ function PostDetailPage() {
   }, [id, slug, user?.id]);
 
   const toggleVote = async () => {
-    if (!user) {
-      navigate({ to: "/auth" });
-      return;
-    }
     if (!post) return;
     await toggleVoteFn({ data: { slug, postId: post.id } });
     refresh();
@@ -335,6 +326,7 @@ function CommentsSection({
           <p className="text-sm text-muted-foreground">{t("comments.signInPrompt")}</p>
           <Link
             to="/auth"
+            search={{ redirect: slug }}
             className="rounded-full bg-foreground text-background px-3 py-1.5 text-xs font-medium hover:bg-foreground/90"
           >
             {t("comments.signInCta")}

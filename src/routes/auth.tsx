@@ -7,6 +7,10 @@ import { getAppModeFn } from "@/lib/workspace.functions";
 import { LoopMark } from "@/components/site-header";
 
 export const Route = createFileRoute("/auth")({
+  // `redirect` carries the board slug a user came from, so signing up via a
+  // shared board link lands them back on that board instead of the dashboard.
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } =>
+    typeof search.redirect === "string" ? { redirect: search.redirect } : {},
   head: () => ({
     meta: [
       { title: "Loops · Sign in" },
@@ -21,6 +25,14 @@ function AuthPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const router = useRouter();
+  const { redirect } = Route.useSearch();
+  const boardSlug = redirect && /^[a-z0-9-]+$/.test(redirect) ? redirect : null;
+
+  // After auth: back to the board the user came from, else the dashboard.
+  const goAfterAuth = () => {
+    if (boardSlug) navigate({ to: "/$slug", params: { slug: boardSlug }, replace: true });
+    else navigate({ to: "/dashboard", replace: true });
+  };
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,10 +49,9 @@ function AuthPage() {
   });
 
   useEffect(() => {
-    if (!loading && user) {
-      navigate({ to: "/dashboard", replace: true });
-    }
-  }, [user, loading, navigate]);
+    if (!loading && user) goAfterAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, loading]);
 
   useEffect(() => {
     getAppModeFn()
@@ -94,7 +105,7 @@ function AuthPage() {
           setPassword("");
         } else {
           await router.invalidate();
-          navigate({ to: "/dashboard", replace: true });
+          goAfterAuth();
         }
       } else {
         const { error } = await authClient.signIn.email({ email, password });
@@ -109,7 +120,7 @@ function AuthPage() {
           throw new Error(error.message ?? "Sign in failed");
         }
         await router.invalidate();
-        navigate({ to: "/dashboard", replace: true });
+        goAfterAuth();
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -125,7 +136,7 @@ function AuthPage() {
     try {
       const { error } = await authClient.signIn.social({
         provider,
-        callbackURL: `${window.location.origin}/dashboard`,
+        callbackURL: `${window.location.origin}/${boardSlug ?? "dashboard"}`,
       });
       if (error) {
         setError(error.message ?? String(error));

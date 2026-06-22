@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
@@ -60,12 +60,9 @@ function BoardPage() {
   const refresh = async () => {
     const postsData = await listPostsFn({ data: { slug } });
     setPosts((postsData as Post[]) ?? []);
-    if (user) {
-      const votedIds = await listMyVotesFn({ data: { slug } });
-      setVoted(new Set(votedIds));
-    } else {
-      setVoted(new Set());
-    }
+    // Works for guests too (server resolves a cookie identity).
+    const votedIds = await listMyVotesFn({ data: { slug } });
+    setVoted(new Set(votedIds));
     setLoading(false);
   };
 
@@ -144,9 +141,10 @@ function BoardPage() {
           ) : (
             <Link
               to="/auth"
+              search={{ redirect: slug }}
               className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-medium hover:bg-foreground/90 transition-colors shrink-0"
             >
-              {t("board.signInToVote")}
+              {t("board.signInToPost")}
             </Link>
           )}
         </div>
@@ -257,13 +255,9 @@ function BoardView({
   allTags: string[];
 }) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
+  // Voting is open to everyone — guests vote via a server cookie identity.
   const toggleVote = async (post: Post) => {
-    if (!isAuthed) {
-      navigate({ to: "/auth" });
-      return;
-    }
     await toggleVoteFn({ data: { slug, postId: post.id } });
     onChange();
   };
