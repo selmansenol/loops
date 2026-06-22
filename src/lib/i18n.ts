@@ -352,6 +352,7 @@ const tr = {
       "Loops'un public REST API'si dile bağımsızdır. Web siteleri, mobil uygulamalar, Slack, Discord, GitHub Actions, hatta cron job'lar — Bearer token'la herhangi bir HTTP istemcisi yeter.",
     sections: {
       quickstart: "Hızlı başla",
+      multiboard: "Birden çok pano",
       embed: "Embed widget",
       api: "REST API",
       webhooks: "Webhooks",
@@ -881,6 +882,7 @@ const en: typeof tr = {
       "Loops' public REST API is language-agnostic. Websites, mobile apps, Slack, Discord, GitHub Actions, even cron jobs — any HTTP client with a bearer token works.",
     sections: {
       quickstart: "Quick start",
+      multiboard: "Multiple boards",
       embed: "Embed widget",
       api: "REST API",
       webhooks: "Webhooks",
