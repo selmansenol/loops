@@ -21,8 +21,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SlugRouteRouteImport } from './routes/$slug/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SlugIndexRouteImport } from './routes/$slug/index'
+import { Route as ApiIpcheckRouteImport } from './routes/api/ipcheck'
 import { Route as ApiFeedbackChatRouteImport } from './routes/api/feedback-chat'
-import { Route as ApiIpcheckRouteImport } from './routes/api/_ipcheck'
 import { Route as SlugRoadmapRouteImport } from './routes/$slug/roadmap'
 import { Route as SlugInsightsRouteImport } from './routes/$slug/insights'
 import { Route as SlugChangelogRouteImport } from './routes/$slug/changelog'
@@ -95,14 +95,14 @@ const SlugIndexRoute = SlugIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SlugRouteRoute,
 } as any)
+const ApiIpcheckRoute = ApiIpcheckRouteImport.update({
+  id: '/api/ipcheck',
+  path: '/api/ipcheck',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiFeedbackChatRoute = ApiFeedbackChatRouteImport.update({
   id: '/api/feedback-chat',
   path: '/api/feedback-chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiIpcheckRoute = ApiIpcheckRouteImport.update({
-  id: '/api/_ipcheck',
-  path: '/api',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SlugRoadmapRoute = SlugRoadmapRouteImport.update({
@@ -176,8 +176,8 @@ export interface FileRoutesByFullPath {
   '/$slug/changelog': typeof SlugChangelogRoute
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
-  '/api': typeof ApiIpcheckRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
+  '/api/ipcheck': typeof ApiIpcheckRoute
   '/$slug/': typeof SlugIndexRoute
   '/$slug/posts/$id': typeof SlugPostsIdRoute
   '/$slug/settings/ai': typeof SlugSettingsAiRoute
@@ -202,8 +202,8 @@ export interface FileRoutesByTo {
   '/$slug/changelog': typeof SlugChangelogRoute
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
-  '/api': typeof ApiIpcheckRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
+  '/api/ipcheck': typeof ApiIpcheckRoute
   '/$slug': typeof SlugIndexRoute
   '/$slug/posts/$id': typeof SlugPostsIdRoute
   '/$slug/settings/ai': typeof SlugSettingsAiRoute
@@ -230,8 +230,8 @@ export interface FileRoutesById {
   '/$slug/changelog': typeof SlugChangelogRoute
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
-  '/api/_ipcheck': typeof ApiIpcheckRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
+  '/api/ipcheck': typeof ApiIpcheckRoute
   '/$slug/': typeof SlugIndexRoute
   '/$slug/posts/$id': typeof SlugPostsIdRoute
   '/$slug/settings/ai': typeof SlugSettingsAiRoute
@@ -259,8 +259,8 @@ export interface FileRouteTypes {
     | '/$slug/changelog'
     | '/$slug/insights'
     | '/$slug/roadmap'
-    | '/api'
     | '/api/feedback-chat'
+    | '/api/ipcheck'
     | '/$slug/'
     | '/$slug/posts/$id'
     | '/$slug/settings/ai'
@@ -285,8 +285,8 @@ export interface FileRouteTypes {
     | '/$slug/changelog'
     | '/$slug/insights'
     | '/$slug/roadmap'
-    | '/api'
     | '/api/feedback-chat'
+    | '/api/ipcheck'
     | '/$slug'
     | '/$slug/posts/$id'
     | '/$slug/settings/ai'
@@ -312,8 +312,8 @@ export interface FileRouteTypes {
     | '/$slug/changelog'
     | '/$slug/insights'
     | '/$slug/roadmap'
-    | '/api/_ipcheck'
     | '/api/feedback-chat'
+    | '/api/ipcheck'
     | '/$slug/'
     | '/$slug/posts/$id'
     | '/$slug/settings/ai'
@@ -337,8 +337,8 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
-  ApiIpcheckRoute: typeof ApiIpcheckRoute
   ApiFeedbackChatRoute: typeof ApiFeedbackChatRoute
+  ApiIpcheckRoute: typeof ApiIpcheckRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiV1PostsRoute: typeof ApiV1PostsRouteWithChildren
 }
@@ -429,18 +429,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SlugIndexRouteImport
       parentRoute: typeof SlugRouteRoute
     }
+    '/api/ipcheck': {
+      id: '/api/ipcheck'
+      path: '/api/ipcheck'
+      fullPath: '/api/ipcheck'
+      preLoaderRoute: typeof ApiIpcheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/feedback-chat': {
       id: '/api/feedback-chat'
       path: '/api/feedback-chat'
       fullPath: '/api/feedback-chat'
       preLoaderRoute: typeof ApiFeedbackChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/_ipcheck': {
-      id: '/api/_ipcheck'
-      path: '/api'
-      fullPath: '/api'
-      preLoaderRoute: typeof ApiIpcheckRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$slug/roadmap': {
@@ -585,8 +585,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
-  ApiIpcheckRoute: ApiIpcheckRoute,
   ApiFeedbackChatRoute: ApiFeedbackChatRoute,
+  ApiIpcheckRoute: ApiIpcheckRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiV1PostsRoute: ApiV1PostsRouteWithChildren,
 }

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 // TEMP diagnostic: shows what client IP the app resolves behind the proxy.
-export const Route = createFileRoute("/api/_ipcheck")({
+export const Route = createFileRoute("/api/ipcheck")({
   server: {
     handlers: {
       GET: async ({ request }) => {
