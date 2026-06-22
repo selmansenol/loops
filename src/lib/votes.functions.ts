@@ -37,5 +37,10 @@ export const toggleVoteFn = createServerFn({ method: "POST" })
     const ws = await resolveWorkspace(data.slug);
     // Owner can require sign-in to vote (guest voting disabled).
     if (isGuest && !ws.allow_guest_votes) throw new Error("GUEST_VOTING_OFF");
-    return toggleVote(ws.id, data.postId, key);
+    const result = await toggleVote(ws.id, data.postId, key);
+    // Registered voters auto-follow the post for notifications.
+    if (result.voted && !isGuest) {
+      void import("@/lib/notify.server").then((m) => m.subscribeToPost(data.postId, key));
+    }
+    return result;
   });

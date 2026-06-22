@@ -48,6 +48,11 @@ export const createCommentFn = createServerFn({ method: "POST" })
       .insert(comments)
       .values({ post_id: data.postId, author_id: context.userId, body: data.body })
       .returning();
+    // Commenter follows the post; notify its other subscribers.
+    void import("@/lib/notify.server").then((m) => {
+      m.subscribeToPost(data.postId, context.userId);
+      m.notifyNewComment(ws.id, { id: post.id, title: post.title }, context.userId, false);
+    });
     return row;
   });
 

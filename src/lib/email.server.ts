@@ -60,7 +60,11 @@ export function emailLayout(opts: {
   body: string;
   ctaLabel: string;
   ctaUrl: string;
+  unsubscribeUrl?: string;
 }): string {
+  const footer = opts.unsubscribeUrl
+    ? `<p style="font-size:12px;color:#8e8e93;margin-top:20px;">You're receiving this because you follow this post. <a href="${opts.unsubscribeUrl}" style="color:#8e8e93;">Unsubscribe</a>.</p>`
+    : `<p style="font-size:12px;color:#8e8e93;margin-top:20px;">If you didn't request this, you can safely ignore this email.</p>`;
   return `<!doctype html>
 <html>
   <body style="margin:0;background:#f5f5f7;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1c1c1e;">
@@ -75,7 +79,7 @@ export function emailLayout(opts: {
           <a href="${opts.ctaUrl}" style="color:#7c9cff;word-break:break-all;">${opts.ctaUrl}</a>
         </p>
       </div>
-      <p style="font-size:12px;color:#8e8e93;margin-top:20px;">If you didn't request this, you can safely ignore this email.</p>
+      ${footer}
     </div>
   </body>
 </html>`;

@@ -47,7 +47,7 @@ export const createPostFn = createServerFn({ method: "POST" })
     const { resolveWorkspace } = await import("@/lib/workspace.server");
     const { createPost } = await import("@/lib/posts.repo");
     const ws = await resolveWorkspace(data.slug);
-    return createPost({
+    const post = await createPost({
       workspace_id: ws.id,
       title: data.title,
       description: data.description ?? null,
@@ -55,6 +55,9 @@ export const createPostFn = createServerFn({ method: "POST" })
       author_id: context.userId,
       source: "web",
     });
+    // Author follows their own post for notifications.
+    void import("@/lib/notify.server").then((m) => m.subscribeToPost(post.id, context.userId));
+    return post;
   });
 
 // Status changes are a moderation action → workspace admin only.

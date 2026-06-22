@@ -22,6 +22,13 @@
       "when": 1782124258247,
       "tag": "0002_sturdy_famine",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1782136752137,
+      "tag": "0003_fancy_lila_cheney",
+      "breakpoints": true
     }
   ]
 }

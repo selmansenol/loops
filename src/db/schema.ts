@@ -194,6 +194,37 @@ export const votes = pgTable(
   (t) => [primaryKey({ columns: [t.post_id, t.user_id] }), index("votes_user_idx").on(t.user_id)],
 );
 
+// Registered users following a post (auto-added when they vote/comment/author).
+// Notifications (status change, new comment) go to a post's subscribers.
+export const post_subscriptions = pgTable(
+  "post_subscriptions",
+  {
+    post_id: uuid("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    user_id: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.post_id, t.user_id] }),
+    index("post_subs_user_idx").on(t.user_id),
+  ],
+);
+
+// One-click email opt-out (global). Presence = user receives no notifications.
+export const notification_optouts = pgTable("notification_optouts", {
+  user_id: text("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .notNull()
+    .defaultNow(),
+});
+
 export const comments = pgTable(
   "comments",
   {
