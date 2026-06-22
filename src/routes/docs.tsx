@@ -22,9 +22,10 @@ export const Route = createFileRoute("/docs")({
   component: DocsPage,
 });
 
-const SECTION_IDS = ["quickstart", "embed", "api", "webhooks", "discord"] as const;
+const SECTION_IDS = ["quickstart", "multiboard", "embed", "api", "webhooks", "discord"] as const;
 const SECTION_HASH: Record<(typeof SECTION_IDS)[number], string> = {
   quickstart: "quickstart",
+  multiboard: "multiboard",
   embed: "embed",
   api: "api",
   webhooks: "webhooks",
@@ -37,13 +38,24 @@ const DOCS_TR = {
   quickstart: {
     eyebrow: "3 dakika",
     title: "Hızlı başla",
-    step1a: "Loops'a giriş yap",
-    step1b: " ve admin yetkisi al.",
-    step2a: "Settings → API Anahtarları",
+    step1a: "Giriş yap / kayıt ol",
+    step1b: ", sonra panonu oluştur (her ürün için ayrı bir pano açabilirsin).",
+    step2a: "Panonun Ayarlar → API Anahtarları",
     step2b: " sayfasında bir ",
     step2c: " ya da ",
-    step2d: " key oluştur.",
-    step3: "API'yi cURL ile dene:",
+    step2d: " anahtar oluştur. Her pano kendi anahtarlarına sahiptir.",
+    step3: "API'yi o panonun anahtarıyla cURL ile dene:",
+  },
+  multiboard: {
+    eyebrow: "Çoklu ürün",
+    title: "Birden çok pano",
+    lead: "Her ürün/uygulaman için ayrı bir pano oluştur. Panolar tamamen bağımsızdır — kendi postları, üyeleri, AI anahtarı ve API anahtarları olur. 5 uygulaman varsa 5 pano açar, her birini kendi anahtarıyla ilgili uygulamaya gömersin.",
+    steps: [
+      "Her ürün için bir pano aç: getloops.co/acme-web, getloops.co/acme-mobil, …",
+      "Her panonun Ayarlar → API Anahtarları'ndan kendi publishable (widget) ve secret (REST) anahtarını al.",
+      "İlgili uygulamanın içine o panonun anahtarıyla widget'ı göm veya REST API'yi kullan. Her uygulama yalnızca kendi panosunu görür.",
+    ],
+    exampleTitle: "Örnek: iki ürün, iki ayrı pano",
   },
   embed: {
     eyebrow: "HTML",
@@ -119,13 +131,24 @@ const DOCS_EN: DocsCopy = {
   quickstart: {
     eyebrow: "3 minutes",
     title: "Quick start",
-    step1a: "Sign in to Loops",
-    step1b: " and get admin access.",
-    step2a: "Settings → API Keys",
+    step1a: "Sign in / sign up",
+    step1b: ", then create your board (you can make a separate board per product).",
+    step2a: "your board's Settings → API Keys",
     step2b: " page, create a ",
     step2c: " or ",
-    step2d: " key.",
-    step3: "Try the API with cURL:",
+    step2d: " key. Each board has its own keys.",
+    step3: "Try the API with that board's key via cURL:",
+  },
+  multiboard: {
+    eyebrow: "Multiple products",
+    title: "Multiple boards",
+    lead: "Create a separate board for each product/app. Boards are fully independent — each has its own posts, members, AI key and API keys. Got 5 apps? Make 5 boards and embed each one with its own key.",
+    steps: [
+      "Create one board per product: getloops.co/acme-web, getloops.co/acme-mobile, …",
+      "Grab each board's own publishable (widget) and secret (REST) key from its Settings → API Keys.",
+      "Embed the widget — or call the REST API — in each app with that board's key. Each app only ever sees its own board.",
+    ],
+    exampleTitle: "Example: two products, two separate boards",
   },
   embed: {
     eyebrow: "HTML",
@@ -232,6 +255,7 @@ function DocsPage() {
         <main className="min-w-0 space-y-20">
           <Hero />
           <Quickstart />
+          <MultiBoard />
           <Embed />
           <ApiRef />
           <Webhooks />
@@ -287,6 +311,36 @@ function Quickstart() {
   https://getloops.co/api/v1/posts`}</Code>
         </Step>
       </ol>
+    </Section>
+  );
+}
+
+function MultiBoard() {
+  const c = useDocsCopy().multiboard;
+  return (
+    <Section id="multiboard" title={c.title} eyebrow={c.eyebrow}>
+      <p className="text-sm text-muted-foreground mb-4">{c.lead}</p>
+      <ol className="space-y-3 text-sm mb-4">
+        {c.steps.map((s, i) => (
+          <Step key={i} n={i + 1}>
+            {s}
+          </Step>
+        ))}
+      </ol>
+      <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+        {c.exampleTitle}
+      </p>
+      <Code language="html">{`<!-- Product A → board "acme-web" -->
+<div id="loop-web"></div>
+<script src="https://getloops.co/loop-widget.js"
+        data-key="loop_pk_WEB_..."
+        data-target="#loop-web"></script>
+
+<!-- Product B → board "acme-mobile" -->
+<div id="loop-mobile"></div>
+<script src="https://getloops.co/loop-widget.js"
+        data-key="loop_pk_MOBILE_..."
+        data-target="#loop-mobile"></script>`}</Code>
     </Section>
   );
 }
