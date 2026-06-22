@@ -22,25 +22,20 @@ export const Route = createFileRoute("/docs")({
   component: DocsPage,
 });
 
-const SECTION_IDS = [
-  "quickstart",
-  "multiboard",
-  "embed",
-  "identify",
-  "api",
-  "webhooks",
-  "mobile",
-  "discord",
-] as const;
-const SECTION_HASH: Record<(typeof SECTION_IDS)[number], string> = {
+// Two tabs, Canny-style: Install (how to use it) and API (reference).
+const INSTALL_IDS = ["quickstart", "multiboard", "embed", "identify", "mobile", "discord"] as const;
+const API_IDS = ["intro", "posts", "webhooks"] as const;
+const SECTION_HASH: Record<string, string> = {
   quickstart: "quickstart",
   multiboard: "multiboard",
   embed: "embed",
   identify: "identify",
-  api: "api",
-  webhooks: "webhooks",
   mobile: "mobile",
   discord: "bot-discord",
+  intro: "api-intro",
+  posts: "api-posts",
+  votes: "api-votes",
+  webhooks: "webhooks",
 };
 
 // ─── local i18n dictionary for the docs body ────────────────────────
@@ -298,16 +293,31 @@ function useDocsCopy(): DocsCopy {
 
 function DocsPage() {
   const { t } = useTranslation();
+  const [tab, setTab] = useState<"install" | "api">("install");
+  const ids = tab === "install" ? INSTALL_IDS : API_IDS;
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <div className="mx-auto max-w-6xl px-6 py-10 grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1fr)] gap-10">
+      <div className="mx-auto max-w-6xl px-6 py-10 grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)] gap-10">
         <aside className="lg:sticky lg:top-24 self-start">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
-            {t("docs.sidebarTitle")}
-          </p>
+          {/* Install / API tabs */}
+          <div className="flex gap-1 rounded-full border border-border bg-surface p-1 text-sm mb-4">
+            {(["install", "api"] as const).map((tk) => (
+              <button
+                key={tk}
+                onClick={() => setTab(tk)}
+                className={`flex-1 rounded-full px-3 py-1.5 font-medium transition-colors ${
+                  tab === tk
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t(`docs.tabs.${tk}`)}
+              </button>
+            ))}
+          </div>
           <nav className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible">
-            {SECTION_IDS.map((id) => (
+            {ids.map((id) => (
               <a
                 key={id}
                 href={`#${SECTION_HASH[id]}`}
@@ -324,15 +334,23 @@ function DocsPage() {
         </aside>
 
         <main className="min-w-0 space-y-20">
-          <Hero />
-          <Quickstart />
-          <MultiBoard />
-          <Embed />
-          <IdentifyUsers />
-          <ApiRef />
-          <Webhooks />
-          <Mobile />
-          <BotDiscord />
+          {tab === "install" ? (
+            <>
+              <Hero />
+              <Quickstart />
+              <MultiBoard />
+              <Embed />
+              <IdentifyUsers />
+              <Mobile />
+              <BotDiscord />
+            </>
+          ) : (
+            <>
+              <ApiIntro />
+              <ApiPosts />
+              <Webhooks />
+            </>
+          )}
         </main>
       </div>
       <SiteFooter />
@@ -494,10 +512,10 @@ webView.loadUrl("https://getloops.co/acme")`}</Code>
   );
 }
 
-function ApiRef() {
+function ApiIntro() {
   const c = useDocsCopy().api;
   return (
-    <Section id="api" title={c.title} eyebrow={c.eyebrow}>
+    <Section id="api-intro" title={c.title} eyebrow={c.eyebrow}>
       <p className="text-sm text-muted-foreground mb-4">
         {c.leadA}
         <code className="text-xs bg-secondary px-1.5 py-0.5 rounded">
@@ -529,8 +547,15 @@ function ApiRef() {
     }
   ]
 }`}</Code>
-      <div className="mt-6" />
+    </Section>
+  );
+}
 
+function ApiPosts() {
+  const c = useDocsCopy().api;
+  const { t } = useTranslation();
+  return (
+    <Section id="api-posts" title={t("docs.sections.posts")} eyebrow="/api/v1/posts">
       <Endpoint method="GET" path="/api/v1/posts" desc={c.endpoints.list.desc}>
         <ParamRow name="status" type="query" desc={c.endpoints.list.params.status} />
         <ParamRow name="tag" type="query" desc={c.endpoints.list.params.tag} />

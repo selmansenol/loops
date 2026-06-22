@@ -345,6 +345,7 @@ const tr = {
     metaDesc:
       "Loops'u her dilden kullan: REST API, embed widget, webhooks (Discord/Slack) ve Discord bot örneği.",
     sidebarTitle: "Developer Docs",
+    tabs: { install: "Kurulum", api: "API" },
     licenseTitle: "MIT Lisanslı",
     licenseDesc: "Loops açık kaynak. Forkla, değiştir, kendi sunucunda çalıştır.",
     heroTitle: "Loops'u her şeye bağla",
@@ -355,6 +356,8 @@ const tr = {
       multiboard: "Birden çok pano",
       embed: "Embed widget",
       identify: "Kullanıcı tanımlama",
+      intro: "Giriş",
+      posts: "Posts",
       api: "REST API",
       webhooks: "Webhooks",
       mobile: "Mobil",
@@ -877,6 +880,7 @@ const en: typeof tr = {
     metaDesc:
       "Use Loops from any language: REST API, embed widget, webhooks (Discord/Slack), and a Discord bot example.",
     sidebarTitle: "Developer Docs",
+    tabs: { install: "Install", api: "API" },
     licenseTitle: "MIT Licensed",
     licenseDesc: "Loops is open source. Fork it, change it, run it on your own server.",
     heroTitle: "Connect Loops to anything",
@@ -887,6 +891,8 @@ const en: typeof tr = {
       multiboard: "Multiple boards",
       embed: "Embed widget",
       identify: "Identify users",
+      intro: "Introduction",
+      posts: "Posts",
       api: "REST API",
       webhooks: "Webhooks",
       mobile: "Mobile",

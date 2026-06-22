@@ -59,11 +59,13 @@ There are two ways to use it:
 - 💬 **Comments** — discuss posts; admins can mark official responses
 - 🏢 **Multi-board / workspaces** — host many boards at `/<slug>`, each with its own
   members, roles (owner / admin / member) and settings
-- 🔐 **Auth** — email/password + optional Google & GitHub OAuth (cookie sessions)
+- 🔐 **Auth** — email/password (with verification + reset via Resend) + optional Google & GitHub OAuth
+- 🗳️ **Guest voting** — visitors vote without an account (IP-deduplicated); owners can require sign-in
 - 🔑 **Public REST API** with scoped, per-workspace API keys (`/api/v1/*`)
-- 🪝 **Webhooks** — HMAC-signed delivery on post/vote events
+- 🪝 **Webhooks** — HMAC-signed delivery; native Discord & Slack formatting
+- 🧩 **Embeddable widget** — one script tag, with `data-user-id` to identify your logged-in users
+- 📣 **Share & Embed panel** — public link + QR + one-click embed key per board
 - 🌍 **i18n** — 17 languages out of the box, with RTL support
-- 🧩 **Embeddable widget** — drop feedback capture into any site with one script tag
 
 ## 🤖 AI-native extras
 
@@ -268,13 +270,19 @@ Caddy obtains and renews TLS certificates automatically (ports 80/443 must be op
 ## 🗺️ Roadmap
 
 - [x] Multi-board / workspace support
-- [ ] Email notifications (Resend)
+- [x] Guest voting (no account, IP-deduplicated) + owner toggle
+- [x] Per-board AI provider + model selection (bring your own key)
+- [x] Embed widget with user identification (`data-user-id`)
+- [x] Native Discord / Slack webhook formatting
+- [x] Transactional email (verification + password reset, Resend)
+- [x] Share & Embed panel (public link, QR, one-click embed key)
+- [ ] Email digests & notifications
 - [ ] Team invites by email
-- [ ] Semantic (embedding-based) duplicate detection
+- [ ] Inbound capture from Telegram / WhatsApp
 - [ ] Two-way GitHub / Linear / Jira sync
 - [ ] Billing & plans for the hosted edition
 
-Have an idea? [Open an issue](../../issues/new/choose) — Loops is built on feedback. 🙂
+Have an idea? Tell us on our own board → **[getloops.co/feedback](https://getloops.co/feedback)** (yes, Loops runs on Loops), or [open an issue](../../issues/new/choose). 🙂
 
 ## 🤝 Contributing
 
