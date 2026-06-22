@@ -49,6 +49,8 @@ export function FeedbackChat({
       });
       if (!res.ok) {
         const body = await res.json().catch(() => null);
+        const code = body?.error?.code as string | undefined;
+        if (code?.startsWith("ai_")) throw new Error(t(`aiErrors.${code.slice(3)}`));
         throw new Error(body?.error?.message ?? `HTTP ${res.status}`);
       }
       const data: { reply: string; createdPostId?: string } = await res.json();

@@ -24,6 +24,15 @@ const tr = {
     settings: "Ayarlar",
   },
   footer: { tagline: "· Açık kaynak, MIT lisanslı", terms: "Şartlar", privacy: "Gizlilik" },
+  aiErrors: {
+    no_provider: "AI sağlayıcısı yapılandırılmamış. Ayarlar → AI'dan bir API anahtarı ekle.",
+    quota:
+      "AI sağlayıcının kotası dolmuş. Faturalandırmayı aç ya da Ayarlar → AI'dan başka bir model/sağlayıcı dene.",
+    rate_limit: "Şu an çok fazla istek var. Lütfen biraz sonra tekrar dene.",
+    invalid_key: "API anahtarın geçersiz görünüyor. Ayarlar → AI'dan kontrol et.",
+    model_not_found: "Seçili model kullanılamıyor. Ayarlar → AI'dan başka bir model seç.",
+    server: "AI servisine ulaşırken bir sorun oldu. Lütfen tekrar dene.",
+  },
   dashboard: {
     eyebrow: "Çalışma alanı",
     title: "Panolarım",
@@ -525,6 +534,15 @@ const en: typeof tr = {
     settings: "Settings",
   },
   footer: { tagline: "· Open source, MIT licensed", terms: "Terms", privacy: "Privacy" },
+  aiErrors: {
+    no_provider: "No AI provider configured. Add an API key in Settings → AI.",
+    quota:
+      "Your AI provider's quota is exhausted. Enable billing, or pick another model/provider in Settings → AI.",
+    rate_limit: "Too many requests right now. Please try again in a moment.",
+    invalid_key: "Your API key looks invalid. Check it in Settings → AI.",
+    model_not_found: "The selected model isn't available. Pick another in Settings → AI.",
+    server: "Something went wrong reaching the AI service. Please try again.",
+  },
   dashboard: {
     eyebrow: "Workspace",
     title: "My boards",

@@ -129,17 +129,9 @@ function InsightsPage() {
       setResultAt(now);
       saveCached(r);
     } catch (e) {
-      const err = e as Error & { code?: string };
-      const msg = err.message ?? String(e);
-      if (
-        err.code === "NO_AI_PROVIDER" ||
-        msg.includes("NO_AI_PROVIDER") ||
-        msg.includes("No AI provider")
-      ) {
-        setError(t("insights.errors.noProvider"));
-      } else if (msg.includes("429")) setError(t("insights.errors.rateLimit"));
-      else if (msg.includes("402")) setError(t("insights.errors.credit"));
-      else setError(msg);
+      const msg = e instanceof Error ? e.message : String(e);
+      const m = msg.match(/^AI_ERR:(\w+)/);
+      setError(m ? t(`aiErrors.${m[1]}`) : msg);
     } finally {
       setBusy(false);
     }

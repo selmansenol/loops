@@ -45,17 +45,12 @@ export const generateRoadmapFn = createServerFn({ method: "POST" })
     }
 
     const byId = new Map(rows.map((r) => [r.id, r]));
-    const { resolveAiModel, NoAiProviderError } = await import("@/lib/ai-provider.server");
+    const { resolveAiModel, classifyAiError } = await import("@/lib/ai-provider.server");
     let model;
     try {
       ({ model } = await resolveAiModel(ws.id));
     } catch (e) {
-      if (e instanceof NoAiProviderError) {
-        const err = new Error("NO_AI_PROVIDER") as Error & { code?: string };
-        err.code = "NO_AI_PROVIDER";
-        throw err;
-      }
-      throw e;
+      throw new Error(`AI_ERR:${classifyAiError(e)}`);
     }
 
     const { generateObject } = await import("ai");
@@ -76,13 +71,18 @@ export const generateRoadmapFn = createServerFn({ method: "POST" })
       )
       .join("\n");
 
-    const { object } = await generateObject({
-      model,
-      schema,
-      system:
-        "You are a head of product planning a roadmap. Sort feedback into three buckets: 'now' (highest impact, do immediately), 'next' (soon), 'later' (backlog). Weigh vote counts heavily but also coherence of themes. Use ONLY the provided ids; do not invent ids. Keep each reason to one short sentence. Write reasons and summary in the language most of the feedback uses.",
-      prompt: `Plan a roadmap from these ${rows.length} feedback items. Put the most important in 'now' (cap ~6), the rest across 'next' and 'later'.\n\n${corpus}`,
-    });
+    let object;
+    try {
+      ({ object } = await generateObject({
+        model,
+        schema,
+        system:
+          "You are a head of product planning a roadmap. Sort feedback into three buckets: 'now' (highest impact, do immediately), 'next' (soon), 'later' (backlog). Weigh vote counts heavily but also coherence of themes. Use ONLY the provided ids; do not invent ids. Keep each reason to one short sentence. Write reasons and summary in the language most of the feedback uses.",
+        prompt: `Plan a roadmap from these ${rows.length} feedback items. Put the most important in 'now' (cap ~6), the rest across 'next' and 'later'.\n\n${corpus}`,
+      }));
+    } catch (e) {
+      throw new Error(`AI_ERR:${classifyAiError(e)}`);
+    }
 
     const map = (items: { id: string; reason: string }[]): RoadmapBucketItem[] =>
       items

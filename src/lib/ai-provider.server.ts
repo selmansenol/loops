@@ -122,18 +122,20 @@ export async function fetchProviderModels(
     const json = (await res.json()) as {
       models?: { name: string; supportedGenerationMethods?: string[] }[];
     };
-    return (json.models ?? [])
-      .filter((m) => m.supportedGenerationMethods?.includes("generateContent"))
-      .map((m) => m.name.replace(/^models\//, ""))
-      // Keep current Gemini chat models; drop legacy 1.x, experimental and
-      // non-chat (vision/thinking/tuning/embedding) variants.
-      .filter(
-        (id) =>
-          id.startsWith("gemini-") &&
-          !/gemini-1\./.test(id) &&
-          !/(exp|vision|thinking|tuning|embedding)/i.test(id),
-      )
-      .sort();
+    return (
+      (json.models ?? [])
+        .filter((m) => m.supportedGenerationMethods?.includes("generateContent"))
+        .map((m) => m.name.replace(/^models\//, ""))
+        // Keep current Gemini chat models; drop legacy 1.x, experimental and
+        // non-chat (vision/thinking/tuning/embedding) variants.
+        .filter(
+          (id) =>
+            id.startsWith("gemini-") &&
+            !/gemini-1\./.test(id) &&
+            !/(exp|vision|thinking|tuning|embedding)/i.test(id),
+        )
+        .sort()
+    );
   }
   if (provider === "openai") {
     const res = await fetch("https://api.openai.com/v1/models", {
@@ -179,6 +181,67 @@ export class NoAiProviderError extends Error {
   constructor() {
     super("NO_AI_PROVIDER");
   }
+}
+
+export type AiErrorCode =
+  | "no_provider"
+  | "quota"
+  | "rate_limit"
+  | "invalid_key"
+  | "model_not_found"
+  | "server";
+
+/**
+ * Turn a raw provider/SDK error into a stable, user-meaningful code. The UI
+ * maps these to friendly, localized messages — so customers see "your AI quota
+ * is exhausted" instead of a wall of provider JSON.
+ */
+export function classifyAiError(err: unknown): AiErrorCode {
+  if (err instanceof NoAiProviderError) return "no_provider";
+  const e = err as {
+    message?: string;
+    statusCode?: number;
+    status?: number;
+    responseBody?: string;
+  };
+  const status = e.statusCode ?? e.status ?? 0;
+  const msg = `${e.message ?? ""} ${e.responseBody ?? ""}`.toLowerCase();
+
+  if (msg.includes("quota") || msg.includes("resource_exhausted") || msg.includes("billing")) {
+    return "quota";
+  }
+  if (
+    status === 429 ||
+    status === 529 ||
+    msg.includes("rate limit") ||
+    msg.includes("rate_limit") ||
+    msg.includes("too many requests") ||
+    msg.includes("overloaded")
+  ) {
+    return "rate_limit";
+  }
+  if (
+    status === 401 ||
+    status === 403 ||
+    msg.includes("api key not valid") ||
+    msg.includes("invalid api key") ||
+    msg.includes("incorrect api key") ||
+    msg.includes("permission_denied") ||
+    msg.includes("unauthorized") ||
+    msg.includes("invalid x-api-key") ||
+    msg.includes("authentication")
+  ) {
+    return "invalid_key";
+  }
+  if (
+    status === 404 ||
+    msg.includes("not found") ||
+    msg.includes("does not exist") ||
+    msg.includes("not supported for")
+  ) {
+    return "model_not_found";
+  }
+  return "server";
 }
 
 async function resolveKey(workspaceId: string): Promise<ResolvedKey> {

@@ -55,17 +55,12 @@ export const analyzeFeedback = createServerFn({ method: "POST" })
     }
 
     // Load provider helper inside the handler (server-only module).
-    const { resolveAiModel, NoAiProviderError } = await import("./ai-provider.server");
+    const { resolveAiModel, classifyAiError } = await import("./ai-provider.server");
     let resolved: Awaited<ReturnType<typeof resolveAiModel>>;
     try {
       resolved = await resolveAiModel(ws.id);
     } catch (e) {
-      if (e instanceof NoAiProviderError) {
-        const err = new Error("NO_AI_PROVIDER") as Error & { code?: string };
-        err.code = "NO_AI_PROVIDER";
-        throw err;
-      }
-      throw e;
+      throw new Error(`AI_ERR:${classifyAiError(e)}`);
     }
 
     const corpus = posts
@@ -91,12 +86,17 @@ export const analyzeFeedback = createServerFn({ method: "POST" })
   "overall_insight": "2-3 sentence overall takeaway"
 }`;
 
-    const { text } = await generateText({
-      model: resolved.model,
-      system:
-        "You are a product manager. Cluster, summarize and prioritize user feedback. Reply with ONLY valid JSON — no prose, no markdown fences. Match the user-facing language of the feedback in your output. In post_ids, use ONLY ids that appear in the provided [id:...] list.",
-      prompt: `Cluster the following ${posts.length} feedback items into 1-8 meaningful themes. Vote counts and frequency influence priority.\n\nReply strictly in this JSON shape:\n${schemaHint}\n\nFeedback:\n${corpus}`,
-    });
+    let text: string;
+    try {
+      ({ text } = await generateText({
+        model: resolved.model,
+        system:
+          "You are a product manager. Cluster, summarize and prioritize user feedback. Reply with ONLY valid JSON — no prose, no markdown fences. Match the user-facing language of the feedback in your output. In post_ids, use ONLY ids that appear in the provided [id:...] list.",
+        prompt: `Cluster the following ${posts.length} feedback items into 1-8 meaningful themes. Vote counts and frequency influence priority.\n\nReply strictly in this JSON shape:\n${schemaHint}\n\nFeedback:\n${corpus}`,
+      }));
+    } catch (e) {
+      throw new Error(`AI_ERR:${classifyAiError(e)}`);
+    }
 
     const parsed = extractJson(text);
     const result = ClusterSchema.parse(parsed) as AnalyzeResult;

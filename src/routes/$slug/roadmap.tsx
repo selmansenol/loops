@@ -155,7 +155,8 @@ function RoadmapGenerator({ slug, onApplied }: { slug: string; onApplied: () => 
       setProposal(result as RoadmapProposal);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      setError(msg.includes("NO_AI_PROVIDER") ? t("roadmapAi.noProvider") : msg);
+      const m = msg.match(/^AI_ERR:(\w+)/);
+      setError(m ? t(`aiErrors.${m[1]}`) : msg);
     } finally {
       setBusy(false);
     }

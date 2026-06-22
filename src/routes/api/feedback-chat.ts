@@ -48,17 +48,28 @@ export const Route = createFileRoute("/api/feedback-chat")({
 
         const { generateText, tool, stepCountIs } = await import("ai");
         const { z } = await import("zod");
-        const { resolveAiModel, NoAiProviderError } = await import("@/lib/ai-provider.server");
+        const { resolveAiModel, classifyAiError } = await import("@/lib/ai-provider.server");
         const { findSimilarPosts, createPost } = await import("@/lib/posts.repo");
+
+        // HTTP status per error class (the body carries a stable `code` the UI maps).
+        const statusFor: Record<string, number> = {
+          no_provider: 503,
+          quota: 429,
+          rate_limit: 429,
+          invalid_key: 401,
+          model_not_found: 404,
+          server: 502,
+        };
+        const aiError = (e: unknown) => {
+          const code = classifyAiError(e);
+          return jsonError(`ai_${code}`, code, statusFor[code] ?? 502);
+        };
 
         let model;
         try {
           ({ model } = await resolveAiModel(ws.id));
         } catch (e) {
-          if (e instanceof NoAiProviderError) {
-            return jsonError("no_ai_provider", "No AI provider configured.", 503);
-          }
-          throw e;
+          return aiError(e);
         }
 
         let createdPostId: string | undefined;
@@ -119,7 +130,7 @@ export const Route = createFileRoute("/api/feedback-chat")({
             { headers: { "Content-Type": "application/json" } },
           );
         } catch (err) {
-          return jsonError("server_error", err instanceof Error ? err.message : String(err), 500);
+          return aiError(err);
         }
       },
     },
