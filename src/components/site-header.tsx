@@ -24,10 +24,14 @@ export function SiteHeader() {
   const router = useRouter();
   const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
+  const [feedbackSlug, setFeedbackSlug] = useState<string | null>(null);
 
   useEffect(() => {
     applyClientLanguage();
     setMounted(true);
+    getAppModeFn()
+      .then((m) => setFeedbackSlug(m.feedbackSlug))
+      .catch(() => {});
   }, []);
 
   const handleSignOut = async () => {
@@ -69,6 +73,9 @@ export function SiteHeader() {
             </>
           ) : (
             mounted && user && <NavItem to="/dashboard" label={t("nav.dashboard")} />
+          )}
+          {!slug && feedbackSlug && (
+            <NavItem to="/$slug" params={{ slug: feedbackSlug }} label={t("footer.feedback")} />
           )}
           <NavItem to="/docs" label={t("nav.docs")} />
           <a

@@ -467,6 +467,7 @@ $ docker compose up -d
 
 function CTA() {
   const { t } = useTranslation();
+  const feedbackSlug = useFeedbackSlug();
   return (
     <section className="mx-auto max-w-4xl px-6 py-24 text-center">
       <LoopMark className="!h-12 !w-12 mx-auto mb-6" />
@@ -482,13 +483,22 @@ function CTA() {
           {t("landing.ctaPrimary")}
         </Link>
         <a
-          href="https://github.com"
+          href={GITHUB_URL}
           target="_blank"
           rel="noreferrer"
           className="inline-flex items-center gap-2 rounded-full border border-border-strong bg-surface px-6 py-3 text-sm font-medium hover:bg-accent transition-colors"
         >
           ★ {t("landing.starGitHub")}
         </a>
+        {feedbackSlug && (
+          <Link
+            to="/$slug"
+            params={{ slug: feedbackSlug }}
+            className="inline-flex items-center gap-2 rounded-full border border-border-strong bg-surface px-6 py-3 text-sm font-medium hover:bg-accent transition-colors"
+          >
+            💬 {t("landing.giveFeedback")}
+          </Link>
+        )}
       </div>
     </section>
   );
