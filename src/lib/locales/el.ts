@@ -12,6 +12,7 @@ export default {
     sponsor: "Υποστήριξη",
     signIn: "Σύνδεση",
     signOut: "Αποσύνδεση",
+    settings: "Ρυθμίσεις",
   },
   footer: { tagline: "· Ανοιχτού κώδικα, άδεια MIT" },
   common: {

@@ -12,6 +12,7 @@ export default {
     sponsor: "후원하기",
     signIn: "로그인",
     signOut: "로그아웃",
+    settings: "설정",
   },
   footer: { tagline: "· 오픈소스, MIT 라이선스" },
   common: {

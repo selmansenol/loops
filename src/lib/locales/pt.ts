@@ -12,6 +12,7 @@ export default {
     sponsor: "Apoiar",
     signIn: "Entrar",
     signOut: "Sair",
+    settings: "Configurações",
   },
   footer: { tagline: "· Código aberto, licença MIT" },
   common: {

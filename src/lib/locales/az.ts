@@ -12,6 +12,7 @@ export default {
     sponsor: "Dəstək ol",
     signIn: "Daxil ol",
     signOut: "Çıxış",
+    settings: "Tənzimləmələr",
   },
   footer: { tagline: "· Açıq mənbə, MIT lisenziyası" },
   common: {

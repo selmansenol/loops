@@ -12,6 +12,7 @@ export default {
     sponsor: "ادعم",
     signIn: "تسجيل الدخول",
     signOut: "تسجيل الخروج",
+    settings: "الإعدادات",
   },
   footer: { tagline: "· مفتوح المصدر، برخصة MIT" },
   common: {

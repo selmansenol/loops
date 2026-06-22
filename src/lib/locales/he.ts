@@ -12,6 +12,7 @@ export default {
     sponsor: "תמיכה",
     signIn: "התחברות",
     signOut: "התנתקות",
+    settings: "הגדרות",
   },
   footer: { tagline: "· קוד פתוח, רישיון MIT" },
   common: {

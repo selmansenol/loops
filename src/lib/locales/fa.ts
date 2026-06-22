@@ -12,6 +12,7 @@ export default {
     sponsor: "حمایت",
     signIn: "ورود",
     signOut: "خروج",
+    settings: "تنظیمات",
   },
   footer: { tagline: "· متن‌باز، مجوز MIT" },
   common: {

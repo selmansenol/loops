@@ -12,6 +12,7 @@ export default {
     sponsor: "赞助",
     signIn: "登录",
     signOut: "退出",
+    settings: "设置",
   },
   footer: { tagline: "· 开源，MIT 许可证" },
   common: {

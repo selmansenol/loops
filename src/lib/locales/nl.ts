@@ -12,6 +12,7 @@ export default {
     sponsor: "Steunen",
     signIn: "Inloggen",
     signOut: "Uitloggen",
+    settings: "Instellingen",
   },
   footer: { tagline: "· Open source, MIT-licentie" },
   common: {

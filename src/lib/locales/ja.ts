@@ -12,6 +12,7 @@ export default {
     sponsor: "支援する",
     signIn: "ログイン",
     signOut: "ログアウト",
+    settings: "設定",
   },
   footer: { tagline: "· オープンソース、MITライセンス" },
   common: {
