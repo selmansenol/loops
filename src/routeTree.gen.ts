@@ -28,7 +28,10 @@ import { Route as ApiFeedbackChatRouteImport } from './routes/api/feedback-chat'
 import { Route as SlugRoadmapRouteImport } from './routes/$slug/roadmap'
 import { Route as SlugInsightsRouteImport } from './routes/$slug/insights'
 import { Route as SlugChangelogRouteImport } from './routes/$slug/changelog'
+import { Route as ApiV1TagsRouteImport } from './routes/api/v1/tags'
 import { Route as ApiV1PostsRouteImport } from './routes/api/v1/posts'
+import { Route as ApiV1ChangelogRouteImport } from './routes/api/v1/changelog'
+import { Route as ApiV1BoardRouteImport } from './routes/api/v1/board'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as SlugSettingsWebhooksRouteImport } from './routes/$slug/settings.webhooks'
 import { Route as SlugSettingsShareRouteImport } from './routes/$slug/settings.share'
@@ -37,6 +40,7 @@ import { Route as SlugSettingsAiRouteImport } from './routes/$slug/settings.ai'
 import { Route as SlugPostsIdRouteImport } from './routes/$slug/posts.$id'
 import { Route as ApiV1PostsIdRouteImport } from './routes/api/v1/posts.$id'
 import { Route as ApiV1PostsIdVoteRouteImport } from './routes/api/v1/posts.$id.vote'
+import { Route as ApiV1PostsIdCommentsRouteImport } from './routes/api/v1/posts.$id.comments'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -133,9 +137,24 @@ const SlugChangelogRoute = SlugChangelogRouteImport.update({
   path: '/changelog',
   getParentRoute: () => SlugRouteRoute,
 } as any)
+const ApiV1TagsRoute = ApiV1TagsRouteImport.update({
+  id: '/api/v1/tags',
+  path: '/api/v1/tags',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiV1PostsRoute = ApiV1PostsRouteImport.update({
   id: '/api/v1/posts',
   path: '/api/v1/posts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1ChangelogRoute = ApiV1ChangelogRouteImport.update({
+  id: '/api/v1/changelog',
+  path: '/api/v1/changelog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1BoardRoute = ApiV1BoardRouteImport.update({
+  id: '/api/v1/board',
+  path: '/api/v1/board',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -178,6 +197,11 @@ const ApiV1PostsIdVoteRoute = ApiV1PostsIdVoteRouteImport.update({
   path: '/vote',
   getParentRoute: () => ApiV1PostsIdRoute,
 } as any)
+const ApiV1PostsIdCommentsRoute = ApiV1PostsIdCommentsRouteImport.update({
+  id: '/comments',
+  path: '/comments',
+  getParentRoute: () => ApiV1PostsIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -205,8 +229,12 @@ export interface FileRoutesByFullPath {
   '/$slug/settings/share': typeof SlugSettingsShareRoute
   '/$slug/settings/webhooks': typeof SlugSettingsWebhooksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/v1/board': typeof ApiV1BoardRoute
+  '/api/v1/changelog': typeof ApiV1ChangelogRoute
   '/api/v1/posts': typeof ApiV1PostsRouteWithChildren
+  '/api/v1/tags': typeof ApiV1TagsRoute
   '/api/v1/posts/$id': typeof ApiV1PostsIdRouteWithChildren
+  '/api/v1/posts/$id/comments': typeof ApiV1PostsIdCommentsRoute
   '/api/v1/posts/$id/vote': typeof ApiV1PostsIdVoteRoute
 }
 export interface FileRoutesByTo {
@@ -234,8 +262,12 @@ export interface FileRoutesByTo {
   '/$slug/settings/share': typeof SlugSettingsShareRoute
   '/$slug/settings/webhooks': typeof SlugSettingsWebhooksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/v1/board': typeof ApiV1BoardRoute
+  '/api/v1/changelog': typeof ApiV1ChangelogRoute
   '/api/v1/posts': typeof ApiV1PostsRouteWithChildren
+  '/api/v1/tags': typeof ApiV1TagsRoute
   '/api/v1/posts/$id': typeof ApiV1PostsIdRouteWithChildren
+  '/api/v1/posts/$id/comments': typeof ApiV1PostsIdCommentsRoute
   '/api/v1/posts/$id/vote': typeof ApiV1PostsIdVoteRoute
 }
 export interface FileRoutesById {
@@ -265,8 +297,12 @@ export interface FileRoutesById {
   '/$slug/settings/share': typeof SlugSettingsShareRoute
   '/$slug/settings/webhooks': typeof SlugSettingsWebhooksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/v1/board': typeof ApiV1BoardRoute
+  '/api/v1/changelog': typeof ApiV1ChangelogRoute
   '/api/v1/posts': typeof ApiV1PostsRouteWithChildren
+  '/api/v1/tags': typeof ApiV1TagsRoute
   '/api/v1/posts/$id': typeof ApiV1PostsIdRouteWithChildren
+  '/api/v1/posts/$id/comments': typeof ApiV1PostsIdCommentsRoute
   '/api/v1/posts/$id/vote': typeof ApiV1PostsIdVoteRoute
 }
 export interface FileRouteTypes {
@@ -297,8 +333,12 @@ export interface FileRouteTypes {
     | '/$slug/settings/share'
     | '/$slug/settings/webhooks'
     | '/api/auth/$'
+    | '/api/v1/board'
+    | '/api/v1/changelog'
     | '/api/v1/posts'
+    | '/api/v1/tags'
     | '/api/v1/posts/$id'
+    | '/api/v1/posts/$id/comments'
     | '/api/v1/posts/$id/vote'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -326,8 +366,12 @@ export interface FileRouteTypes {
     | '/$slug/settings/share'
     | '/$slug/settings/webhooks'
     | '/api/auth/$'
+    | '/api/v1/board'
+    | '/api/v1/changelog'
     | '/api/v1/posts'
+    | '/api/v1/tags'
     | '/api/v1/posts/$id'
+    | '/api/v1/posts/$id/comments'
     | '/api/v1/posts/$id/vote'
   id:
     | '__root__'
@@ -356,8 +400,12 @@ export interface FileRouteTypes {
     | '/$slug/settings/share'
     | '/$slug/settings/webhooks'
     | '/api/auth/$'
+    | '/api/v1/board'
+    | '/api/v1/changelog'
     | '/api/v1/posts'
+    | '/api/v1/tags'
     | '/api/v1/posts/$id'
+    | '/api/v1/posts/$id/comments'
     | '/api/v1/posts/$id/vote'
   fileRoutesById: FileRoutesById
 }
@@ -378,7 +426,10 @@ export interface RootRouteChildren {
   ApiFeedbackChatRoute: typeof ApiFeedbackChatRoute
   VsCannyRoute: typeof VsCannyRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiV1BoardRoute: typeof ApiV1BoardRoute
+  ApiV1ChangelogRoute: typeof ApiV1ChangelogRoute
   ApiV1PostsRoute: typeof ApiV1PostsRouteWithChildren
+  ApiV1TagsRoute: typeof ApiV1TagsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -516,11 +567,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SlugChangelogRouteImport
       parentRoute: typeof SlugRouteRoute
     }
+    '/api/v1/tags': {
+      id: '/api/v1/tags'
+      path: '/api/v1/tags'
+      fullPath: '/api/v1/tags'
+      preLoaderRoute: typeof ApiV1TagsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/v1/posts': {
       id: '/api/v1/posts'
       path: '/api/v1/posts'
       fullPath: '/api/v1/posts'
       preLoaderRoute: typeof ApiV1PostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/changelog': {
+      id: '/api/v1/changelog'
+      path: '/api/v1/changelog'
+      fullPath: '/api/v1/changelog'
+      preLoaderRoute: typeof ApiV1ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/board': {
+      id: '/api/v1/board'
+      path: '/api/v1/board'
+      fullPath: '/api/v1/board'
+      preLoaderRoute: typeof ApiV1BoardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -579,6 +651,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiV1PostsIdVoteRouteImport
       parentRoute: typeof ApiV1PostsIdRoute
     }
+    '/api/v1/posts/$id/comments': {
+      id: '/api/v1/posts/$id/comments'
+      path: '/comments'
+      fullPath: '/api/v1/posts/$id/comments'
+      preLoaderRoute: typeof ApiV1PostsIdCommentsRouteImport
+      parentRoute: typeof ApiV1PostsIdRoute
+    }
   }
 }
 
@@ -611,10 +690,12 @@ const SlugRouteRouteWithChildren = SlugRouteRoute._addFileChildren(
 )
 
 interface ApiV1PostsIdRouteChildren {
+  ApiV1PostsIdCommentsRoute: typeof ApiV1PostsIdCommentsRoute
   ApiV1PostsIdVoteRoute: typeof ApiV1PostsIdVoteRoute
 }
 
 const ApiV1PostsIdRouteChildren: ApiV1PostsIdRouteChildren = {
+  ApiV1PostsIdCommentsRoute: ApiV1PostsIdCommentsRoute,
   ApiV1PostsIdVoteRoute: ApiV1PostsIdVoteRoute,
 }
 
@@ -651,7 +732,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiFeedbackChatRoute: ApiFeedbackChatRoute,
   VsCannyRoute: VsCannyRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiV1BoardRoute: ApiV1BoardRoute,
+  ApiV1ChangelogRoute: ApiV1ChangelogRoute,
   ApiV1PostsRoute: ApiV1PostsRouteWithChildren,
+  ApiV1TagsRoute: ApiV1TagsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

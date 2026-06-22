@@ -142,6 +142,10 @@ const DOCS_TR = {
       remove: {
         desc: "Post'u sil (admin scope).",
       },
+      comments: { desc: "Bir post'un yorumlarını listele." },
+      changelog: { desc: "Yayınlanan (done) öğeler, en yeni önce." },
+      board: { desc: "Pano bilgisi + durum sayıları (planned/progress/done)." },
+      tags: { desc: "Panodaki etiketler ve post adetleri." },
     },
   },
   webhooks: {
@@ -265,6 +269,10 @@ const DOCS_EN: DocsCopy = {
       remove: {
         desc: "Delete a post (admin scope).",
       },
+      comments: { desc: "List a post's comments." },
+      changelog: { desc: "Shipped (done) items, newest first." },
+      board: { desc: "Board info + status counts (planned/progress/done)." },
+      tags: { desc: "Tags used on the board, with post counts." },
     },
   },
   webhooks: {
@@ -690,6 +698,26 @@ http.DefaultClient.Do(req)`,
       </Endpoint>
 
       <Endpoint method="DELETE" path="/api/v1/posts/:id" desc={c.endpoints.remove.desc} />
+
+      <Endpoint method="GET" path="/api/v1/posts/:id/comments" desc={c.endpoints.comments.desc}>
+        <Code language="bash">{`curl -H "Authorization: Bearer loop_sk_..." \\
+  https://getloops.co/api/v1/posts/POST_ID/comments`}</Code>
+      </Endpoint>
+
+      <Endpoint method="GET" path="/api/v1/changelog" desc={c.endpoints.changelog.desc}>
+        <Code language="bash">{`curl -H "Authorization: Bearer loop_sk_..." \\
+  "https://getloops.co/api/v1/changelog?limit=20"`}</Code>
+      </Endpoint>
+
+      <Endpoint method="GET" path="/api/v1/board" desc={c.endpoints.board.desc}>
+        <Code language="bash">{`curl -H "Authorization: Bearer loop_sk_..." \\
+  https://getloops.co/api/v1/board`}</Code>
+      </Endpoint>
+
+      <Endpoint method="GET" path="/api/v1/tags" desc={c.endpoints.tags.desc}>
+        <Code language="bash">{`curl -H "Authorization: Bearer loop_sk_..." \\
+  https://getloops.co/api/v1/tags`}</Code>
+      </Endpoint>
     </Section>
   );
 }
