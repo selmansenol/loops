@@ -48,9 +48,9 @@ export const SUPPORTED_PROVIDERS: AiProviderInfo[] = [
     id: "google",
     label: "Google Gemini",
     envVar: "GOOGLE_GENERATIVE_AI_API_KEY",
-    defaultModel: "gemini-2.0-flash",
+    defaultModel: "gemini-2.5-flash",
     keyHint: "AIza...",
-    models: ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-pro"],
+    models: ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite"],
   },
 ];
 
@@ -125,7 +125,14 @@ export async function fetchProviderModels(
     return (json.models ?? [])
       .filter((m) => m.supportedGenerationMethods?.includes("generateContent"))
       .map((m) => m.name.replace(/^models\//, ""))
-      .filter((id) => !id.includes("embedding"))
+      // Keep current Gemini chat models; drop legacy 1.x, experimental and
+      // non-chat (vision/thinking/tuning/embedding) variants.
+      .filter(
+        (id) =>
+          id.startsWith("gemini-") &&
+          !/gemini-1\./.test(id) &&
+          !/(exp|vision|thinking|tuning|embedding)/i.test(id),
+      )
       .sort();
   }
   if (provider === "openai") {
@@ -135,11 +142,14 @@ export async function fetchProviderModels(
     });
     if (!res.ok) throw new Error(`Provider returned ${res.status}`);
     const json = (await res.json()) as { data?: { id: string }[] };
+    // Keep current chat families (gpt-4o, gpt-4.1, gpt-5, o1/o3/o4, chatgpt-4o);
+    // drop legacy (gpt-3.5, old gpt-4), dated snapshots and non-chat models.
+    const keep = /^(gpt-4o|gpt-4\.1|gpt-5|chatgpt-4o|o[1345])/;
     const exclude =
-      /(audio|realtime|transcribe|tts|image|embedding|moderation|search|dall-e|whisper)/;
+      /(audio|realtime|transcribe|tts|image|embedding|moderation|search|dall-e|whisper|\d{4})/;
     return (json.data ?? [])
       .map((m) => m.id)
-      .filter((id) => /^(gpt-|o\d|chatgpt)/.test(id) && !exclude.test(id))
+      .filter((id) => keep.test(id) && !exclude.test(id))
       .sort();
   }
   // anthropic
