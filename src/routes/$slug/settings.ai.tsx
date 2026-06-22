@@ -10,6 +10,7 @@ import {
   saveAiProviderKey,
   deleteAiProviderKey,
   updateProviderModel,
+  listProviderModels,
   type AiSettingsResult,
   type AiProviderStatus,
 } from "@/lib/ai-settings.functions";
@@ -176,15 +177,46 @@ function ProviderCard({
   const save = useServerFn(saveAiProviderKey);
   const del = useServerFn(deleteAiProviderKey);
   const updModel = useServerFn(updateProviderModel);
+  const listModels = useServerFn(listProviderModels);
   const [open, setOpen] = useState(false);
   const [key, setKey] = useState("");
   const [model, setModel] = useState(provider.model || provider.defaultModel);
+  const [models, setModels] = useState<string[] | null>(null);
+  const [loadingModels, setLoadingModels] = useState(false);
   const [savingModel, setSavingModel] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const listId = `models-${provider.id}`;
 
   const configured = provider.source !== null;
+
+  // Fetch the models THIS key actually supports (stored key, or one being typed).
+  const loadModels = async (apiKey?: string) => {
+    setLoadingModels(true);
+    setErr(null);
+    try {
+      const r = await listModels({ data: { slug, provider: provider.id, apiKey } });
+      setModels(r.models);
+      if (r.models.length && !r.models.includes(model)) setModel(r.models[0]);
+    } catch (e) {
+      const m = (e as Error).message;
+      setErr(m === "NO_KEY" ? t("settingsAi.modelsNeedKey") : t("settingsAi.modelsError"));
+    } finally {
+      setLoadingModels(false);
+    }
+  };
+
+  // Auto-load supported models for an already-saved key.
+  useEffect(() => {
+    if (configured && provider.source === "db") void loadModels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provider.source]);
+
+  // Options shown in the dropdown: live list if fetched, else suggestions;
+  // always include the currently-selected model.
+  const modelOptions = (() => {
+    const base = models ?? provider.models;
+    return base.includes(model) ? base : [model, ...base];
+  })();
 
   const handleSave = async () => {
     setBusy(true);
@@ -216,13 +248,20 @@ function ProviderCard({
     }
   };
 
-  // Shared <datalist> of suggested models for this provider.
-  const datalist = (
-    <datalist id={listId}>
-      {provider.models.map((m) => (
-        <option key={m} value={m} />
+  const modelSelect = (
+    <select
+      value={model}
+      onChange={(e) => setModel(e.target.value)}
+      className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-mono cursor-pointer disabled:opacity-50"
+      disabled={loadingModels}
+    >
+      {modelOptions.map((m) => (
+        <option key={m} value={m}>
+          {m}
+          {m === provider.defaultModel ? ` (${t("settingsAi.defaultModel")})` : ""}
+        </option>
       ))}
-    </datalist>
+    </select>
   );
 
   const handleDelete = async () => {
@@ -289,13 +328,8 @@ function ProviderCard({
         <div className="mt-4 flex flex-wrap items-end gap-2">
           <label className="flex-1 min-w-[12rem] block text-xs text-muted-foreground">
             {t("settingsAi.model")}
-            <input
-              list={listId}
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              placeholder={provider.defaultModel}
-              className="mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-mono"
-            />
+            {loadingModels && <span className="ml-2 opacity-70">· {t("common.loading")}</span>}
+            <div className="mt-1">{modelSelect}</div>
           </label>
           <button
             type="button"
@@ -305,7 +339,6 @@ function ProviderCard({
           >
             {savingModel ? t("common.loading") : t("settingsAi.saveModel")}
           </button>
-          {datalist}
         </div>
       )}
 
@@ -320,17 +353,21 @@ function ProviderCard({
             autoComplete="off"
             className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-mono"
           />
-          <label className="block text-xs text-muted-foreground pt-1">
-            {t("settingsAi.model")}
-          </label>
-          <input
-            list={listId}
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
-            placeholder={provider.defaultModel}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-mono"
-          />
-          {datalist}
+          <div className="flex items-center justify-between pt-1">
+            <label className="block text-xs text-muted-foreground">{t("settingsAi.model")}</label>
+            <button
+              type="button"
+              onClick={() => loadModels(key.trim())}
+              disabled={loadingModels || key.trim().length < 10}
+              className="text-xs text-primary hover:underline disabled:opacity-50 disabled:no-underline"
+            >
+              {loadingModels ? t("common.loading") : t("settingsAi.loadModels")}
+            </button>
+          </div>
+          {modelSelect}
+          {!models && (
+            <p className="text-[11px] text-muted-foreground">{t("settingsAi.loadModelsHint")}</p>
+          )}
           <div className="flex gap-2 pt-1">
             <button
               onClick={handleSave}

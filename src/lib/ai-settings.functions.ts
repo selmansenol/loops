@@ -102,6 +102,26 @@ export const saveAiProviderKey = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// List the models the given key can actually use (live, from the provider).
+// Uses the passed key if provided, otherwise the stored key for that provider.
+const ListModelsInput = slugInput.extend({
+  provider: z.enum(["openai", "anthropic", "google"]),
+  apiKey: z.string().trim().max(500).optional(),
+});
+
+export const listProviderModels = createServerFn({ method: "POST" })
+  .middleware([requireAuth])
+  .validator((input: unknown) => ListModelsInput.parse(input))
+  .handler(async ({ data, context }): Promise<{ models: string[] }> => {
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
+    const { fetchProviderModels, getDbKey } = await import("./ai-provider.server");
+    const key = data.apiKey?.trim() || (await getDbKey(ws.id, data.provider));
+    if (!key) throw new Error("NO_KEY");
+    const models = await fetchProviderModels(data.provider, key);
+    return { models };
+  });
+
 // Change just the model for an already-configured provider (no re-entering the key).
 const ModelInput = slugInput.extend({
   provider: z.enum(["openai", "anthropic", "google"]),

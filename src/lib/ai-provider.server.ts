@@ -104,6 +104,66 @@ export async function loadAllKeys(
   return out;
 }
 
+/**
+ * Ask the provider which models THIS key can use, so the UI can show a real
+ * dropdown instead of guesses. Returns chat/generation-capable model ids.
+ */
+export async function fetchProviderModels(
+  provider: AiProviderId,
+  apiKey: string,
+): Promise<string[]> {
+  const signal = AbortSignal.timeout(12_000);
+  if (provider === "google") {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}&pageSize=200`,
+      { signal },
+    );
+    if (!res.ok) throw new Error(`Provider returned ${res.status}`);
+    const json = (await res.json()) as {
+      models?: { name: string; supportedGenerationMethods?: string[] }[];
+    };
+    return (json.models ?? [])
+      .filter((m) => m.supportedGenerationMethods?.includes("generateContent"))
+      .map((m) => m.name.replace(/^models\//, ""))
+      .filter((id) => !id.includes("embedding"))
+      .sort();
+  }
+  if (provider === "openai") {
+    const res = await fetch("https://api.openai.com/v1/models", {
+      headers: { Authorization: `Bearer ${apiKey}` },
+      signal,
+    });
+    if (!res.ok) throw new Error(`Provider returned ${res.status}`);
+    const json = (await res.json()) as { data?: { id: string }[] };
+    const exclude =
+      /(audio|realtime|transcribe|tts|image|embedding|moderation|search|dall-e|whisper)/;
+    return (json.data ?? [])
+      .map((m) => m.id)
+      .filter((id) => /^(gpt-|o\d|chatgpt)/.test(id) && !exclude.test(id))
+      .sort();
+  }
+  // anthropic
+  const res = await fetch("https://api.anthropic.com/v1/models?limit=100", {
+    headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+    signal,
+  });
+  if (!res.ok) throw new Error(`Provider returned ${res.status}`);
+  const json = (await res.json()) as { data?: { id: string }[] };
+  return (json.data ?? []).map((m) => m.id).sort();
+}
+
+/** Read just the stored key for a provider (for model listing). Null if none. */
+export async function getDbKey(
+  workspaceId: string,
+  provider: AiProviderId,
+): Promise<string | null> {
+  try {
+    return (await loadRawDbKey(workspaceId, provider)).api_key;
+  } catch {
+    return null;
+  }
+}
+
 export class NoAiProviderError extends Error {
   readonly code = "NO_AI_PROVIDER";
   constructor() {
