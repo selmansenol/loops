@@ -62,13 +62,7 @@ export function SiteHeader() {
                     label={t("nav.insights")}
                     accent="ai"
                   />
-                  <NavItem to="/$slug/settings/ai" params={{ slug }} label={t("nav.ai")} />
-                  <NavItem to="/$slug/settings/api-keys" params={{ slug }} label={t("nav.api")} />
-                  <NavItem
-                    to="/$slug/settings/webhooks"
-                    params={{ slug }}
-                    label={t("nav.webhooks")}
-                  />
+                  <SettingsMenu slug={slug} />
                 </>
               )}
             </>
@@ -219,6 +213,90 @@ function LanguageMenu({ mounted }: { mounted: boolean }) {
               </button>
             );
           })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SettingsMenu({ slug }: { slug: string }) {
+  const { t } = useTranslation();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const isActive = pathname.startsWith(`/${slug}/settings`);
+
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const itemClass =
+    "block rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground";
+  const base = "px-3 py-1.5 rounded-full transition-colors text-sm inline-flex items-center gap-1";
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className={`${base} ${
+          isActive
+            ? "bg-foreground text-background font-medium shadow-soft"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent"
+        }`}
+      >
+        {t("nav.settings")}
+        <svg viewBox="0 0 24 24" fill="none" className="h-3 w-3 opacity-60" aria-hidden>
+          <path
+            d="m6 9 6 6 6-6"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 mt-2 w-44 rounded-2xl border border-border bg-surface p-1.5 shadow-lifted z-50"
+        >
+          <Link
+            to="/$slug/settings/ai"
+            params={{ slug }}
+            onClick={() => setOpen(false)}
+            className={itemClass}
+          >
+            {t("nav.ai")}
+          </Link>
+          <Link
+            to="/$slug/settings/api-keys"
+            params={{ slug }}
+            onClick={() => setOpen(false)}
+            className={itemClass}
+          >
+            {t("nav.api")}
+          </Link>
+          <Link
+            to="/$slug/settings/webhooks"
+            params={{ slug }}
+            onClick={() => setOpen(false)}
+            className={itemClass}
+          >
+            {t("nav.webhooks")}
+          </Link>
         </div>
       )}
     </div>

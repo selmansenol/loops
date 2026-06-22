@@ -21,6 +21,7 @@ const tr = {
     signIn: "Giriş",
     signOut: "Çıkış",
     dashboard: "Panolarım",
+    settings: "Ayarlar",
   },
   footer: { tagline: "· Açık kaynak, MIT lisanslı", terms: "Şartlar", privacy: "Gizlilik" },
   dashboard: {
@@ -515,6 +516,7 @@ const en: typeof tr = {
     signIn: "Sign in",
     signOut: "Sign out",
     dashboard: "My boards",
+    settings: "Settings",
   },
   footer: { tagline: "· Open source, MIT licensed", terms: "Terms", privacy: "Privacy" },
   dashboard: {
