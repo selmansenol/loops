@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth-context";
 import { useWorkspace, useIsWorkspaceAdmin } from "@/lib/workspace-context";
+import { getAppModeFn } from "@/lib/workspace.functions";
 import { applyClientLanguage, LOCALES } from "@/lib/i18n";
 
 export const GITHUB_URL = "https://github.com/selmansenol/loops";
@@ -379,6 +380,13 @@ export function LoopMark({ className = "" }: { className?: string }) {
 
 export function SiteFooter() {
   const { t } = useTranslation();
+  // getloops.co dogfoods Loops — link to our own public feedback board.
+  const [feedbackSlug, setFeedbackSlug] = useState<string | null>(null);
+  useEffect(() => {
+    getAppModeFn()
+      .then((m) => setFeedbackSlug(m.feedbackSlug))
+      .catch(() => {});
+  }, []);
   return (
     <footer className="border-t border-border mt-32">
       <div className="mx-auto max-w-6xl px-6 py-12 flex flex-col md:flex-row gap-6 md:items-center md:justify-between">
@@ -388,6 +396,11 @@ export function SiteFooter() {
           <span className="text-sm text-muted-foreground ml-2">{t("footer.tagline")}</span>
         </div>
         <div className="flex gap-6 text-sm text-muted-foreground">
+          {feedbackSlug && (
+            <Link to="/$slug" params={{ slug: feedbackSlug }} className="hover:text-foreground">
+              {t("footer.feedback")}
+            </Link>
+          )}
           <a href={GITHUB_URL} target="_blank" rel="noreferrer" className="hover:text-foreground">
             {t("nav.github")}
           </a>

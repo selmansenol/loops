@@ -21,6 +21,7 @@ export const getAppModeFn = createServerFn({ method: "GET" }).handler(
     emailVerification: boolean;
     social: { google: boolean; github: boolean };
     maxBoards: number | null;
+    feedbackSlug: string | null;
   }> => {
     const { singleTenantSlug, maxBoardsPerUser } = await import("@/lib/workspace.server");
     const { emailEnabled } = await import("@/lib/email.server");
@@ -33,6 +34,8 @@ export const getAppModeFn = createServerFn({ method: "GET" }).handler(
         github: !!(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET),
       },
       maxBoards: maxBoardsPerUser(),
+      // getloops.co dogfoods Loops: this is the slug of our own public board.
+      feedbackSlug: process.env.FEEDBACK_WORKSPACE_SLUG?.trim() || null,
     };
   },
 );

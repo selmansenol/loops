@@ -24,7 +24,12 @@ const tr = {
     settings: "Ayarlar",
     share: "Paylaş",
   },
-  footer: { tagline: "· Açık kaynak, MIT lisanslı", terms: "Şartlar", privacy: "Gizlilik" },
+  footer: {
+    tagline: "· Açık kaynak, MIT lisanslı",
+    terms: "Şartlar",
+    privacy: "Gizlilik",
+    feedback: "Geri bildirim",
+  },
   aiErrors: {
     no_provider: "AI sağlayıcısı yapılandırılmamış. Ayarlar → AI'dan bir API anahtarı ekle.",
     quota:
@@ -558,7 +563,12 @@ const en: typeof tr = {
     settings: "Settings",
     share: "Share",
   },
-  footer: { tagline: "· Open source, MIT licensed", terms: "Terms", privacy: "Privacy" },
+  footer: {
+    tagline: "· Open source, MIT licensed",
+    terms: "Terms",
+    privacy: "Privacy",
+    feedback: "Feedback",
+  },
   aiErrors: {
     no_provider: "No AI provider configured. Add an API key in Settings → AI.",
     quota:
