@@ -1,6 +1,18 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SiteHeader, SiteFooter, LoopMark, GITHUB_URL } from "@/components/site-header";
+import { getAppModeFn } from "@/lib/workspace.functions";
+
+function useFeedbackSlug() {
+  const [slug, setSlug] = useState<string | null>(null);
+  useEffect(() => {
+    getAppModeFn()
+      .then((m) => setSlug(m.feedbackSlug))
+      .catch(() => {});
+  }, []);
+  return slug;
+}
 
 export const Route = createFileRoute("/")({
   // Single-tenant (self-host) → the app is one board; skip the marketing page.
@@ -47,6 +59,7 @@ function LandingPage() {
 
 function Hero() {
   const { t } = useTranslation();
+  const feedbackSlug = useFeedbackSlug();
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 -z-10 opacity-60" aria-hidden>
@@ -104,6 +117,15 @@ function Hero() {
             </svg>
             {t("landing.starGitHub")}
           </a>
+          {feedbackSlug && (
+            <Link
+              to="/$slug"
+              params={{ slug: feedbackSlug }}
+              className="inline-flex items-center gap-2 rounded-full border border-border-strong bg-surface px-6 py-3 text-sm font-medium hover:bg-accent transition-colors"
+            >
+              💬 {t("landing.giveFeedback")}
+            </Link>
+          )}
         </div>
         <p className="mt-5 text-xs text-muted-foreground">{t("landing.sublead")}</p>
       </div>

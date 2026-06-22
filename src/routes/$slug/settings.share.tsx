@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
@@ -116,19 +117,25 @@ function SharePage() {
         </div>
       )}
 
-      {/* 1. Public link */}
+      {/* 1. Public link + QR */}
       <Card title={t("share.linkTitle")} desc={t("share.linkDesc")}>
-        <div className="flex items-center gap-2">
-          <code className="flex-1 min-w-0 truncate rounded-xl border border-border bg-background px-3 py-2 text-sm font-mono">
-            {boardUrl}
-          </code>
-          <button onClick={() => copy(boardUrl, "link")} className="btn-sm">
-            {copied === "link" ? t("common.copied") : t("common.copy")}
-          </button>
-          <a href={boardUrl} target="_blank" rel="noreferrer" className="btn-sm">
-            {t("share.open")}
-          </a>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex-1 min-w-0 flex items-center gap-2">
+            <code className="flex-1 min-w-0 truncate rounded-xl border border-border bg-background px-3 py-2 text-sm font-mono">
+              {boardUrl}
+            </code>
+            <button onClick={() => copy(boardUrl, "link")} className="btn-sm">
+              {copied === "link" ? t("common.copied") : t("common.copy")}
+            </button>
+            <a href={boardUrl} target="_blank" rel="noreferrer" className="btn-sm">
+              {t("share.open")}
+            </a>
+          </div>
+          <div className="shrink-0 self-start rounded-xl border border-border bg-white p-2">
+            <QRCodeSVG value={boardUrl} size={104} />
+          </div>
         </div>
+        <p className="text-xs text-muted-foreground mt-2">{t("share.qrHint")}</p>
       </Card>
 
       {/* 2. Participation: guest voting */}

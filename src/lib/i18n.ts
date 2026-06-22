@@ -47,6 +47,7 @@ const tr = {
     linkTitle: "Herkese açık link",
     linkDesc: "Bu linki paylaş — ziyaretçiler görür, üye olmadan oy verir (misafir oy açıksa).",
     open: "Aç",
+    qrHint: "QR kodu afiş, sunum veya ürün içine koyabilirsin.",
     participationTitle: "Katılım",
     guestVotes: "Misafir oya izin ver (üyeliksiz)",
     guestVotesDesc:
@@ -258,6 +259,7 @@ const tr = {
     lead: 'Loops, kullanıcı isteklerini tek bir yerde toplar — sonra AI ile benzer olanları kümeler, etiketler ve sana "aslında 5 şey istiyorlar" der.',
     tryDemo: "Canlı demoyu dene",
     starGitHub: "GitHub'da yıldızla",
+    giveFeedback: "Bize geri bildirim ver",
     sublead: "Kurulum istemez · 5 saniyede dene · MIT lisanslı",
     previewStatus: { planned: "Planlandı", progress: "Geliştiriliyor", done: "Tamamlandı" },
     previewPosts: {
@@ -587,6 +589,7 @@ const en: typeof tr = {
     linkDesc:
       "Share this link — visitors can view and vote without an account (if guest voting is on).",
     open: "Open",
+    qrHint: "Drop the QR code on a poster, slide deck or inside your product.",
     participationTitle: "Participation",
     guestVotes: "Allow guest voting (no account)",
     guestVotesDesc:
@@ -792,6 +795,7 @@ const en: typeof tr = {
     lead: 'Loops collects user requests in one place — then uses AI to cluster similar ones, label them, and tell you "they\'re really asking for 5 things."',
     tryDemo: "Try the live demo",
     starGitHub: "Star on GitHub",
+    giveFeedback: "Give us feedback",
     sublead: "No setup · Try in 5 seconds · MIT licensed",
     previewStatus: { planned: "Planned", progress: "In progress", done: "Done" },
     previewPosts: {
