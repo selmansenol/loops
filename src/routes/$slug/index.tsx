@@ -149,6 +149,8 @@ function BoardPage() {
           )}
         </div>
 
+        {isAdmin && <OwnerOnboarding slug={slug} />}
+
         <div className="flex items-center gap-1 mb-6 border-b border-border">
           {(["board", "roadmap"] as const).map((tk) => (
             <button
@@ -213,6 +215,71 @@ function BoardPage() {
       )}
 
       <SiteFooter />
+    </div>
+  );
+}
+
+/**
+ * Dismissible "get started" card shown to board owners/admins. Introduces the
+ * in-product capabilities (AI key, sharing, embed, API) with quick links.
+ * Dismissal is remembered per board in localStorage.
+ */
+function OwnerOnboarding({ slug }: { slug: string }) {
+  const { t } = useTranslation();
+  const [show, setShow] = useState(false);
+  const key = `loops:onboard:${slug}`;
+  useEffect(() => {
+    setShow(localStorage.getItem(key) !== "1");
+  }, [key]);
+  if (!show) return null;
+  const steps = t("board.onboard.steps", { returnObjects: true }) as [string, string][];
+  const meta = [
+    { icon: "🤖", to: "/$slug/settings/ai" as const },
+    { icon: "🔗", to: "/$slug/settings/share" as const },
+    { icon: "🧩", to: "/docs" as const, hash: "embed" },
+    { icon: "🔌", to: "/$slug/settings/api-keys" as const },
+  ];
+  const dismiss = () => {
+    localStorage.setItem(key, "1");
+    setShow(false);
+  };
+  const cls =
+    "block rounded-xl border border-border bg-background p-4 hover:border-border-strong hover:shadow-card transition-all";
+  return (
+    <div className="mb-8 rounded-2xl border border-border bg-surface p-6">
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <h2 className="font-display text-lg font-semibold">{t("board.onboard.title")}</h2>
+          <p className="text-sm text-muted-foreground mt-1">{t("board.onboard.subtitle")}</p>
+        </div>
+        <button
+          onClick={dismiss}
+          className="text-xs text-muted-foreground hover:text-foreground shrink-0"
+        >
+          {t("board.onboard.dismiss")}
+        </button>
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {steps.map(([title, desc], i) => {
+          const m = meta[i];
+          const inner = (
+            <>
+              <div className="text-xl mb-2">{m.icon}</div>
+              <h3 className="text-sm font-semibold mb-0.5">{title}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+            </>
+          );
+          return m.to === "/docs" ? (
+            <Link key={i} to={m.to} hash={m.hash} className={cls}>
+              {inner}
+            </Link>
+          ) : (
+            <Link key={i} to={m.to} params={{ slug }} className={cls}>
+              {inner}
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -305,7 +305,7 @@ function SocialProof() {
 
 function Features() {
   const { t } = useTranslation();
-  const icons = ["📋", "🚦", "🧩", "🛠", "🔑", "🐳"];
+  const icons = ["📋", "🚦", "🗳️", "🤖", "🧩", "🔌", "📧", "🏢", "🌍"];
   const features = (t("landing.features", { returnObjects: true }) as [string, string][]).map(
     ([title, desc], i) => ({ title, desc, icon: icons[i] }),
   );

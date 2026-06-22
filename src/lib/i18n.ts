@@ -123,6 +123,17 @@ const tr = {
     tabs: { board: "Pano", roadmap: "Roadmap" },
     filters: { all: "Hepsi", planned: "Planlandı", progress: "Geliştiriliyor", done: "Tamamlandı" },
     empty: { title: "Henüz geri bildirim yok.", subtitle: "İlk fikri sen ekle." },
+    onboard: {
+      title: "Panonu canlandır",
+      subtitle: "Birkaç dakikada kur — bu kartı istediğin an kapatabilirsin.",
+      dismiss: "Anladım, kapat",
+      steps: [
+        ["AI içgörülerini aç", "Kendi OpenAI / Anthropic / Gemini anahtarını ekle."],
+        ["Panonu paylaş", "Herkese açık link + QR; misafir oylamayı aç/kapat."],
+        ["Siteye widget göm", "Tek satır script ile sitene ekle, kullanıcılarını tanı."],
+        ["API & webhooks", "REST API anahtarı oluştur, Discord/Slack'e bağla."],
+      ],
+    },
     summary: "Pano özeti",
     stats: {
       total: "Toplam",
@@ -293,11 +304,32 @@ const tr = {
     featuresTitle: "Beklediğin her şey, beklemediğin AI dokunuşu.",
     features: [
       ["Pano + oylama", "Kullanıcılar fikir paylaşsın, oy versin. Klasik ama temiz."],
-      ["Durum etiketleri", "Planlandı, Geliştiriliyor, Tamamlandı — şeffaf roadmap."],
-      ["Gömülebilir widget", "Tek satır script ile sitenin altına yapışıyor."],
-      ["Admin paneli", "Moderasyon, durum değişimi, etiket yönetimi tek yerde."],
-      ["E-posta + GitHub login", "Auth.js ile geliyor, ek kurulum yok."],
-      ["Self-host dostu", "Docker Compose ile tek komutta ayağa kalkar."],
+      [
+        "Roadmap & changelog",
+        "Planlandı, Geliştiriliyor, Tamamlandı — şeffaf yol haritası ve sürüm notları.",
+      ],
+      [
+        "Misafir oylama",
+        "Üye olmadan tek tıkla oy. IP/çerez ile mükerrer oy engellenir; istersen kapatırsın.",
+      ],
+      [
+        "AI insights (kendi anahtarın)",
+        "Kendi OpenAI/Anthropic/Gemini anahtarını gir; benzer fikirleri kümeler, özetler, önceliklendirir — panonun dilinde.",
+      ],
+      [
+        "Gömülebilir widget",
+        "Tek satır script ile sitene yapışır; giriş yapmış kullanıcılarını tanır.",
+      ],
+      [
+        "REST API + webhooks",
+        "Tam REST API ve native Discord/Slack bildirimleriyle her yere bağla.",
+      ],
+      [
+        "E-posta bildirimleri",
+        "Durum değişimi, yeni yorum ve haftalık özet — tek tıkla abonelikten çık.",
+      ],
+      ["Çoklu pano", "Her ürün/uygulama için ayrı pano; hepsi tek hesaptan yönetilir."],
+      ["17 dil", "Arayüz 17 dilde; AI da seçili dilde yanıt verir."],
     ],
     aiEyebrow: "AI MOTORU",
     aiTitle1: '"Karanlık mod ekleyin",',
@@ -670,6 +702,17 @@ const en: typeof tr = {
     tabs: { board: "Board", roadmap: "Roadmap" },
     filters: { all: "All", planned: "Planned", progress: "In progress", done: "Done" },
     empty: { title: "No feedback yet.", subtitle: "Be the first to post an idea." },
+    onboard: {
+      title: "Bring your board to life",
+      subtitle: "Set it up in a few minutes — you can dismiss this card anytime.",
+      dismiss: "Got it, dismiss",
+      steps: [
+        ["Turn on AI insights", "Add your own OpenAI / Anthropic / Gemini key."],
+        ["Share your board", "Public link + QR; toggle guest voting on or off."],
+        ["Embed the widget", "Drop a one-line script on your site, recognize your users."],
+        ["API & webhooks", "Create a REST API key, connect Discord/Slack."],
+      ],
+    },
     summary: "Board summary",
     stats: { total: "Total", planned: "Planned", progress: "In progress", done: "Done" },
     insightsCard: "Insights",
@@ -834,11 +877,29 @@ const en: typeof tr = {
     featuresTitle: "Everything you expect, with an AI touch you don't.",
     features: [
       ["Board + voting", "Users post ideas and vote. Classic but clean."],
-      ["Status labels", "Planned, In progress, Done — transparent roadmap."],
-      ["Embed widget", "Drop a one-line script into any site."],
-      ["Admin panel", "Moderation, status changes, tag management in one place."],
-      ["Email + GitHub login", "Comes with Auth.js, no extra setup."],
-      ["Self-host friendly", "Up in one command with Docker Compose."],
+      [
+        "Roadmap & changelog",
+        "Planned, In progress, Done — a transparent roadmap and release notes.",
+      ],
+      [
+        "Guest voting",
+        "One-click votes with no signup. IP/cookie stops double-votes; toggle it off anytime.",
+      ],
+      [
+        "AI insights (your key)",
+        "Bring your own OpenAI/Anthropic/Gemini key; it clusters, summarizes and prioritizes ideas — in your board's language.",
+      ],
+      ["Embed widget", "Drop a one-line script into any site; it recognizes your signed-in users."],
+      [
+        "REST API + webhooks",
+        "A full REST API and native Discord/Slack notifications to wire into anything.",
+      ],
+      [
+        "Email notifications",
+        "Status changes, new comments and a weekly digest — one-click unsubscribe.",
+      ],
+      ["Multiple boards", "A separate board per product/app, all from one account."],
+      ["17 languages", "The UI ships in 17 languages; the AI replies in the selected one too."],
     ],
     aiEyebrow: "AI ENGINE",
     aiTitle1: '"Add dark mode,"',
