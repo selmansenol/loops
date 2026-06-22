@@ -30,6 +30,11 @@ function AuthPage() {
   const [notice, setNotice] = useState<string | null>(null);
   // Whether this deployment verifies emails (Resend configured server-side).
   const [emailVerification, setEmailVerification] = useState(false);
+  // Which social providers are configured (only show buttons that work).
+  const [social, setSocial] = useState<{ google: boolean; github: boolean }>({
+    google: false,
+    github: false,
+  });
 
   useEffect(() => {
     if (!loading && user) {
@@ -39,7 +44,10 @@ function AuthPage() {
 
   useEffect(() => {
     getAppModeFn()
-      .then((m) => setEmailVerification(m.emailVerification))
+      .then((m) => {
+        setEmailVerification(m.emailVerification);
+        setSocial(m.social);
+      })
       .catch(() => {});
   }, []);
 
@@ -148,28 +156,36 @@ function AuthPage() {
               {mode === "signin" ? t("auth.signInSubtitle") : t("auth.signUpSubtitle")}
             </p>
 
-            <div className="mt-6 grid gap-2">
-              <button
-                onClick={() => handleSocial("google")}
-                disabled={busy}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border-strong bg-surface px-4 py-2.5 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
-              >
-                <GoogleIcon /> {t("auth.google")}
-              </button>
-              <button
-                onClick={() => handleSocial("github")}
-                disabled={busy}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border-strong bg-surface px-4 py-2.5 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
-              >
-                <GitHubIcon /> {t("auth.github")}
-              </button>
-            </div>
+            {(social.google || social.github) && (
+              <div className="mt-6 grid gap-2">
+                {social.google && (
+                  <button
+                    onClick={() => handleSocial("google")}
+                    disabled={busy}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border-strong bg-surface px-4 py-2.5 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
+                  >
+                    <GoogleIcon /> {t("auth.google")}
+                  </button>
+                )}
+                {social.github && (
+                  <button
+                    onClick={() => handleSocial("github")}
+                    disabled={busy}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border-strong bg-surface px-4 py-2.5 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
+                  >
+                    <GitHubIcon /> {t("auth.github")}
+                  </button>
+                )}
+              </div>
+            )}
 
-            <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-              <div className="h-px flex-1 bg-border" />
-              {t("auth.orEmail")}
-              <div className="h-px flex-1 bg-border" />
-            </div>
+            {(social.google || social.github) && (
+              <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+                <div className="h-px flex-1 bg-border" />
+                {t("auth.orEmail")}
+                <div className="h-px flex-1 bg-border" />
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-3">
               {mode === "signup" && (

@@ -14,6 +14,7 @@ export const getAppModeFn = createServerFn({ method: "GET" }).handler(
     singleTenantSlug: string | null;
     demoSlug: string | null;
     emailVerification: boolean;
+    social: { google: boolean; github: boolean };
   }> => {
     const { singleTenantSlug } = await import("@/lib/workspace.server");
     const { emailEnabled } = await import("@/lib/email.server");
@@ -21,6 +22,10 @@ export const getAppModeFn = createServerFn({ method: "GET" }).handler(
       singleTenantSlug: singleTenantSlug(),
       demoSlug: process.env.DEMO_WORKSPACE_SLUG?.trim() || null,
       emailVerification: emailEnabled(),
+      social: {
+        google: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+        github: !!(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET),
+      },
     };
   },
 );
