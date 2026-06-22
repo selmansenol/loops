@@ -62,7 +62,8 @@ function SharePage() {
 <script src="${origin}/loop-widget.js"
         data-key="${embedKey ?? "loop_pk_..."}"
         data-host="${origin}"
-        data-target="#loop-board"></script>`;
+        data-target="#loop-board"
+        data-user-id="USER_ID"></script>`;
 
   const copy = async (text: string, which: string) => {
     try {

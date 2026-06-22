@@ -4,12 +4,13 @@
    * Loops Embed Widget — herhangi bir siteye <script> ile gömülür.
    * Kullanım:
    *   <div id="loop-board"></div>
-   *   <script src="https://your-loop.app/loop-widget.js"
+   *   <script src="https://getloops.co/loop-widget.js"
    *           data-key="loop_pk_..."
-   *           data-host="https://your-loop.app"
+   *           data-host="https://getloops.co"
    *           data-target="#loop-board"
    *           data-theme="light"
-   *           data-locale="tr"></script>
+   *           data-locale="tr"
+   *           data-user-id="user_42"></script>   <!-- optional: identify your logged-in user -->
    */
   var script = document.currentScript;
   if (!script) return;
@@ -18,6 +19,9 @@
   var TARGET = script.getAttribute("data-target") || "#loop-board";
   var THEME = script.getAttribute("data-theme") || "light";
   var LOCALE = script.getAttribute("data-locale") || "tr";
+  // Identify the host app's logged-in user so votes/posts tie to them (and
+  // dedupe across devices). Falls back to an anonymous per-browser id.
+  var USER_ID = script.getAttribute("data-user-id");
 
   if (!KEY) {
     console.error("[loop] data-key gerekli");
@@ -49,12 +53,18 @@
           error: "Bir şeyler ters gitti.",
         };
 
-  // Anonim kullanıcı için kararlı id
-  var STORAGE = "loop_uid_v1";
-  var uid = localStorage.getItem(STORAGE);
-  if (!uid) {
-    uid = "u_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
-    localStorage.setItem(STORAGE, uid);
+  // Voter identity: the host app's user when provided, else a stable anonymous
+  // per-browser id.
+  var uid;
+  if (USER_ID) {
+    uid = "ext_" + USER_ID;
+  } else {
+    var STORAGE = "loop_uid_v1";
+    uid = localStorage.getItem(STORAGE);
+    if (!uid) {
+      uid = "u_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem(STORAGE, uid);
+    }
   }
 
   function api(path, opts) {

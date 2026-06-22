@@ -66,6 +66,10 @@ const DOCS_TR = {
       ["data-theme", ": light veya dark."],
       ["data-locale", ": tr veya en."],
       ["data-target", ": widget'ın gömüleceği CSS selector."],
+      [
+        "data-user-id",
+        ": uygulamandaki giriş yapmış kullanıcının id'si — oy/öneri o kullanıcıya bağlanır (cihazlar arası tekil). Boş bırakırsan misafir.",
+      ],
     ] as Array<[string, string]>,
   },
   api: {
@@ -159,6 +163,10 @@ const DOCS_EN: DocsCopy = {
       ["data-theme", ": light or dark."],
       ["data-locale", ": tr or en."],
       ["data-target", ": CSS selector where the widget mounts."],
+      [
+        "data-user-id",
+        ": your logged-in user's id — ties votes/posts to that user (deduped across devices). Omit for anonymous guests.",
+      ],
     ],
   },
   api: {
@@ -356,7 +364,8 @@ function Embed() {
         data-host="https://getloops.co"
         data-target="#loop-board"
         data-theme="light"
-        data-locale="tr"></script>`}</Code>
+        data-locale="tr"
+        data-user-id="user_42"></script>  <!-- optional: your logged-in user -->`}</Code>
       <div className="mt-4 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
         {c.bullets.map(([k, v]) => (
           <P key={k}>
