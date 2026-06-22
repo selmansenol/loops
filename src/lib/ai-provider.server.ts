@@ -44,7 +44,7 @@ export const SUPPORTED_PROVIDERS: AiProviderInfo[] = [
     id: "google",
     label: "Google Gemini",
     envVar: "GOOGLE_GENERATIVE_AI_API_KEY",
-    defaultModel: "gemini-1.5-flash",
+    defaultModel: "gemini-2.0-flash",
     keyHint: "AIza...",
   },
 ];
