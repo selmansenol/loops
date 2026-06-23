@@ -101,6 +101,9 @@ export const workspaces = pgTable(
     slug: text("slug").notNull().unique(),
     name: text("name").notNull(),
     allow_guest_votes: boolean("allow_guest_votes").notNull().default(true),
+    // Optional external analytics snippet (e.g. Plausible/Umami) injected on the
+    // public board pages, in addition to Loops' built-in privacy-first tracking.
+    analytics_embed: text("analytics_embed"),
     created_by: text("created_by").references(() => user.id, { onDelete: "set null" }),
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()
@@ -159,6 +162,8 @@ export const posts = pgTable(
     tag: text("tag"),
     status: postStatus("status").notNull().default("planned"),
     priority_bucket: priorityBucket("priority_bucket"),
+    // Moderation: hidden posts stay in the DB but are excluded from public board.
+    hidden: boolean("hidden").notNull().default(false),
     votes_count: integer("votes_count").notNull().default(0),
     source: text("source").notNull().default("web"),
     external_user_id: text("external_user_id"),
@@ -339,6 +344,56 @@ export const ai_provider_keys = pgTable(
 );
 
 // ============================================================
+// Analytics & admin
+// ============================================================
+
+// Privacy-first, first-party page views. No cookies, no PII: visitor_hash is a
+// one-way hash of (secret + day + client IP), so it can't be reversed and can't
+// link a visitor across days. Pageviews = row count; unique visitors/day =
+// distinct visitor_hash within a day. Pruned by a retention cron.
+export const analytics_events = pgTable(
+  "analytics_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspace_id: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    path: text("path"),
+    visitor_hash: text("visitor_hash").notNull(),
+    is_member: boolean("is_member").notNull().default(false),
+    referrer_host: text("referrer_host"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("analytics_ws_created_idx").on(t.workspace_id, t.created_at.desc()),
+    index("analytics_ws_visitor_idx").on(t.workspace_id, t.visitor_hash),
+  ],
+);
+
+// Pending team invites. Accepting (on sign-up / sign-in with the matching email)
+// creates the workspace_members row, then sets accepted_at.
+export const workspace_invites = pgTable(
+  "workspace_invites",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspace_id: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: workspaceRole("role").notNull().default("member"),
+    token: text("token").notNull().unique(),
+    invited_by: text("invited_by").references(() => user.id, { onDelete: "set null" }),
+    accepted_at: timestamp("accepted_at", { withTimezone: true, mode: "string" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("invites_ws_email_idx").on(t.workspace_id, t.email)],
+);
+
+// ============================================================
 // Inferred types
 // ============================================================
 
@@ -352,3 +407,4 @@ export type Profile = typeof profiles.$inferSelect;
 export type ApiKey = typeof api_keys.$inferSelect;
 export type Webhook = typeof webhooks.$inferSelect;
 export type AiProviderKey = typeof ai_provider_keys.$inferSelect;
+export type WorkspaceInvite = typeof workspace_invites.$inferSelect;

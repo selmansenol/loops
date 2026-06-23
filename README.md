@@ -65,6 +65,8 @@ There are two ways to use it:
 - 🪝 **Webhooks** — HMAC-signed delivery; native Discord & Slack formatting
 - 🧩 **Embeddable widget** — one script tag, with `data-user-id` to identify your logged-in users
 - 📣 **Share & Embed panel** — public link + QR + one-click embed key per board
+- 📊 **Admin & Analytics** — per-board dashboard (visitors, engagement, funnel), team
+  management and moderation tools (see below)
 - 🌍 **i18n** — 17 languages out of the box, with RTL support
 
 ## 🤖 AI-native extras
@@ -79,6 +81,24 @@ provider (OpenAI, Anthropic or Google), using **your own API key** per workspace
 - 🧭 **AI roadmap generator** — admins auto-sort the top requests into **Now / Next /
   Later** with one click.
 - 🧠 **AI Insights** — cluster, summarize and prioritize all feedback into themes.
+
+## 📊 Admin & Analytics
+
+Every board has an owner/admin dashboard at **`/<slug>/admin`** with four tabs:
+
+- **Overview** — visitors & pageviews, an engagement trend (posts + votes), a
+  conversion funnel (visitor → voter → member), top posts and top referrers, over a
+  7 / 30 / 90-day range, plus CSV export.
+- **Members** — list members, invite teammates by email, change roles (owner / admin /
+  member) and remove access.
+- **Moderation** — bulk-update status, hide or delete posts.
+- **Settings** — drop in an external analytics snippet (e.g. Plausible / Umami) and
+  read the data-retention note.
+
+Visitor tracking is **first-party and privacy-friendly**: no cookies, no third party,
+and a visitor is identified only by a one-way hash of (secret + day + IP) — it can't be
+reversed or linked across days. **Do-Not-Track** / Global Privacy Control is honored, and
+events are pruned on a retention schedule, so it's GDPR-friendly out of the box.
 
 ## 🚀 Quick start
 
@@ -276,8 +296,9 @@ Caddy obtains and renews TLS certificates automatically (ports 80/443 must be op
 - [x] Native Discord / Slack webhook formatting
 - [x] Transactional email (verification + password reset, Resend)
 - [x] Share & Embed panel (public link, QR, one-click embed key)
-- [ ] Email digests & notifications
-- [ ] Team invites by email
+- [x] Email digests & notifications (status changes, new comments, weekly digest)
+- [x] Team invites by email + role management
+- [x] Privacy-first analytics & per-board admin dashboard
 - [ ] Inbound capture from Telegram / WhatsApp
 - [ ] Two-way GitHub / Linear / Jira sync
 - [ ] Billing & plans for the hosted edition

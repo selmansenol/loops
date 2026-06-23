@@ -25,14 +25,17 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SlugIndexRouteImport } from './routes/$slug/index'
 import { Route as VsCannyRouteImport } from './routes/vs.canny'
 import { Route as ApiUnsubscribeRouteImport } from './routes/api/unsubscribe'
+import { Route as ApiTrackRouteImport } from './routes/api/track'
 import { Route as ApiFeedbackChatRouteImport } from './routes/api/feedback-chat'
 import { Route as SlugRoadmapRouteImport } from './routes/$slug/roadmap'
 import { Route as SlugInsightsRouteImport } from './routes/$slug/insights'
 import { Route as SlugChangelogRouteImport } from './routes/$slug/changelog'
+import { Route as SlugAdminRouteImport } from './routes/$slug/admin'
 import { Route as ApiV1TagsRouteImport } from './routes/api/v1/tags'
 import { Route as ApiV1PostsRouteImport } from './routes/api/v1/posts'
 import { Route as ApiV1ChangelogRouteImport } from './routes/api/v1/changelog'
 import { Route as ApiV1BoardRouteImport } from './routes/api/v1/board'
+import { Route as ApiCronPruneRouteImport } from './routes/api/cron/prune'
 import { Route as ApiCronDigestRouteImport } from './routes/api/cron/digest'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as SlugSettingsWebhooksRouteImport } from './routes/$slug/settings.webhooks'
@@ -124,6 +127,11 @@ const ApiUnsubscribeRoute = ApiUnsubscribeRouteImport.update({
   path: '/api/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTrackRoute = ApiTrackRouteImport.update({
+  id: '/api/track',
+  path: '/api/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiFeedbackChatRoute = ApiFeedbackChatRouteImport.update({
   id: '/api/feedback-chat',
   path: '/api/feedback-chat',
@@ -144,6 +152,11 @@ const SlugChangelogRoute = SlugChangelogRouteImport.update({
   path: '/changelog',
   getParentRoute: () => SlugRouteRoute,
 } as any)
+const SlugAdminRoute = SlugAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => SlugRouteRoute,
+} as any)
 const ApiV1TagsRoute = ApiV1TagsRouteImport.update({
   id: '/api/v1/tags',
   path: '/api/v1/tags',
@@ -162,6 +175,11 @@ const ApiV1ChangelogRoute = ApiV1ChangelogRouteImport.update({
 const ApiV1BoardRoute = ApiV1BoardRouteImport.update({
   id: '/api/v1/board',
   path: '/api/v1/board',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCronPruneRoute = ApiCronPruneRouteImport.update({
+  id: '/api/cron/prune',
+  path: '/api/cron/prune',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCronDigestRoute = ApiCronDigestRouteImport.update({
@@ -229,10 +247,12 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/$slug/admin': typeof SlugAdminRoute
   '/$slug/changelog': typeof SlugChangelogRoute
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
+  '/api/track': typeof ApiTrackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/vs/canny': typeof VsCannyRoute
   '/$slug/': typeof SlugIndexRoute
@@ -243,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/$slug/settings/webhooks': typeof SlugSettingsWebhooksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/digest': typeof ApiCronDigestRoute
+  '/api/cron/prune': typeof ApiCronPruneRoute
   '/api/v1/board': typeof ApiV1BoardRoute
   '/api/v1/changelog': typeof ApiV1ChangelogRoute
   '/api/v1/posts': typeof ApiV1PostsRouteWithChildren
@@ -264,10 +285,12 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/$slug/admin': typeof SlugAdminRoute
   '/$slug/changelog': typeof SlugChangelogRoute
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
+  '/api/track': typeof ApiTrackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/vs/canny': typeof VsCannyRoute
   '/$slug': typeof SlugIndexRoute
@@ -278,6 +301,7 @@ export interface FileRoutesByTo {
   '/$slug/settings/webhooks': typeof SlugSettingsWebhooksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/digest': typeof ApiCronDigestRoute
+  '/api/cron/prune': typeof ApiCronPruneRoute
   '/api/v1/board': typeof ApiV1BoardRoute
   '/api/v1/changelog': typeof ApiV1ChangelogRoute
   '/api/v1/posts': typeof ApiV1PostsRouteWithChildren
@@ -301,10 +325,12 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/$slug/admin': typeof SlugAdminRoute
   '/$slug/changelog': typeof SlugChangelogRoute
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
+  '/api/track': typeof ApiTrackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/vs/canny': typeof VsCannyRoute
   '/$slug/': typeof SlugIndexRoute
@@ -315,6 +341,7 @@ export interface FileRoutesById {
   '/$slug/settings/webhooks': typeof SlugSettingsWebhooksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/cron/digest': typeof ApiCronDigestRoute
+  '/api/cron/prune': typeof ApiCronPruneRoute
   '/api/v1/board': typeof ApiV1BoardRoute
   '/api/v1/changelog': typeof ApiV1ChangelogRoute
   '/api/v1/posts': typeof ApiV1PostsRouteWithChildren
@@ -339,10 +366,12 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/terms'
+    | '/$slug/admin'
     | '/$slug/changelog'
     | '/$slug/insights'
     | '/$slug/roadmap'
     | '/api/feedback-chat'
+    | '/api/track'
     | '/api/unsubscribe'
     | '/vs/canny'
     | '/$slug/'
@@ -353,6 +382,7 @@ export interface FileRouteTypes {
     | '/$slug/settings/webhooks'
     | '/api/auth/$'
     | '/api/cron/digest'
+    | '/api/cron/prune'
     | '/api/v1/board'
     | '/api/v1/changelog'
     | '/api/v1/posts'
@@ -374,10 +404,12 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/terms'
+    | '/$slug/admin'
     | '/$slug/changelog'
     | '/$slug/insights'
     | '/$slug/roadmap'
     | '/api/feedback-chat'
+    | '/api/track'
     | '/api/unsubscribe'
     | '/vs/canny'
     | '/$slug'
@@ -388,6 +420,7 @@ export interface FileRouteTypes {
     | '/$slug/settings/webhooks'
     | '/api/auth/$'
     | '/api/cron/digest'
+    | '/api/cron/prune'
     | '/api/v1/board'
     | '/api/v1/changelog'
     | '/api/v1/posts'
@@ -410,10 +443,12 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/terms'
+    | '/$slug/admin'
     | '/$slug/changelog'
     | '/$slug/insights'
     | '/$slug/roadmap'
     | '/api/feedback-chat'
+    | '/api/track'
     | '/api/unsubscribe'
     | '/vs/canny'
     | '/$slug/'
@@ -424,6 +459,7 @@ export interface FileRouteTypes {
     | '/$slug/settings/webhooks'
     | '/api/auth/$'
     | '/api/cron/digest'
+    | '/api/cron/prune'
     | '/api/v1/board'
     | '/api/v1/changelog'
     | '/api/v1/posts'
@@ -448,10 +484,12 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ApiFeedbackChatRoute: typeof ApiFeedbackChatRoute
+  ApiTrackRoute: typeof ApiTrackRoute
   ApiUnsubscribeRoute: typeof ApiUnsubscribeRoute
   VsCannyRoute: typeof VsCannyRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCronDigestRoute: typeof ApiCronDigestRoute
+  ApiCronPruneRoute: typeof ApiCronPruneRoute
   ApiV1BoardRoute: typeof ApiV1BoardRoute
   ApiV1ChangelogRoute: typeof ApiV1ChangelogRoute
   ApiV1PostsRoute: typeof ApiV1PostsRouteWithChildren
@@ -572,6 +610,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/track': {
+      id: '/api/track'
+      path: '/api/track'
+      fullPath: '/api/track'
+      preLoaderRoute: typeof ApiTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/feedback-chat': {
       id: '/api/feedback-chat'
       path: '/api/feedback-chat'
@@ -600,6 +645,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SlugChangelogRouteImport
       parentRoute: typeof SlugRouteRoute
     }
+    '/$slug/admin': {
+      id: '/$slug/admin'
+      path: '/admin'
+      fullPath: '/$slug/admin'
+      preLoaderRoute: typeof SlugAdminRouteImport
+      parentRoute: typeof SlugRouteRoute
+    }
     '/api/v1/tags': {
       id: '/api/v1/tags'
       path: '/api/v1/tags'
@@ -626,6 +678,13 @@ declare module '@tanstack/react-router' {
       path: '/api/v1/board'
       fullPath: '/api/v1/board'
       preLoaderRoute: typeof ApiV1BoardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cron/prune': {
+      id: '/api/cron/prune'
+      path: '/api/cron/prune'
+      fullPath: '/api/cron/prune'
+      preLoaderRoute: typeof ApiCronPruneRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/cron/digest': {
@@ -702,6 +761,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface SlugRouteRouteChildren {
+  SlugAdminRoute: typeof SlugAdminRoute
   SlugChangelogRoute: typeof SlugChangelogRoute
   SlugInsightsRoute: typeof SlugInsightsRoute
   SlugRoadmapRoute: typeof SlugRoadmapRoute
@@ -714,6 +774,7 @@ interface SlugRouteRouteChildren {
 }
 
 const SlugRouteRouteChildren: SlugRouteRouteChildren = {
+  SlugAdminRoute: SlugAdminRoute,
   SlugChangelogRoute: SlugChangelogRoute,
   SlugInsightsRoute: SlugInsightsRoute,
   SlugRoadmapRoute: SlugRoadmapRoute,
@@ -770,10 +831,12 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ApiFeedbackChatRoute: ApiFeedbackChatRoute,
+  ApiTrackRoute: ApiTrackRoute,
   ApiUnsubscribeRoute: ApiUnsubscribeRoute,
   VsCannyRoute: VsCannyRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCronDigestRoute: ApiCronDigestRoute,
+  ApiCronPruneRoute: ApiCronPruneRoute,
   ApiV1BoardRoute: ApiV1BoardRoute,
   ApiV1ChangelogRoute: ApiV1ChangelogRoute,
   ApiV1PostsRoute: ApiV1PostsRouteWithChildren,

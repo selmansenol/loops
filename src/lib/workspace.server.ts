@@ -3,9 +3,15 @@
  * a workspace; this module owns slug rules, lookup, creation, and per-workspace
  * authorization (replaces the old global `user_roles` admin).
  */
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { workspaces, workspace_members, type Workspace } from "@/db/schema";
+import {
+  workspaces,
+  workspace_members,
+  workspace_invites,
+  user,
+  type Workspace,
+} from "@/db/schema";
 
 export type WorkspaceRole = "owner" | "admin" | "member";
 
@@ -123,6 +129,39 @@ export async function listMyWorkspaces(userId: string): Promise<WorkspaceWithRol
     .where(eq(workspace_members.user_id, userId))
     .orderBy(desc(workspaces.created_at));
   return rows.map((r) => ({ id: r.id, slug: r.slug, name: r.name, role: r.role as WorkspaceRole }));
+}
+
+/**
+ * Accept any pending team invites addressed to this user's email: adds the
+ * membership (if not already present) and marks the invite accepted. Called on
+ * dashboard load so an invited user joins the moment they sign in. Best-effort.
+ */
+export async function acceptPendingInvites(userId: string): Promise<void> {
+  try {
+    const [u] = await db.select({ email: user.email }).from(user).where(eq(user.id, userId));
+    if (!u?.email) return;
+    const invites = await db
+      .select()
+      .from(workspace_invites)
+      .where(
+        and(
+          eq(sql`lower(${workspace_invites.email})`, u.email.toLowerCase()),
+          isNull(workspace_invites.accepted_at),
+        ),
+      );
+    for (const inv of invites) {
+      await db
+        .insert(workspace_members)
+        .values({ workspace_id: inv.workspace_id, user_id: userId, role: inv.role })
+        .onConflictDoNothing();
+      await db
+        .update(workspace_invites)
+        .set({ accepted_at: sql`now()` })
+        .where(eq(workspace_invites.id, inv.id));
+    }
+  } catch {
+    /* best-effort */
+  }
 }
 
 /**

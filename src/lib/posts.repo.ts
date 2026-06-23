@@ -30,9 +30,16 @@ const PUBLIC_COLUMNS = {
 
 export async function listPosts(
   workspaceId: string,
-  opts?: { status?: PostStatus; tag?: string; limit?: number; offset?: number },
+  opts?: {
+    status?: PostStatus;
+    tag?: string;
+    limit?: number;
+    offset?: number;
+    includeHidden?: boolean;
+  },
 ): Promise<Post[]> {
   const conditions = [eq(posts.workspace_id, workspaceId)];
+  if (!opts?.includeHidden) conditions.push(eq(posts.hidden, false));
   if (opts?.status) conditions.push(eq(posts.status, opts.status));
   if (opts?.tag) conditions.push(eq(posts.tag, opts.tag));
 
@@ -51,9 +58,10 @@ export async function listPosts(
 
 export async function countPosts(
   workspaceId: string,
-  opts?: { status?: PostStatus; tag?: string },
+  opts?: { status?: PostStatus; tag?: string; includeHidden?: boolean },
 ): Promise<number> {
   const conditions = [eq(posts.workspace_id, workspaceId)];
+  if (!opts?.includeHidden) conditions.push(eq(posts.hidden, false));
   if (opts?.status) conditions.push(eq(posts.status, opts.status));
   if (opts?.tag) conditions.push(eq(posts.tag, opts.tag));
   const rows = await db
@@ -200,7 +208,13 @@ export async function findSimilarPosts(
       score,
     })
     .from(posts)
-    .where(and(eq(posts.workspace_id, workspaceId), sql`${score} > ${threshold}`))
+    .where(
+      and(
+        eq(posts.workspace_id, workspaceId),
+        eq(posts.hidden, false),
+        sql`${score} > ${threshold}`,
+      ),
+    )
     .orderBy(desc(score))
     .limit(limit);
 

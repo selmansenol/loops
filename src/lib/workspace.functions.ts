@@ -7,6 +7,7 @@ export type PublicWorkspace = {
   slug: string;
   name: string;
   allowGuestVotes: boolean;
+  analyticsEmbed: string | null;
 };
 
 /**
@@ -47,8 +48,34 @@ export const getWorkspaceFn = createServerFn({ method: "GET" })
     const { getWorkspaceBySlug } = await import("@/lib/workspace.server");
     const ws = await getWorkspaceBySlug(data.slug);
     return ws
-      ? { id: ws.id, slug: ws.slug, name: ws.name, allowGuestVotes: ws.allow_guest_votes }
+      ? {
+          id: ws.id,
+          slug: ws.slug,
+          name: ws.name,
+          allowGuestVotes: ws.allow_guest_votes,
+          analyticsEmbed: ws.analytics_embed ?? null,
+        }
       : null;
+  });
+
+/** Save the optional external analytics snippet for a board (owner/admin). */
+export const updateAnalyticsEmbedFn = createServerFn({ method: "POST" })
+  .middleware([requireAuth])
+  .validator((input: unknown) =>
+    z.object({ slug: z.string().max(40), embed: z.string().max(4000) }).parse(input),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
+    const { db } = await import("@/db");
+    const { workspaces } = await import("@/db/schema");
+    const { eq } = await import("drizzle-orm");
+    const value = data.embed.trim();
+    await db
+      .update(workspaces)
+      .set({ analytics_embed: value.length ? value : null })
+      .where(eq(workspaces.id, ws.id));
+    return { ok: true };
   });
 
 /** Update board settings (owner/admin). */
@@ -74,9 +101,14 @@ export const updateBoardSettingsFn = createServerFn({ method: "POST" })
 export const listMyWorkspacesFn = createServerFn({ method: "GET" })
   .middleware([requireAuth])
   .handler(async ({ context }) => {
-    const { singleTenantSlug, ensureSingleTenantMembership, listMyWorkspaces } =
-      await import("@/lib/workspace.server");
+    const {
+      singleTenantSlug,
+      ensureSingleTenantMembership,
+      listMyWorkspaces,
+      acceptPendingInvites,
+    } = await import("@/lib/workspace.server");
     if (singleTenantSlug()) await ensureSingleTenantMembership(context.userId);
+    await acceptPendingInvites(context.userId);
     return listMyWorkspaces(context.userId);
   });
 

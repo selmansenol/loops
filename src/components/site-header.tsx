@@ -61,6 +61,7 @@ export function SiteHeader() {
               <NavItem to="/$slug/changelog" params={{ slug }} label={t("changelog.eyebrow")} />
               {mounted && isAdmin && (
                 <>
+                  <NavItem to="/$slug/admin" params={{ slug }} label={t("nav.admin")} />
                   <NavItem
                     to="/$slug/insights"
                     params={{ slug }}
@@ -223,6 +224,9 @@ function MobileNav({
                   </Link>
                   {mounted && isAdmin && (
                     <>
+                      <Link to="/$slug/admin" params={{ slug }} className={item} onClick={close}>
+                        {t("nav.admin")}
+                      </Link>
                       <Link to="/$slug/insights" params={{ slug }} className={item} onClick={close}>
                         {t("nav.insights")}
                       </Link>
