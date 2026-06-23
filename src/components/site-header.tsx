@@ -108,7 +108,7 @@ export function SiteHeader() {
               </span>
               <button
                 onClick={handleSignOut}
-                className="inline-flex items-center gap-1 rounded-full border border-border-strong bg-surface px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                className="hidden md:inline-flex items-center gap-1 rounded-full border border-border-strong bg-surface px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
               >
                 {t("nav.signOut")}
               </button>
@@ -122,9 +122,199 @@ export function SiteHeader() {
               <span aria-hidden>→</span>
             </Link>
           )}
+          <MobileNav
+            slug={slug}
+            isAdmin={isAdmin}
+            hasUser={!!user}
+            feedbackSlug={feedbackSlug}
+            mounted={mounted}
+            onSignOut={handleSignOut}
+          />
         </div>
       </div>
     </header>
+  );
+}
+
+function MobileNav({
+  slug,
+  isAdmin,
+  hasUser,
+  feedbackSlug,
+  mounted,
+  onSignOut,
+}: {
+  slug?: string;
+  isAdmin: boolean;
+  hasUser: boolean;
+  feedbackSlug: string | null;
+  mounted: boolean;
+  onSignOut: () => void;
+}) {
+  const { t } = useTranslation();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
+
+  // Close when the route changes or Escape is pressed.
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  const item = "block rounded-xl px-4 py-3 text-base text-foreground hover:bg-accent";
+
+  return (
+    <div className="md:hidden">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-label="Menu"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-foreground hover:bg-accent transition-colors"
+      >
+        <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden>
+          {open ? (
+            <path
+              d="M6 6l12 12M18 6 6 18"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          ) : (
+            <path
+              d="M4 7h16M4 12h16M4 17h16"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          )}
+        </svg>
+      </button>
+      {open && (
+        <>
+          <div
+            className="fixed inset-x-0 bottom-0 top-16 z-40 bg-foreground/20"
+            onClick={close}
+            aria-hidden
+          />
+          <div
+            role="menu"
+            className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-border bg-background shadow-lifted"
+          >
+            <nav className="mx-auto max-w-6xl px-4 py-3 space-y-0.5">
+              {slug ? (
+                <>
+                  <Link to="/$slug" params={{ slug }} className={item} onClick={close}>
+                    {t("nav.board")}
+                  </Link>
+                  <Link to="/$slug/roadmap" params={{ slug }} className={item} onClick={close}>
+                    {t("roadmap.eyebrow")}
+                  </Link>
+                  <Link to="/$slug/changelog" params={{ slug }} className={item} onClick={close}>
+                    {t("changelog.eyebrow")}
+                  </Link>
+                  {mounted && isAdmin && (
+                    <>
+                      <Link to="/$slug/insights" params={{ slug }} className={item} onClick={close}>
+                        {t("nav.insights")}
+                      </Link>
+                      <div className="px-4 pt-3 pb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {t("nav.settings")}
+                      </div>
+                      <Link
+                        to="/$slug/settings/share"
+                        params={{ slug }}
+                        className={item}
+                        onClick={close}
+                      >
+                        {t("nav.share")}
+                      </Link>
+                      <Link
+                        to="/$slug/settings/ai"
+                        params={{ slug }}
+                        className={item}
+                        onClick={close}
+                      >
+                        {t("nav.ai")}
+                      </Link>
+                      <Link
+                        to="/$slug/settings/api-keys"
+                        params={{ slug }}
+                        className={item}
+                        onClick={close}
+                      >
+                        {t("nav.api")}
+                      </Link>
+                      <Link
+                        to="/$slug/settings/webhooks"
+                        params={{ slug }}
+                        className={item}
+                        onClick={close}
+                      >
+                        {t("nav.webhooks")}
+                      </Link>
+                    </>
+                  )}
+                </>
+              ) : (
+                mounted &&
+                hasUser && (
+                  <Link to="/dashboard" className={item} onClick={close}>
+                    {t("nav.dashboard")}
+                  </Link>
+                )
+              )}
+              {!slug && feedbackSlug && (
+                <Link to="/$slug" params={{ slug: feedbackSlug }} className={item} onClick={close}>
+                  {t("footer.feedback")}
+                </Link>
+              )}
+              <Link to="/docs" className={item} onClick={close}>
+                {t("nav.docs")}
+              </Link>
+              <a
+                href={GITHUB_URL}
+                target="_blank"
+                rel="noreferrer"
+                className={item}
+                onClick={close}
+              >
+                {t("nav.github")}
+              </a>
+              <a
+                href={SPONSOR_URL}
+                target="_blank"
+                rel="noreferrer"
+                className={`${item} inline-flex items-center gap-1.5 text-[#EA4AAA]`}
+                onClick={close}
+              >
+                <HeartIcon />
+                {t("nav.sponsor")}
+              </a>
+              {mounted && hasUser && (
+                <button
+                  onClick={() => {
+                    close();
+                    onSignOut();
+                  }}
+                  className={`${item} w-full text-start text-muted-foreground`}
+                >
+                  {t("nav.signOut")}
+                </button>
+              )}
+            </nav>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -397,12 +587,14 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-border mt-32">
       <div className="mx-auto max-w-6xl px-6 py-12 flex flex-col md:flex-row gap-6 md:items-center md:justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <LoopMark />
           <span className="font-display text-lg font-semibold">Loops</span>
-          <span className="text-sm text-muted-foreground ml-2">{t("footer.tagline")}</span>
+          <span className="hidden sm:inline text-sm text-muted-foreground ml-2 truncate">
+            {t("footer.tagline")}
+          </span>
         </div>
-        <div className="flex gap-6 text-sm text-muted-foreground">
+        <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-muted-foreground">
           {feedbackSlug && (
             <Link to="/$slug" params={{ slug: feedbackSlug }} className="hover:text-foreground">
               {t("footer.feedback")}

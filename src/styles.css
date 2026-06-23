@@ -142,6 +142,8 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-feature-settings: "ss01", "cv11";
+    /* Safety net: never let stray wide content cause horizontal page scroll. */
+    overflow-x: hidden;
   }
 
   h1,

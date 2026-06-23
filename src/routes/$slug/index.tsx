@@ -121,7 +121,7 @@ function BoardPage() {
             </p>
           </div>
           {user ? (
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
               <button
                 onClick={() => setChatOpen(true)}
                 className="inline-flex items-center gap-2 rounded-full border border-ai/40 bg-ai-soft/50 text-foreground px-4 py-2.5 text-sm font-medium hover:border-ai/60 transition-colors"
