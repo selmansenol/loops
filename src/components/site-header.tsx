@@ -25,12 +25,16 @@ export function SiteHeader() {
   const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
   const [feedbackSlug, setFeedbackSlug] = useState<string | null>(null);
+  const [platformAdmin, setPlatformAdmin] = useState(false);
 
   useEffect(() => {
     applyClientLanguage();
     setMounted(true);
     getAppModeFn()
-      .then((m) => setFeedbackSlug(m.feedbackSlug))
+      .then((m) => {
+        setFeedbackSlug(m.feedbackSlug);
+        setPlatformAdmin(m.platformAdmin);
+      })
       .catch(() => {});
   }, []);
 
@@ -77,6 +81,9 @@ export function SiteHeader() {
           )}
           {!slug && feedbackSlug && (
             <NavItem to="/$slug" params={{ slug: feedbackSlug }} label={t("footer.feedback")} />
+          )}
+          {mounted && platformAdmin && (
+            <NavItem to="/admin" label={t("platform.nav")} accent="ai" />
           )}
           <NavItem to="/docs" label={t("nav.docs")} />
           <a
@@ -128,6 +135,7 @@ export function SiteHeader() {
             isAdmin={isAdmin}
             hasUser={!!user}
             feedbackSlug={feedbackSlug}
+            platformAdmin={platformAdmin}
             mounted={mounted}
             onSignOut={handleSignOut}
           />
@@ -142,6 +150,7 @@ function MobileNav({
   isAdmin,
   hasUser,
   feedbackSlug,
+  platformAdmin,
   mounted,
   onSignOut,
 }: {
@@ -149,6 +158,7 @@ function MobileNav({
   isAdmin: boolean;
   hasUser: boolean;
   feedbackSlug: string | null;
+  platformAdmin: boolean;
   mounted: boolean;
   onSignOut: () => void;
 }) {
@@ -279,6 +289,11 @@ function MobileNav({
               {!slug && feedbackSlug && (
                 <Link to="/$slug" params={{ slug: feedbackSlug }} className={item} onClick={close}>
                   {t("footer.feedback")}
+                </Link>
+              )}
+              {platformAdmin && (
+                <Link to="/admin" className={`${item} text-ai`} onClick={close}>
+                  {t("platform.nav")}
                 </Link>
               )}
               <Link to="/docs" className={item} onClick={close}>

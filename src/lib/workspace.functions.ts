@@ -23,9 +23,32 @@ export const getAppModeFn = createServerFn({ method: "GET" }).handler(
     social: { google: boolean; github: boolean };
     maxBoards: number | null;
     feedbackSlug: string | null;
+    platformAdmin: boolean;
   }> => {
     const { singleTenantSlug, maxBoardsPerUser } = await import("@/lib/workspace.server");
     const { emailEnabled } = await import("@/lib/email.server");
+
+    // Is the current session a platform operator? (gates the top-level /admin link)
+    let platformAdmin = false;
+    try {
+      const { getOptionalUserId } = await import("@/lib/require-auth");
+      const userId = await getOptionalUserId();
+      if (userId) {
+        const { db } = await import("@/db");
+        const { user } = await import("@/db/schema");
+        const { eq } = await import("drizzle-orm");
+        const [u] = await db
+          .select({ email: user.email })
+          .from(user)
+          .where(eq(user.id, userId))
+          .limit(1);
+        const { isPlatformAdminEmail } = await import("@/lib/platform.server");
+        platformAdmin = isPlatformAdminEmail(u?.email);
+      }
+    } catch {
+      /* not logged in / no session */
+    }
+
     return {
       singleTenantSlug: singleTenantSlug(),
       demoSlug: process.env.DEMO_WORKSPACE_SLUG?.trim() || null,
@@ -37,6 +60,7 @@ export const getAppModeFn = createServerFn({ method: "GET" }).handler(
       maxBoards: maxBoardsPerUser(),
       // getloops.co dogfoods Loops: this is the slug of our own public board.
       feedbackSlug: process.env.FEEDBACK_WORKSPACE_SLUG?.trim() || null,
+      platformAdmin,
     };
   },
 );
