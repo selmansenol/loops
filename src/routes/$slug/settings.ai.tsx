@@ -180,6 +180,8 @@ function ProviderCard({
   const listModels = useServerFn(listProviderModels);
   const [open, setOpen] = useState(false);
   const [key, setKey] = useState("");
+  const oc = provider.openaiCompatible; // Ollama / OpenAI-compatible
+  const [baseUrl, setBaseUrl] = useState(provider.baseUrl || provider.defaultBaseUrl || "");
   const [model, setModel] = useState(provider.model || provider.defaultModel);
   const [models, setModels] = useState<string[] | null>(null);
   const [loadingModels, setLoadingModels] = useState(false);
@@ -194,12 +196,20 @@ function ProviderCard({
     setLoadingModels(true);
     setErr(null);
     try {
-      const r = await listModels({ data: { slug, provider: provider.id, apiKey } });
+      const r = await listModels({
+        data: { slug, provider: provider.id, apiKey, baseUrl: oc ? baseUrl.trim() : undefined },
+      });
       setModels(r.models);
       if (r.models.length && !r.models.includes(model)) setModel(r.models[0]);
     } catch (e) {
       const m = (e as Error).message;
-      setErr(m === "NO_KEY" ? t("settingsAi.modelsNeedKey") : t("settingsAi.modelsError"));
+      setErr(
+        m === "NO_KEY"
+          ? t("settingsAi.modelsNeedKey")
+          : m === "NO_BASE_URL"
+            ? t("settingsAi.modelsNeedBaseUrl")
+            : t("settingsAi.modelsError"),
+      );
     } finally {
       setLoadingModels(false);
     }
@@ -223,7 +233,13 @@ function ProviderCard({
     setErr(null);
     try {
       await save({
-        data: { slug, provider: provider.id, apiKey: key.trim(), model: model.trim() },
+        data: {
+          slug,
+          provider: provider.id,
+          apiKey: key.trim() || undefined,
+          baseUrl: oc ? baseUrl.trim() : undefined,
+          model: model.trim(),
+        },
       });
       setKey("");
       setOpen(false);
@@ -296,6 +312,12 @@ function ProviderCard({
               · <code className="bg-secondary px-1.5 py-0.5 rounded">…{provider.last4}</code>
             </p>
           )}
+          {configured && oc && provider.baseUrl && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {t("settingsAi.baseUrl")}:{" "}
+              <code className="bg-secondary px-1.5 py-0.5 rounded">{provider.baseUrl}</code>
+            </p>
+          )}
         </div>
         <div className="shrink-0 flex items-center gap-2">
           <span
@@ -344,7 +366,27 @@ function ProviderCard({
 
       {open && (
         <div className="mt-4 space-y-2">
-          <label className="block text-xs text-muted-foreground">{t("settingsAi.apiKey")}</label>
+          {oc && (
+            <>
+              <label className="block text-xs text-muted-foreground">
+                {t("settingsAi.baseUrl")}
+              </label>
+              <input
+                type="text"
+                value={baseUrl}
+                onChange={(e) => setBaseUrl(e.target.value)}
+                placeholder={provider.defaultBaseUrl ?? "http://localhost:11434/v1"}
+                autoComplete="off"
+                spellCheck={false}
+                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-mono"
+              />
+              <p className="text-[11px] text-muted-foreground">{t("settingsAi.baseUrlHint")}</p>
+            </>
+          )}
+          <label className="block text-xs text-muted-foreground">
+            {t("settingsAi.apiKey")}
+            {oc && <span className="ml-1 opacity-70">({t("settingsAi.optional")})</span>}
+          </label>
           <input
             type="password"
             value={key}
@@ -358,7 +400,7 @@ function ProviderCard({
             <button
               type="button"
               onClick={() => loadModels(key.trim())}
-              disabled={loadingModels || key.trim().length < 10}
+              disabled={loadingModels || (oc ? !baseUrl.trim() : key.trim().length < 10)}
               className="text-xs text-primary hover:underline disabled:opacity-50 disabled:no-underline"
             >
               {loadingModels ? t("common.loading") : t("settingsAi.loadModels")}
@@ -371,7 +413,7 @@ function ProviderCard({
           <div className="flex gap-2 pt-1">
             <button
               onClick={handleSave}
-              disabled={busy || key.trim().length < 10}
+              disabled={busy || (oc ? !baseUrl.trim() : key.trim().length < 10)}
               className="rounded-full bg-foreground text-background px-4 py-1.5 text-xs font-medium disabled:opacity-50"
             >
               {busy ? t("common.loading") : t("settingsAi.save")}
@@ -398,5 +440,6 @@ function providerLabel(id: string) {
   if (id === "openai") return "OpenAI · ChatGPT";
   if (id === "anthropic") return "Anthropic · Claude";
   if (id === "google") return "Google · Gemini";
+  if (id === "ollama") return "Ollama · OpenAI-compatible";
   return id;
 }

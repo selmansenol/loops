@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/require-auth";
 import { z } from "zod";
 
 export type AiProviderStatus = {
-  id: "openai" | "anthropic" | "google";
+  id: "openai" | "anthropic" | "google" | "ollama";
   label: string;
   envVar: string;
   defaultModel: string;
@@ -14,6 +14,11 @@ export type AiProviderStatus = {
   model: string | null;
   /** Suggested model ids for the picker. */
   models: string[];
+  /** OpenAI-compatible (Ollama/LM Studio/vLLM): needs a base URL, key optional. */
+  openaiCompatible: boolean;
+  defaultBaseUrl: string | null;
+  /** The configured base URL (OpenAI-compatible providers only). */
+  baseUrl: string | null;
 };
 
 export type AiSettingsResult = {
@@ -24,6 +29,7 @@ export type AiSettingsResult = {
 };
 
 const slugInput = z.object({ slug: z.string().max(40) });
+const providerEnum = z.enum(["openai", "anthropic", "google", "ollama"]);
 
 export const getAiSettings = createServerFn({ method: "GET" })
   .middleware([requireAuth])
@@ -47,6 +53,9 @@ export const getAiSettings = createServerFn({ method: "GET" })
         last4: k?.last4 ?? null,
         model: k?.model ?? null,
         models: p.models,
+        openaiCompatible: !!p.openaiCompatible,
+        defaultBaseUrl: p.defaultBaseUrl ?? null,
+        baseUrl: k?.baseUrl ?? null,
       };
     });
 
@@ -66,11 +75,28 @@ export const getAiSettings = createServerFn({ method: "GET" })
     };
   });
 
-const SaveInput = slugInput.extend({
-  provider: z.enum(["openai", "anthropic", "google"]),
-  apiKey: z.string().trim().min(10).max(500),
-  model: z.string().trim().max(80).optional(),
-});
+// Save a provider config. Native providers (openai/anthropic/google) require an
+// API key; OpenAI-compatible ones (ollama) require a base URL, key optional.
+const SaveInput = slugInput
+  .extend({
+    provider: providerEnum,
+    apiKey: z.string().trim().max(500).optional(),
+    baseUrl: z.string().trim().max(300).optional(),
+    model: z.string().trim().max(80).optional(),
+  })
+  .superRefine((v, ctx) => {
+    if (v.provider === "ollama") {
+      if (!v.baseUrl || !/^https?:\/\//i.test(v.baseUrl)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["baseUrl"],
+          message: "BASE_URL_REQUIRED",
+        });
+      }
+    } else if (!v.apiKey || v.apiKey.length < 10) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["apiKey"], message: "API_KEY_REQUIRED" });
+    }
+  });
 
 export const saveAiProviderKey = createServerFn({ method: "POST" })
   .middleware([requireAuth])
@@ -79,6 +105,8 @@ export const saveAiProviderKey = createServerFn({ method: "POST" })
     const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
     const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
     const model = data.model?.trim() || null;
+    const apiKey = data.apiKey?.trim() || "";
+    const baseUrl = data.provider === "ollama" ? data.baseUrl!.trim().replace(/\/$/, "") : null;
     const { db } = await import("@/db");
     const { ai_provider_keys } = await import("@/db/schema");
     await db
@@ -86,14 +114,16 @@ export const saveAiProviderKey = createServerFn({ method: "POST" })
       .values({
         workspace_id: ws.id,
         provider: data.provider,
-        api_key: data.apiKey,
+        api_key: apiKey,
+        base_url: baseUrl,
         model,
         updated_by: context.userId,
       })
       .onConflictDoUpdate({
         target: [ai_provider_keys.workspace_id, ai_provider_keys.provider],
         set: {
-          api_key: data.apiKey,
+          api_key: apiKey,
+          base_url: baseUrl,
           model,
           updated_by: context.userId,
           updated_at: new Date().toISOString(),
@@ -102,11 +132,11 @@ export const saveAiProviderKey = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-// List the models the given key can actually use (live, from the provider).
-// Uses the passed key if provided, otherwise the stored key for that provider.
+// List the models the given config can actually use (live, from the provider).
 const ListModelsInput = slugInput.extend({
-  provider: z.enum(["openai", "anthropic", "google"]),
+  provider: providerEnum,
   apiKey: z.string().trim().max(500).optional(),
+  baseUrl: z.string().trim().max(300).optional(),
 });
 
 export const listProviderModels = createServerFn({ method: "POST" })
@@ -116,6 +146,28 @@ export const listProviderModels = createServerFn({ method: "POST" })
     const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
     const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
     const { fetchProviderModels, getDbKey } = await import("./ai-provider.server");
+
+    if (data.provider === "ollama") {
+      // Base URL drives Ollama; key is optional.
+      let baseUrl = data.baseUrl?.trim();
+      if (!baseUrl) {
+        const { db } = await import("@/db");
+        const { ai_provider_keys } = await import("@/db/schema");
+        const { and, eq } = await import("drizzle-orm");
+        const [row] = await db
+          .select({ base_url: ai_provider_keys.base_url })
+          .from(ai_provider_keys)
+          .where(
+            and(eq(ai_provider_keys.workspace_id, ws.id), eq(ai_provider_keys.provider, "ollama")),
+          )
+          .limit(1);
+        baseUrl = row?.base_url ?? undefined;
+      }
+      if (!baseUrl) throw new Error("NO_BASE_URL");
+      const models = await fetchProviderModels("ollama", data.apiKey?.trim() || "", baseUrl);
+      return { models };
+    }
+
     const key = data.apiKey?.trim() || (await getDbKey(ws.id, data.provider));
     if (!key) throw new Error("NO_KEY");
     const models = await fetchProviderModels(data.provider, key);
@@ -124,7 +176,7 @@ export const listProviderModels = createServerFn({ method: "POST" })
 
 // Change just the model for an already-configured provider (no re-entering the key).
 const ModelInput = slugInput.extend({
-  provider: z.enum(["openai", "anthropic", "google"]),
+  provider: providerEnum,
   model: z.string().trim().max(80),
 });
 
@@ -146,7 +198,7 @@ export const updateProviderModel = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-const DeleteInput = slugInput.extend({ provider: z.enum(["openai", "anthropic", "google"]) });
+const DeleteInput = slugInput.extend({ provider: providerEnum });
 
 export const deleteAiProviderKey = createServerFn({ method: "POST" })
   .middleware([requireAuth])

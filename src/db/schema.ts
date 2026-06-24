@@ -332,8 +332,9 @@ export const ai_provider_keys = pgTable(
     workspace_id: uuid("workspace_id")
       .notNull()
       .references(() => workspaces.id, { onDelete: "cascade" }),
-    provider: text("provider").notNull(), // 'openai' | 'anthropic' | 'google'
-    api_key: text("api_key").notNull(),
+    provider: text("provider").notNull(), // 'openai' | 'anthropic' | 'google' | 'ollama'
+    api_key: text("api_key").notNull(), // may be "" for keyless OpenAI-compatible (Ollama)
+    base_url: text("base_url"), // OpenAI-compatible endpoint (Ollama/LM Studio/vLLM); null for native providers
     model: text("model"), // null = use the provider's default model
     updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
       .notNull()

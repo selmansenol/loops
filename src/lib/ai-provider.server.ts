@@ -13,9 +13,10 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import type { LanguageModel } from "ai";
 
-export type AiProviderId = "openai" | "anthropic" | "google";
+export type AiProviderId = "openai" | "anthropic" | "google" | "ollama";
 
 export type AiProviderInfo = {
   id: AiProviderId;
@@ -25,6 +26,10 @@ export type AiProviderInfo = {
   keyHint: string;
   /** Suggested models shown in the picker; users can also type any model id. */
   models: string[];
+  /** OpenAI-compatible providers (Ollama, LM Studio, vLLM…) need a base URL and
+   *  the API key is optional; native providers use the vendor SDK + a key. */
+  openaiCompatible?: boolean;
+  defaultBaseUrl?: string;
 };
 
 export const SUPPORTED_PROVIDERS: AiProviderInfo[] = [
@@ -52,7 +57,24 @@ export const SUPPORTED_PROVIDERS: AiProviderInfo[] = [
     keyHint: "AIza...",
     models: ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite"],
   },
+  {
+    id: "ollama",
+    label: "Ollama / OpenAI-compatible",
+    envVar: "OLLAMA_BASE_URL",
+    defaultModel: "llama3.1",
+    keyHint: "(optional)",
+    models: ["llama3.1", "llama3.2", "qwen2.5", "mistral", "gemma2", "phi3"],
+    openaiCompatible: true,
+    defaultBaseUrl: "http://localhost:11434/v1",
+  },
 ];
+
+export function providerInfo(id: AiProviderId): AiProviderInfo {
+  return SUPPORTED_PROVIDERS.find((p) => p.id === id)!;
+}
+export function isOpenAICompatible(id: AiProviderId): boolean {
+  return !!providerInfo(id).openaiCompatible;
+}
 
 // Env keys only count in single-tenant mode (self-host).
 function envAllowed(): boolean {
@@ -63,17 +85,31 @@ function envKey(p: AiProviderId): string | undefined {
   if (!envAllowed()) return undefined;
   if (p === "openai") return process.env.OPENAI_API_KEY || undefined;
   if (p === "anthropic") return process.env.ANTHROPIC_API_KEY || undefined;
-  return process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || undefined;
+  if (p === "google")
+    return process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || undefined;
+  return undefined; // ollama: keyless
+}
+
+/** Base URL for OpenAI-compatible providers, from env (single-tenant only). */
+function envBaseUrl(p: AiProviderId): string | undefined {
+  if (!envAllowed() || !isOpenAICompatible(p)) return undefined;
+  return process.env.OLLAMA_BASE_URL?.trim() || undefined;
 }
 
 export type ResolvedKey = {
   provider: AiProviderId;
   apiKey: string;
+  baseUrl: string | null;
   source: "db" | "env";
   model: string | null;
 };
 
-export type KeyStatus = { source: "db" | "env"; last4: string; model: string | null };
+export type KeyStatus = {
+  source: "db" | "env";
+  last4: string;
+  model: string | null;
+  baseUrl: string | null;
+};
 
 export async function loadAllKeys(
   workspaceId: string,
@@ -85,20 +121,34 @@ export async function loadAllKeys(
     .select({
       provider: ai_provider_keys.provider,
       api_key: ai_provider_keys.api_key,
+      base_url: ai_provider_keys.base_url,
       model: ai_provider_keys.model,
     })
     .from(ai_provider_keys)
     .where(eq(ai_provider_keys.workspace_id, workspaceId));
-  const dbMap = new Map<string, { api_key: string; model: string | null }>();
-  for (const row of data ?? []) dbMap.set(row.provider, { api_key: row.api_key, model: row.model });
+  const dbMap = new Map<
+    string,
+    { api_key: string; base_url: string | null; model: string | null }
+  >();
+  for (const row of data ?? [])
+    dbMap.set(row.provider, { api_key: row.api_key, base_url: row.base_url, model: row.model });
 
   const out = {} as Record<AiProviderId, KeyStatus | null>;
   for (const p of SUPPORTED_PROVIDERS) {
     const dbKey = dbMap.get(p.id);
-    if (dbKey) out[p.id] = { source: "db", last4: dbKey.api_key.slice(-4), model: dbKey.model };
-    else {
+    if (dbKey) {
+      out[p.id] = {
+        source: "db",
+        last4: dbKey.api_key.slice(-4),
+        model: dbKey.model,
+        baseUrl: dbKey.base_url,
+      };
+    } else if (isOpenAICompatible(p.id)) {
+      const url = envBaseUrl(p.id);
+      out[p.id] = url ? { source: "env", last4: "", model: null, baseUrl: url } : null;
+    } else {
       const ev = envKey(p.id);
-      out[p.id] = ev ? { source: "env", last4: ev.slice(-4), model: null } : null;
+      out[p.id] = ev ? { source: "env", last4: ev.slice(-4), model: null, baseUrl: null } : null;
     }
   }
   return out;
@@ -111,8 +161,19 @@ export async function loadAllKeys(
 export async function fetchProviderModels(
   provider: AiProviderId,
   apiKey: string,
+  baseUrl?: string,
 ): Promise<string[]> {
   const signal = AbortSignal.timeout(12_000);
+  if (provider === "ollama") {
+    const url = (baseUrl || providerInfo("ollama").defaultBaseUrl!).replace(/\/$/, "");
+    const res = await fetch(`${url}/models`, {
+      headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : {},
+      signal,
+    });
+    if (!res.ok) throw new Error(`Provider returned ${res.status}`);
+    const json = (await res.json()) as { data?: { id: string }[] };
+    return (json.data ?? []).map((m) => m.id).sort();
+  }
   if (provider === "google") {
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}&pageSize=200`,
@@ -244,31 +305,39 @@ export function classifyAiError(err: unknown): AiErrorCode {
   return "server";
 }
 
+async function buildResolved(
+  workspaceId: string,
+  provider: AiProviderId,
+  source: "db" | "env",
+): Promise<ResolvedKey> {
+  if (source === "db") {
+    const { api_key, base_url, model } = await loadRawDbKey(workspaceId, provider);
+    return { provider, apiKey: api_key, baseUrl: base_url, source: "db", model };
+  }
+  return {
+    provider,
+    apiKey: envKey(provider) ?? "",
+    baseUrl: envBaseUrl(provider) ?? null,
+    source: "env",
+    model: null,
+  };
+}
+
 async function resolveKey(workspaceId: string): Promise<ResolvedKey> {
   const all = await loadAllKeys(workspaceId);
   const overrideRaw = envAllowed() ? process.env.LOOP_AI_PROVIDER?.toLowerCase() : undefined;
   const override = SUPPORTED_PROVIDERS.find((p) => p.id === overrideRaw)?.id;
 
   if (override && all[override]) {
-    const src = all[override]!.source;
-    if (src === "db") {
-      const { api_key, model } = await loadRawDbKey(workspaceId, override);
-      return { provider: override, apiKey: api_key, source: "db", model };
-    }
-    return { provider: override, apiKey: envKey(override)!, source: "env", model: null };
+    return buildResolved(workspaceId, override, all[override]!.source);
   }
 
   // preference order = SUPPORTED_PROVIDERS order, prefer DB over env
   for (const p of SUPPORTED_PROVIDERS) {
-    if (all[p.id]?.source === "db") {
-      const { api_key, model } = await loadRawDbKey(workspaceId, p.id);
-      return { provider: p.id, apiKey: api_key, source: "db", model };
-    }
+    if (all[p.id]?.source === "db") return buildResolved(workspaceId, p.id, "db");
   }
   for (const p of SUPPORTED_PROVIDERS) {
-    if (all[p.id]?.source === "env") {
-      return { provider: p.id, apiKey: envKey(p.id)!, source: "env", model: null };
-    }
+    if (all[p.id]?.source === "env") return buildResolved(workspaceId, p.id, "env");
   }
   throw new NoAiProviderError();
 }
@@ -276,12 +345,16 @@ async function resolveKey(workspaceId: string): Promise<ResolvedKey> {
 async function loadRawDbKey(
   workspaceId: string,
   provider: AiProviderId,
-): Promise<{ api_key: string; model: string | null }> {
+): Promise<{ api_key: string; base_url: string | null; model: string | null }> {
   const { db } = await import("@/db");
   const { ai_provider_keys } = await import("@/db/schema");
   const { and, eq } = await import("drizzle-orm");
   const rows = await db
-    .select({ api_key: ai_provider_keys.api_key, model: ai_provider_keys.model })
+    .select({
+      api_key: ai_provider_keys.api_key,
+      base_url: ai_provider_keys.base_url,
+      model: ai_provider_keys.model,
+    })
     .from(ai_provider_keys)
     .where(
       and(eq(ai_provider_keys.workspace_id, workspaceId), eq(ai_provider_keys.provider, provider)),
@@ -297,15 +370,22 @@ export async function resolveAiModel(workspaceId: string): Promise<{
   modelId: string;
   source: "db" | "env";
 }> {
-  const { provider, apiKey, source, model: storedModel } = await resolveKey(workspaceId);
-  const info = SUPPORTED_PROVIDERS.find((p) => p.id === provider)!;
+  const { provider, apiKey, baseUrl, source, model: storedModel } = await resolveKey(workspaceId);
+  const info = providerInfo(provider);
   // Priority: single-tenant env override → the workspace's chosen model → default.
   const modelId = (envAllowed() && process.env.LOOP_AI_MODEL) || storedModel || info.defaultModel;
 
   let model: LanguageModel;
   if (provider === "openai") model = createOpenAI({ apiKey })(modelId);
   else if (provider === "anthropic") model = createAnthropic({ apiKey })(modelId);
-  else model = createGoogleGenerativeAI({ apiKey })(modelId);
+  else if (provider === "google") model = createGoogleGenerativeAI({ apiKey })(modelId);
+  else {
+    // OpenAI-compatible (Ollama / LM Studio / vLLM): needs a base URL; key optional.
+    const url = baseUrl || info.defaultBaseUrl!;
+    model = createOpenAICompatible({ name: provider, baseURL: url, apiKey: apiKey || "ollama" })(
+      modelId,
+    );
+  }
 
   return { model, provider, modelId, source };
 }
