@@ -24,6 +24,17 @@ export const Route = createFileRoute("/api/feedback-chat")({
         const userId = session?.user?.id;
         if (!userId) return jsonError("unauthorized", "Sign in to use the assistant.", 401);
 
+        // AI is expensive — cap chat turns per user.
+        const { rateLimit } = await import("@/lib/rate-limit.server");
+        const chatRl = rateLimit(`chat:${userId}`, 20, 60_000);
+        if (!chatRl.ok) {
+          return jsonError(
+            "rate_limited",
+            `Too many requests. Retry in ${chatRl.retryAfter}s.`,
+            429,
+          );
+        }
+
         let body: { messages?: unknown; slug?: unknown; locale?: unknown };
         try {
           body = await request.json();

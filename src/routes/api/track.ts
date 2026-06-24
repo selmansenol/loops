@@ -16,6 +16,9 @@ export const Route = createFileRoute("/api/track")({
           if (request.headers.get("dnt") === "1" || request.headers.get("sec-gpc") === "1") {
             return noContent();
           }
+          // Cap beacons per IP so analytics can't be inflated/abused (drop silently).
+          const { rateLimit, clientIp } = await import("@/lib/rate-limit.server");
+          if (!rateLimit(`track:${clientIp(request)}`, 120, 60_000).ok) return noContent();
           const body = (await request.json().catch(() => null)) as {
             slug?: string;
             path?: string;

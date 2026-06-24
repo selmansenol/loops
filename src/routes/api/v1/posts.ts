@@ -49,6 +49,16 @@ export const Route = createFileRoute("/api/v1/posts")({
         const scopeErr = requireScope(auth.key, "write");
         if (scopeErr) return scopeErr;
 
+        const { rateLimit } = await import("@/lib/rate-limit.server");
+        const rl = rateLimit(`v1:write:${auth.key.id}`, 60, 60_000);
+        if (!rl.ok) {
+          return errorResponse(
+            "rate_limited",
+            `Too many requests. Retry in ${rl.retryAfter}s.`,
+            429,
+          );
+        }
+
         let body: {
           title?: unknown;
           description?: unknown;
