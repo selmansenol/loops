@@ -7,8 +7,28 @@ on:
 
 jobs:
   build:
-    name: Lint, typecheck & build
+    name: Lint, typecheck, test & build
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: loop_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/loop_test
+      BETTER_AUTH_SECRET: ci-test-secret-not-used-in-prod
+
     steps:
       - uses: actions/checkout@v4
 
@@ -25,6 +45,12 @@ jobs:
 
       - name: Typecheck
         run: npx tsc --noEmit
+
+      - name: Apply migrations
+        run: npm run db:migrate
+
+      - name: Test
+        run: npm test
 
       - name: Build
         run: npm run build
