@@ -129,6 +129,10 @@ cp .env.example .env
 docker compose up --build
 ```
 
+> **Skip the build:** a prebuilt image is published to
+> `ghcr.io/selmansenol/loops:latest`. Use `docker compose -f docker-compose.prod.yml pull`
+> then `up -d` to run it without compiling from source.
+
 ### Option B — multi-tenant (the getloops.co experience)
 
 Leave `SINGLE_TENANT_SLUG` **unset**. `/` becomes the marketing landing, users sign up at

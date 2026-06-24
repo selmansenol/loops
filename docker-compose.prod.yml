@@ -28,6 +28,8 @@ services:
       retries: 10
 
   app:
+    # Prebuilt image (docker compose pull) — or `build: .` to build from source.
+    image: ghcr.io/selmansenol/loops:latest
     build: .
     restart: always
     depends_on:
