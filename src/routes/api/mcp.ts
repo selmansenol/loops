@@ -18,7 +18,22 @@ import { authenticateRequest, requireScope, type AuthedKey } from "@/lib/api-aut
 
 const PROTOCOL_VERSION = "2025-03-26";
 
-type JsonRpcReq = { jsonrpc?: string; id?: number | string | null; method?: string; params?: any };
+type ToolArgs = {
+  query?: string;
+  status?: "planned" | "progress" | "done";
+  tag?: string;
+  limit?: number;
+  id?: string;
+  title?: string;
+  description?: string;
+};
+type RpcParams = { protocolVersion?: string; name?: string; arguments?: ToolArgs };
+type JsonRpcReq = {
+  jsonrpc?: string;
+  id?: number | string | null;
+  method?: string;
+  params?: RpcParams;
+};
 
 const rpcResult = (id: JsonRpcReq["id"], result: unknown) =>
   json({ jsonrpc: "2.0", id: id ?? null, result });
@@ -93,7 +108,7 @@ const asText = (data: unknown) => ({
 });
 
 // ── tool implementations (all scoped to the key's workspace) ─────────
-async function callTool(key: AuthedKey, name: string, args: Record<string, any>) {
+async function callTool(key: AuthedKey, name: string, args: ToolArgs) {
   const wsId = key.workspace_id;
   const needWrite = name === "create_post" || name === "update_post_status";
   const scopeErr = requireScope(key, needWrite ? "write" : "read");
@@ -233,7 +248,7 @@ export const Route = createFileRoute("/api/mcp")({
 
             case "tools/call": {
               const name = String(params?.name ?? "");
-              const args = (params?.arguments ?? {}) as Record<string, any>;
+              const args = params?.arguments ?? {};
               try {
                 return rpcResult(id, await callTool(auth.key, name, args));
               } catch (err) {
