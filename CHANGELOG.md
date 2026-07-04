@@ -8,6 +8,9 @@ All notable changes to Loops are documented here. The format is based on
 
 ### Added
 
+- **MCP server** at `/api/mcp` — AI agents (Claude, Cursor…) can search, triage
+  and file feedback on a board using the board's API keys; read/write scopes
+  enforced per tool.
 - **Admin & Analytics** — per-board dashboard at `/<slug>/admin` (privacy-first
   visitor analytics, engagement trend, conversion funnel, top posts/referrers,
   CSV export) plus team management (invite by email + roles) and moderation
