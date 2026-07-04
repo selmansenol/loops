@@ -27,6 +27,7 @@ import { Route as SlugIndexRouteImport } from './routes/$slug/index'
 import { Route as VsCannyRouteImport } from './routes/vs.canny'
 import { Route as ApiUnsubscribeRouteImport } from './routes/api/unsubscribe'
 import { Route as ApiTrackRouteImport } from './routes/api/track'
+import { Route as ApiMcpRouteImport } from './routes/api/mcp'
 import { Route as ApiFeedbackChatRouteImport } from './routes/api/feedback-chat'
 import { Route as SlugRoadmapRouteImport } from './routes/$slug/roadmap'
 import { Route as SlugInsightsRouteImport } from './routes/$slug/insights'
@@ -136,6 +137,11 @@ const ApiUnsubscribeRoute = ApiUnsubscribeRouteImport.update({
 const ApiTrackRoute = ApiTrackRouteImport.update({
   id: '/api/track',
   path: '/api/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMcpRoute = ApiMcpRouteImport.update({
+  id: '/api/mcp',
+  path: '/api/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiFeedbackChatRoute = ApiFeedbackChatRouteImport.update({
@@ -259,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
+  '/api/mcp': typeof ApiMcpRoute
   '/api/track': typeof ApiTrackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/vs/canny': typeof VsCannyRoute
@@ -298,6 +305,7 @@ export interface FileRoutesByTo {
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
+  '/api/mcp': typeof ApiMcpRoute
   '/api/track': typeof ApiTrackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/vs/canny': typeof VsCannyRoute
@@ -339,6 +347,7 @@ export interface FileRoutesById {
   '/$slug/insights': typeof SlugInsightsRoute
   '/$slug/roadmap': typeof SlugRoadmapRoute
   '/api/feedback-chat': typeof ApiFeedbackChatRoute
+  '/api/mcp': typeof ApiMcpRoute
   '/api/track': typeof ApiTrackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/vs/canny': typeof VsCannyRoute
@@ -381,6 +390,7 @@ export interface FileRouteTypes {
     | '/$slug/insights'
     | '/$slug/roadmap'
     | '/api/feedback-chat'
+    | '/api/mcp'
     | '/api/track'
     | '/api/unsubscribe'
     | '/vs/canny'
@@ -420,6 +430,7 @@ export interface FileRouteTypes {
     | '/$slug/insights'
     | '/$slug/roadmap'
     | '/api/feedback-chat'
+    | '/api/mcp'
     | '/api/track'
     | '/api/unsubscribe'
     | '/vs/canny'
@@ -460,6 +471,7 @@ export interface FileRouteTypes {
     | '/$slug/insights'
     | '/$slug/roadmap'
     | '/api/feedback-chat'
+    | '/api/mcp'
     | '/api/track'
     | '/api/unsubscribe'
     | '/vs/canny'
@@ -497,6 +509,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ApiFeedbackChatRoute: typeof ApiFeedbackChatRoute
+  ApiMcpRoute: typeof ApiMcpRoute
   ApiTrackRoute: typeof ApiTrackRoute
   ApiUnsubscribeRoute: typeof ApiUnsubscribeRoute
   VsCannyRoute: typeof VsCannyRoute
@@ -635,6 +648,13 @@ declare module '@tanstack/react-router' {
       path: '/api/track'
       fullPath: '/api/track'
       preLoaderRoute: typeof ApiTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mcp': {
+      id: '/api/mcp'
+      path: '/api/mcp'
+      fullPath: '/api/mcp'
+      preLoaderRoute: typeof ApiMcpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/feedback-chat': {
@@ -852,6 +872,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ApiFeedbackChatRoute: ApiFeedbackChatRoute,
+  ApiMcpRoute: ApiMcpRoute,
   ApiTrackRoute: ApiTrackRoute,
   ApiUnsubscribeRoute: ApiUnsubscribeRoute,
   VsCannyRoute: VsCannyRoute,

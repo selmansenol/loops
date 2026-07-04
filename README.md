@@ -65,6 +65,8 @@ There are two ways to use it:
 - 🪝 **Webhooks** — HMAC-signed delivery; native Discord & Slack formatting
 - 🧩 **Embeddable widget** — one script tag, with `data-user-id` to identify your logged-in users
 - 📣 **Share & Embed panel** — public link + QR + one-click embed key per board
+- 🤝 **MCP server** — let AI agents (Claude, Cursor…) search, triage and file feedback
+  on your board via `/api/mcp` (see below)
 - 📊 **Admin & Analytics** — per-board dashboard (visitors, engagement, funnel), team
   management and moderation tools (see below)
 - 🌍 **i18n** — 17 languages out of the box, with RTL support
@@ -228,6 +230,27 @@ Roles are **per workspace** (`owner` / `admin` / `member`) — there is no globa
 
 Owners and admins get the moderation tools (status changes, AI Insights, API keys,
 webhooks); members can post, vote and comment.
+
+## 🤝 MCP server (AI agents)
+
+Loops ships a built-in [MCP](https://modelcontextprotocol.io) server, so AI agents can
+work your board directly — search & deduplicate requests, file feedback, move posts
+across the roadmap, pull board stats. Auth uses the same per-board API keys; `read` /
+`write` scopes are enforced per tool.
+
+```json
+{
+  "mcpServers": {
+    "loops": {
+      "type": "http",
+      "url": "https://getloops.co/api/mcp",
+      "headers": { "Authorization": "Bearer loop_sk_..." }
+    }
+  }
+}
+```
+
+Tools: `search_posts`, `get_post`, `create_post`, `update_post_status`, `get_board_stats`.
 
 ## 🔌 Public API
 
