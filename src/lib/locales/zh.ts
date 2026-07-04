@@ -391,7 +391,7 @@ export default {
     selfHostTitleB: "你的服务器。",
     selfHostTitleC: "没有月费。",
     selfHostLead:
-      "用 Docker Compose 5 分钟启动。Postgres + Next.js + 可选 AI。部署到 Vercel 或你自己的 VPS。",
+      "用 Docker Compose 5 分钟启动。Postgres + TanStack Start + 可选 AI。部署到 Vercel 或你自己的 VPS。",
     selfHostTerminalComment: "# （可选）添加你的 AI 密钥",
     selfHostTerminalReady: "✓ Loops 已就绪：http://localhost:3000",
     ctaTitle: "终结反馈的混乱。",

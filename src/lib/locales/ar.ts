@@ -396,7 +396,7 @@ export default {
     selfHostTitleB: "خادمك.",
     selfHostTitleC: "بدون اشتراك شهري.",
     selfHostLead:
-      "يعمل خلال 5 دقائق مع Docker Compose. Postgres + Next.js + ذكاء اصطناعي اختياري. انشره على Vercel أو خادمك الخاص.",
+      "يعمل خلال 5 دقائق مع Docker Compose. Postgres + TanStack Start + ذكاء اصطناعي اختياري. انشره على Vercel أو خادمك الخاص.",
     selfHostTerminalComment: "# (اختياري) أضف مفتاح الذكاء الاصطناعي",
     selfHostTerminalReady: "✓ Loops جاهز على http://localhost:3000",
     ctaTitle: "أنهِ فوضى الملاحظات.",

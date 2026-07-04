@@ -417,7 +417,7 @@ export default {
     selfHostTitleB: "Sənin serverin.",
     selfHostTitleC: "Aylıq haqq yoxdur.",
     selfHostLead:
-      "Docker Compose ilə 5 dəqiqəyə işə düşür. Postgres + Next.js + istəyə bağlı Sİ. Vercel-ə və ya öz VPS-inə yerləşdir.",
+      "Docker Compose ilə 5 dəqiqəyə işə düşür. Postgres + TanStack Start + istəyə bağlı Sİ. Vercel-ə və ya öz VPS-inə yerləşdir.",
     selfHostTerminalComment: "# (istəyə bağlı) Sİ açarını əlavə et",
     selfHostTerminalReady: "✓ Loops http://localhost:3000 ünvanında hazırdır",
     ctaTitle: "Rəy xaosuna son qoy.",

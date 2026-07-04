@@ -395,7 +395,7 @@ export default {
     selfHostTitleB: "당신의 서버.",
     selfHostTitleC: "월 요금 없음.",
     selfHostLead:
-      "Docker Compose로 5분 만에 실행. Postgres + Next.js + 선택적 AI. Vercel이나 자체 VPS에 배포.",
+      "Docker Compose로 5분 만에 실행. Postgres + TanStack Start + 선택적 AI. Vercel이나 자체 VPS에 배포.",
     selfHostTerminalComment: "# (선택) AI 키 추가",
     selfHostTerminalReady: "✓ Loops가 http://localhost:3000 에서 준비됨",
     ctaTitle: "피드백 혼란을 끝내세요.",

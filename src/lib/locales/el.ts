@@ -416,7 +416,7 @@ export default {
     selfHostTitleB: "Ο server σου.",
     selfHostTitleC: "Χωρίς μηνιαία συνδρομή.",
     selfHostLead:
-      "Σε λειτουργία σε 5 λεπτά με Docker Compose. Postgres + Next.js + προαιρετικό AI. Κάνε deploy σε Vercel ή στο δικό σου VPS.",
+      "Σε λειτουργία σε 5 λεπτά με Docker Compose. Postgres + TanStack Start + προαιρετικό AI. Κάνε deploy σε Vercel ή στο δικό σου VPS.",
     selfHostTerminalComment: "# (προαιρετικά) πρόσθεσε το κλειδί AI σου",
     selfHostTerminalReady: "✓ Το Loops είναι έτοιμο στο http://localhost:3000",
     ctaTitle: "Τέλος στο χάος των σχολίων.",

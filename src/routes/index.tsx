@@ -63,10 +63,14 @@ function LandingPage() {
       />
       <SiteHeader />
       <Hero />
+      <BadgeStrip />
       <SocialProof />
       <Features />
+
       <AISection />
       <ClusterDemo />
+      <ApiSection />
+      <StepsSection />
       <SelfHost />
       <CTA />
       <SiteFooter />
@@ -328,6 +332,133 @@ function Features() {
             <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
           </div>
         ))}
+      </div>
+    </section>
+  );
+}
+
+/** Quick trust strip under the hero: license, GitHub, hosting model, API. */
+function BadgeStrip() {
+  const { t } = useTranslation();
+  const item =
+    "inline-flex items-center gap-2 text-xs font-mono tracking-tight text-muted-foreground";
+  return (
+    <section className="border-y border-border bg-surface/60">
+      <div className="mx-auto max-w-6xl px-6 py-4 flex flex-wrap items-center justify-center gap-x-10 gap-y-2">
+        <span className={item}>
+          <span className="font-semibold text-foreground">MIT</span>
+          {t("landing.badges.license")}
+        </span>
+        <a
+          href={GITHUB_URL}
+          target="_blank"
+          rel="noreferrer"
+          className={`${item} hover:text-foreground`}
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5" aria-hidden>
+            <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.07 11.07 0 0 1 5.79 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.26 5.69.41.36.78 1.05.78 2.13v3.16c0 .31.21.67.8.55C20.22 21.38 23.5 17.07 23.5 12 23.5 5.65 18.35.5 12 .5z" />
+          </svg>
+          {t("landing.badges.stars")}
+        </a>
+        <span className={item}>☁︎ {t("landing.badges.hosting")}</span>
+        <span className={item}>
+          {"{ }"} {t("landing.badges.api")}
+        </span>
+      </div>
+    </section>
+  );
+}
+
+/** API-first: a real curl sample against our v1 API + the webhook events we emit. */
+function ApiSection() {
+  const { t } = useTranslation();
+  return (
+    <section className="mx-auto max-w-6xl px-6 py-24">
+      <div className="grid lg:grid-cols-2 gap-10 items-center">
+        <div>
+          <p className="text-sm font-medium text-primary mb-3">{t("landing.api.eyebrow")}</p>
+          <h2 className="font-display text-4xl md:text-5xl font-medium tracking-tight">
+            {t("landing.api.title")}
+          </h2>
+          <p className="mt-4 text-muted-foreground leading-relaxed max-w-md">
+            {t("landing.api.desc")}
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            <span className="text-xs text-muted-foreground mr-1">{t("landing.api.events")}:</span>
+            {["post.created", "vote.created", "post.status_changed"].map((e) => (
+              <code
+                key={e}
+                className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-mono text-muted-foreground"
+              >
+                {e}
+              </code>
+            ))}
+          </div>
+          <Link
+            to="/docs"
+            hash="posts"
+            className="mt-8 inline-flex items-center gap-2 rounded-full border border-border-strong bg-surface px-5 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
+          >
+            {t("landing.api.docsCta")}
+            <span aria-hidden>→</span>
+          </Link>
+        </div>
+        <div className="rounded-3xl border border-border bg-foreground text-background shadow-lifted overflow-hidden">
+          <div className="flex items-center gap-2 px-4 h-10 border-b border-background/10">
+            <span className="h-2.5 w-2.5 rounded-full bg-background/25" />
+            <span className="h-2.5 w-2.5 rounded-full bg-background/25" />
+            <span className="h-2.5 w-2.5 rounded-full bg-background/25" />
+            <span className="ml-2 text-[11px] font-mono opacity-50">curl</span>
+          </div>
+          <pre className="p-5 text-[12.5px] leading-relaxed font-mono overflow-x-auto">
+            <code>
+              {`curl -X POST https://getloops.co/api/v1/posts \\
+  -H "Authorization: Bearer $LOOP_SK" \\
+  -d '{"title": "Dark mode"}'
+
+{"data": {"id": "post_8f2a…",
+          "status": "planned"}}`}
+            </code>
+          </pre>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** The feedback loop, end to end — collect → prioritize → plan → close the loop. */
+function StepsSection() {
+  const { t } = useTranslation();
+  const steps = t("landing.steps.items", { returnObjects: true }) as [string, string][];
+  return (
+    <section className="border-t border-border bg-surface/50">
+      <div className="mx-auto max-w-6xl px-6 py-24">
+        <div className="max-w-2xl mb-14">
+          <p className="text-sm font-medium text-primary mb-3">{t("landing.steps.eyebrow")}</p>
+          <h2 className="font-display text-4xl md:text-5xl font-medium tracking-tight">
+            {t("landing.steps.title")}
+          </h2>
+          <p className="mt-3 text-muted-foreground">{t("landing.steps.sub")}</p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {steps.map(([title, desc], i) => (
+            <div key={title} className="relative rounded-2xl border border-border bg-surface p-6">
+              <div className="font-mono text-xs text-primary mb-4">
+                {String(i + 1).padStart(2, "0")}
+              </div>
+              <h3 className="font-display text-lg font-semibold mb-1.5">{title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+              {i < steps.length - 1 && (
+                <span
+                  className="hidden lg:block absolute top-1/2 -right-3 text-muted-foreground/40"
+                  aria-hidden
+                >
+                  →
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

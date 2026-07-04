@@ -403,7 +403,7 @@ export default {
     selfHostTitleB: "Dein Server.",
     selfHostTitleC: "Keine Monatsgebühr.",
     selfHostLead:
-      "In 5 Minuten startklar mit Docker Compose. Postgres + Next.js + optionale KI. Deploye auf Vercel oder deinen eigenen VPS.",
+      "In 5 Minuten startklar mit Docker Compose. Postgres + TanStack Start + optionale KI. Deploye auf Vercel oder deinen eigenen VPS.",
     selfHostTerminalComment: "# (optional) füge deinen KI-Schlüssel hinzu",
     selfHostTerminalReady: "✓ Loops ist bereit unter http://localhost:3000",
     ctaTitle: "Beende das Feedback-Chaos.",

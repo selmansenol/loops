@@ -393,7 +393,7 @@ export default {
     selfHostTitleB: "השרת שלך.",
     selfHostTitleC: "בלי תשלום חודשי.",
     selfHostLead:
-      "עולה ב-5 דקות עם Docker Compose. Postgres + Next.js + AI אופציונלי. פרסו ל-Vercel או ל-VPS שלכם.",
+      "עולה ב-5 דקות עם Docker Compose. Postgres + TanStack Start + AI אופציונלי. פרסו ל-Vercel או ל-VPS שלכם.",
     selfHostTerminalComment: "# (אופציונלי) הוסיפו את מפתח ה-AI",
     selfHostTerminalReady: "✓ Loops מוכן בכתובת http://localhost:3000",
     ctaTitle: "סיימו עם הכאוס של המשוב.",

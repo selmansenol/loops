@@ -397,7 +397,7 @@ export default {
     selfHostTitleB: "あなたのサーバー。",
     selfHostTitleC: "月額料金なし。",
     selfHostLead:
-      "Docker Composeで5分で起動。Postgres + Next.js + 任意のAI。Vercelや自分のVPSにデプロイ。",
+      "Docker Composeで5分で起動。Postgres + TanStack Start + 任意のAI。Vercelや自分のVPSにデプロイ。",
     selfHostTerminalComment: "# （任意）AIキーを追加",
     selfHostTerminalReady: "✓ Loops は http://localhost:3000 で準備完了",
     ctaTitle: "フィードバックの混乱を終わらせよう。",

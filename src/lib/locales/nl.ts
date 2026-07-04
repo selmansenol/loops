@@ -407,7 +407,7 @@ export default {
     selfHostTitleB: "Jouw server.",
     selfHostTitleC: "Geen maandbedrag.",
     selfHostLead:
-      "In 5 minuten in de lucht met Docker Compose. Postgres + Next.js + optionele AI. Deploy naar Vercel of je eigen VPS.",
+      "In 5 minuten in de lucht met Docker Compose. Postgres + TanStack Start + optionele AI. Deploy naar Vercel of je eigen VPS.",
     selfHostTerminalComment: "# (optioneel) voeg je AI-sleutel toe",
     selfHostTerminalReady: "✓ Loops is klaar op http://localhost:3000",
     ctaTitle: "Maak een einde aan de feedbackchaos.",

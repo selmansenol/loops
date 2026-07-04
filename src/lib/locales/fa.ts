@@ -411,7 +411,7 @@ export default {
     selfHostTitleB: "سرور تو.",
     selfHostTitleC: "بدون هزینهٔ ماهانه.",
     selfHostLead:
-      "با Docker Compose در ۵ دقیقه راه می‌افتد. Postgres + Next.js + هوش مصنوعی اختیاری. روی Vercel یا VPS خودت مستقر کن.",
+      "با Docker Compose در ۵ دقیقه راه می‌افتد. Postgres + TanStack Start + هوش مصنوعی اختیاری. روی Vercel یا VPS خودت مستقر کن.",
     selfHostTerminalComment: "# (اختیاری) کلید هوش مصنوعی‌ات را اضافه کن",
     selfHostTerminalReady: "✓ Loops روی http://localhost:3000 آماده است",
     ctaTitle: "به آشفتگی بازخورد پایان بده.",
