@@ -71,6 +71,7 @@ const tr = {
     empty: "Henüz veri yok.",
     range: "{{days}}g",
     export: "CSV indir",
+    exportPosts: "Postları indir (CSV)",
     privacyNote:
       "Ziyaretçi sayımı gizlilik-dostudur: çerez yok, kişisel veri saklanmaz (IP günlük olarak tek yönlü hash'lenir). DNT'ye saygı duyulur.",
     tabs: {
@@ -286,6 +287,7 @@ const tr = {
     cachedFooter: "Sonuçlar tarayıcıda saklanır — yeniden çalıştırana kadar kalır.",
     overall: "Genel içgörü",
     priority: { high: "Yüksek", medium: "Orta", low: "Düşük", suffix: " öncelik" },
+    sentiment: { positive: "Olumlu", neutral: "Nötr", negative: "Olumsuz", mixed: "Karışık" },
     feedbackCount: "{{count}} geri bildirim · ▲ {{votes}} oy",
     applyTag: "#{{tag}} etiketini uygula",
     applyingTag: "Uygulanıyor…",
@@ -797,6 +799,7 @@ const en: typeof tr = {
     empty: "No data yet.",
     range: "{{days}}d",
     export: "Download CSV",
+    exportPosts: "Export posts (CSV)",
     privacyNote:
       "Visitor counting is privacy-first: no cookies, no personal data stored (IPs are one-way hashed per day). Do-Not-Track is honored.",
     tabs: {
@@ -1002,6 +1005,7 @@ const en: typeof tr = {
     cachedFooter: "Results are cached in your browser until you re-run.",
     overall: "Overall insight",
     priority: { high: "High", medium: "Medium", low: "Low", suffix: " priority" },
+    sentiment: { positive: "Positive", neutral: "Neutral", negative: "Negative", mixed: "Mixed" },
     feedbackCount: "{{count}} items · ▲ {{votes}} votes",
     applyTag: "Apply tag #{{tag}}",
     applyingTag: "Applying…",

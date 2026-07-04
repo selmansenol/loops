@@ -6,7 +6,11 @@ import { SiteHeader, SiteFooter } from "@/components/site-header";
 import { useAuth } from "@/lib/auth-context";
 import { useIsWorkspaceAdmin } from "@/lib/workspace-context";
 import { AreaChart, Bars, Funnel } from "@/components/charts";
-import { getAnalyticsOverviewFn, exportAnalyticsCsvFn } from "@/lib/analytics.functions";
+import {
+  getAnalyticsOverviewFn,
+  exportAnalyticsCsvFn,
+  exportPostsCsvFn,
+} from "@/lib/analytics.functions";
 import type { Overview } from "@/lib/analytics.server";
 import {
   listMembersFn,
@@ -107,6 +111,21 @@ function OverviewTab({ slug }: { slug: string }) {
       .finally(() => setLoading(false));
   }, [slug, days, fetchOverview]);
 
+  const exportPosts = useServerFn(exportPostsCsvFn);
+  const downloadPosts = async () => {
+    try {
+      const { filename, csv } = await exportPosts({ data: { slug } });
+      const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      /* ignore */
+    }
+  };
+
   const download = async () => {
     try {
       const { filename, csv } = await exportCsv({ data: { slug, days } });
@@ -141,12 +160,20 @@ function OverviewTab({ slug }: { slug: string }) {
             </button>
           ))}
         </div>
-        <button
-          onClick={download}
-          className="text-sm rounded-full border border-border px-4 py-1.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-        >
-          {t("admin.export")}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={download}
+            className="text-sm rounded-full border border-border px-4 py-1.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          >
+            {t("admin.export")}
+          </button>
+          <button
+            onClick={downloadPosts}
+            className="text-sm rounded-full border border-border px-4 py-1.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          >
+            {t("admin.exportPosts")}
+          </button>
+        </div>
       </div>
 
       {loading || !data ? (

@@ -135,6 +135,14 @@ docker compose up --build
 > `ghcr.io/selmansenol/loops:latest`. Use `docker compose -f docker-compose.prod.yml pull`
 > then `up -d` to run it without compiling from source.
 
+### Option A½ — one click, no server
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/selmansenol/loops)
+
+The included [`render.yaml`](render.yaml) blueprint provisions the app + a managed
+Postgres in single-board mode. After the first deploy, set `BETTER_AUTH_URL` to your
+Render URL in the service's environment.
+
 ### Option B — multi-tenant (the getloops.co experience)
 
 Leave `SINGLE_TENANT_SLUG` **unset**. `/` becomes the marketing landing, users sign up at

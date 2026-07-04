@@ -54,3 +54,25 @@ export const exportAnalyticsCsvFn = createServerFn({ method: "GET" })
       csv: [header, ...lines].join("\n"),
     };
   });
+
+/** Export all posts (incl. hidden) as CSV — vendor-lock-in escape hatch (admin). */
+export const exportPostsCsvFn = createServerFn({ method: "GET" })
+  .middleware([requireAuth])
+  .validator((input: unknown) => z.object({ slug: z.string().max(40) }).parse(input))
+  .handler(async ({ data, context }): Promise<{ filename: string; csv: string }> => {
+    const { resolveWorkspaceForAdmin } = await import("@/lib/workspace.server");
+    const ws = await resolveWorkspaceForAdmin(data.slug, context.userId);
+    const { listPosts } = await import("@/lib/posts.repo");
+    const rows = await listPosts(ws.id, { includeHidden: true, limit: 10000 });
+    const esc = (v: unknown) => {
+      const s = v == null ? "" : String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const header = "id,title,description,tag,status,votes,source,created_at";
+    const lines = rows.map((p) =>
+      [p.id, p.title, p.description, p.tag, p.status, p.votes_count, p.source, p.created_at]
+        .map(esc)
+        .join(","),
+    );
+    return { filename: `${ws.slug}-posts.csv`, csv: [header, ...lines].join("\n") };
+  });

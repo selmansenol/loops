@@ -8,6 +8,13 @@ All notable changes to Loops are documented here. The format is based on
 
 ### Added
 
+- **Inbound email capture** — emails to `<board>@your-inbound-domain` become posts
+  (Resend Inbound, svix-verified, rate limited).
+- **GitHub / Linear issue push** — connect a tracker in board admin settings and
+  open an issue from any post with one click.
+- **Sentiment** in AI Insights clusters; **post CSV export** in the admin.
+- **Deploy to Render** button + `render.yaml` blueprint.
+
 - **MCP server** at `/api/mcp` — AI agents (Claude, Cursor…) can search, triage
   and file feedback on a board using the board's API keys; read/write scopes
   enforced per tool.

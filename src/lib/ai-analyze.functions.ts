@@ -11,6 +11,7 @@ const ClusterSchema = z.object({
         summary: z.string(),
         priority: z.enum(["high", "medium", "low"]),
         priority_reason: z.string(),
+        sentiment: z.enum(["positive", "neutral", "negative", "mixed"]).optional(),
         post_ids: z.array(z.string()),
         suggested_tag: z.string(),
       }),
@@ -79,6 +80,7 @@ export const analyzeFeedback = createServerFn({ method: "POST" })
       "summary": "1-2 sentences describing what users want",
       "priority": "high | medium | low",
       "priority_reason": "short justification",
+      "sentiment": "positive | neutral | negative | mixed — the emotional tone of the requests in this cluster",
       "post_ids": ["only ids from the provided [id:...] list"],
       "suggested_tag": "single word tag"
     }

@@ -1,0 +1,28 @@
+# One-click deploy on Render (https://render.com/deploy?repo=...).
+# Creates the Loops web service (Docker) + a managed Postgres, wired together.
+# After the first deploy, set BETTER_AUTH_URL to your Render URL (or custom
+# domain) in the service's environment settings.
+services:
+  - type: web
+    name: loops
+    runtime: docker
+    plan: starter
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: loops-db
+          property: connectionString
+      - key: BETTER_AUTH_SECRET
+        generateValue: true
+      - key: BETTER_AUTH_URL
+        sync: false
+      - key: SINGLE_TENANT_SLUG
+        value: main
+      - key: PORT
+        value: "3000"
+
+databases:
+  - name: loops-db
+    plan: basic-256mb
+    postgresMajorVersion: "16"

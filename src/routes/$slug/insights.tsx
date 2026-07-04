@@ -370,10 +370,21 @@ function ClusterCard({
           <h3 className="font-display text-xl font-medium tracking-tight">{cluster.theme}</h3>
           <p className="text-sm text-muted-foreground mt-1">{cluster.summary}</p>
         </div>
-        <span
-          className={`shrink-0 self-start inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium ${priorityStyles[cluster.priority]}`}
-        >
-          {priorityLabel}
+        <span className="shrink-0 self-start inline-flex items-center gap-1.5">
+          {cluster.sentiment && (
+            <span
+              title={t(`insights.sentiment.${cluster.sentiment}`)}
+              className="inline-flex items-center rounded-full border border-border bg-surface px-2.5 py-1 text-xs"
+            >
+              {{ positive: "😊", neutral: "😐", negative: "😟", mixed: "🤔" }[cluster.sentiment]}{" "}
+              {t(`insights.sentiment.${cluster.sentiment}`)}
+            </span>
+          )}
+          <span
+            className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium ${priorityStyles[cluster.priority]}`}
+          >
+            {priorityLabel}
+          </span>
         </span>
       </div>
 
