@@ -576,7 +576,145 @@ function SettingsTab({ slug }: { slug: string }) {
           )}
         </div>
       </section>
+      <IntegrationsCard slug={slug} />
       <p className="text-xs text-muted-foreground">{t("admin.settings.retentionNote")}</p>
+    </div>
+  );
+}
+
+/** GitHub / Linear one-way issue push: token + target per provider. */
+function IntegrationsCard({ slug }: { slug: string }) {
+  const { t } = useTranslation();
+  const [rows, setRows] = useState<{ provider: string; target: string; tokenLast4: string }[]>([]);
+  const load = () =>
+    import("@/lib/integrations.functions")
+      .then((m) => m.listIntegrationsFn({ data: { slug } }))
+      .then(setRows)
+      .catch(() => {});
+  useEffect(() => {
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
+
+  return (
+    <section className="rounded-2xl border border-border bg-surface p-5">
+      <h3 className="text-sm font-semibold mb-1">{t("admin.settings.integrationsTitle")}</h3>
+      <p className="text-sm text-muted-foreground mb-4">{t("admin.settings.integrationsDesc")}</p>
+      <div className="space-y-4">
+        {(["github", "linear"] as const).map((p) => (
+          <IntegrationRow
+            key={p}
+            slug={slug}
+            provider={p}
+            existing={rows.find((r) => r.provider === p) ?? null}
+            onChanged={load}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function IntegrationRow({
+  slug,
+  provider,
+  existing,
+  onChanged,
+}: {
+  slug: string;
+  provider: "github" | "linear";
+  existing: { target: string; tokenLast4: string } | null;
+  onChanged: () => void;
+}) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [token, setToken] = useState("");
+  const [target, setTarget] = useState(existing?.target ?? "");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const label = provider === "github" ? "GitHub" : "Linear";
+
+  const act = async (fn: () => Promise<unknown>) => {
+    setBusy(true);
+    setErr(null);
+    try {
+      await fn();
+      setOpen(false);
+      setToken("");
+      onChanged();
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-border bg-background p-3">
+      <div className="flex items-center gap-3">
+        <span className="text-sm font-medium flex-1">{label}</span>
+        {existing ? (
+          <>
+            <code className="text-xs text-muted-foreground">
+              {existing.target} · …{existing.tokenLast4}
+            </code>
+            <button
+              onClick={() =>
+                act(async () => {
+                  const m = await import("@/lib/integrations.functions");
+                  await m.deleteIntegrationFn({ data: { slug, provider } });
+                })
+              }
+              disabled={busy}
+              className="rounded-full border border-destructive/40 text-destructive px-3 py-1 text-xs disabled:opacity-50"
+            >
+              {t("common.delete")}
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:text-foreground"
+          >
+            {t("admin.settings.connect")}
+          </button>
+        )}
+      </div>
+      {open && !existing && (
+        <div className="mt-3 space-y-2">
+          <input
+            type="password"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            placeholder={provider === "github" ? "ghp_… / github_pat_…" : "lin_api_…"}
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm font-mono"
+          />
+          <input
+            type="text"
+            value={target}
+            onChange={(e) => setTarget(e.target.value)}
+            placeholder={
+              provider === "github"
+                ? t("admin.settings.githubTargetPh")
+                : t("admin.settings.linearTargetPh")
+            }
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm font-mono"
+          />
+          <button
+            onClick={() =>
+              act(async () => {
+                const m = await import("@/lib/integrations.functions");
+                await m.saveIntegrationFn({ data: { slug, provider, token, target } });
+              })
+            }
+            disabled={busy || token.trim().length < 10 || target.trim().length < 2}
+            className="rounded-full bg-foreground text-background px-4 py-1.5 text-xs font-medium disabled:opacity-50"
+          >
+            {t("common.save")}
+          </button>
+          {err && <p className="text-xs text-destructive">{err}</p>}
+        </div>
+      )}
     </div>
   );
 }

@@ -130,6 +130,12 @@ const tr = {
       externalPh:
         '<script defer data-domain="senin-panon" src="https://plausible.io/js/script.js"></script>',
       retentionNote: "Ziyaretçi olayları 365 gün sonra otomatik silinir (retention cron).",
+      integrationsTitle: "Issue tracker entegrasyonları",
+      integrationsDesc:
+        "GitHub veya Linear bağla — post sayfasından tek tıkla issue aç. Token sunucuda saklanır, tarayıcıya dönmez.",
+      connect: "Bağla",
+      githubTargetPh: "owner/repo (örn: selmansenol/loops)",
+      linearTargetPh: "Linear team ID",
     },
   },
   platform: {
@@ -643,6 +649,8 @@ const tr = {
     backToBoard: "← Panoya dön",
     shareLink: "Bağlantıyı kopyala",
     linkCopied: "Bağlantı kopyalandı ✓",
+    issueCreated: "Issue açıldı",
+    issueError: "Issue açılamadı — token/hedefi kontrol et.",
     voters: "{{count}} oy",
     by: "Paylaşan",
     on: "tarihinde",
@@ -848,6 +856,12 @@ const en: typeof tr = {
       externalPh:
         '<script defer data-domain="your-board" src="https://plausible.io/js/script.js"></script>',
       retentionNote: "Visitor events are auto-deleted after 365 days (retention cron).",
+      integrationsTitle: "Issue tracker integrations",
+      integrationsDesc:
+        "Connect GitHub or Linear — open an issue from any post with one click. Tokens stay on the server.",
+      connect: "Connect",
+      githubTargetPh: "owner/repo (e.g. selmansenol/loops)",
+      linearTargetPh: "Linear team ID",
     },
   },
   platform: {
@@ -1341,6 +1355,8 @@ const en: typeof tr = {
     backToBoard: "← Back to board",
     shareLink: "Copy link",
     linkCopied: "Link copied ✓",
+    issueCreated: "Issue created",
+    issueError: "Couldn't create the issue — check token/target.",
     voters: "{{count}} votes",
     by: "Posted by",
     on: "on",

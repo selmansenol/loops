@@ -222,17 +222,20 @@ function PostDetailPage() {
             </div>
 
             {isAdmin && (
-              <div className="mt-3 inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-1 text-xs">
-                <span className="text-muted-foreground">{t("post.statusLabel")}:</span>
-                <select
-                  value={post.status}
-                  onChange={(e) => changeStatus(e.target.value as Status)}
-                  className="bg-transparent text-foreground focus:outline-none cursor-pointer"
-                >
-                  <option value="planned">{t("board.filters.planned")}</option>
-                  <option value="progress">{t("board.filters.progress")}</option>
-                  <option value="done">{t("board.filters.done")}</option>
-                </select>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-1 text-xs">
+                  <span className="text-muted-foreground">{t("post.statusLabel")}:</span>
+                  <select
+                    value={post.status}
+                    onChange={(e) => changeStatus(e.target.value as Status)}
+                    className="bg-transparent text-foreground focus:outline-none cursor-pointer"
+                  >
+                    <option value="planned">{t("board.filters.planned")}</option>
+                    <option value="progress">{t("board.filters.progress")}</option>
+                    <option value="done">{t("board.filters.done")}</option>
+                  </select>
+                </div>
+                <SendToTracker slug={slug} postId={post.id} />
               </div>
             )}
           </div>
@@ -394,5 +397,65 @@ function CommentsSection({
         )}
       </ul>
     </section>
+  );
+}
+
+/** Admin: push this post to a configured issue tracker (GitHub / Linear). */
+function SendToTracker({ slug, postId }: { slug: string; postId: string }) {
+  const { t } = useTranslation();
+  const [providers, setProviders] = useState<("github" | "linear")[]>([]);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [issueUrl, setIssueUrl] = useState<string | null>(null);
+  const [err, setErr] = useState(false);
+
+  useEffect(() => {
+    import("@/lib/integrations.functions")
+      .then((m) => m.listIntegrationsFn({ data: { slug } }))
+      .then((rows) => setProviders(rows.map((r) => r.provider)))
+      .catch(() => {});
+  }, [slug]);
+
+  if (providers.length === 0) return null;
+  if (issueUrl) {
+    return (
+      <a
+        href={issueUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center gap-1 rounded-md bg-status-done/15 text-status-done px-2 py-1 text-xs font-medium"
+      >
+        {t("post.issueCreated")} →
+      </a>
+    );
+  }
+
+  const send = async (provider: "github" | "linear") => {
+    setBusy(provider);
+    setErr(false);
+    try {
+      const m = await import("@/lib/integrations.functions");
+      const { url } = await m.createIssueFromPostFn({ data: { slug, provider, postId } });
+      setIssueUrl(url);
+    } catch {
+      setErr(true);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      {providers.map((p) => (
+        <button
+          key={p}
+          onClick={() => send(p)}
+          disabled={!!busy}
+          className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:border-border-strong transition-colors disabled:opacity-50"
+        >
+          {busy === p ? "…" : `→ ${p === "github" ? "GitHub" : "Linear"}`}
+        </button>
+      ))}
+      {err && <span className="text-xs text-destructive">{t("post.issueError")}</span>}
+    </span>
   );
 }

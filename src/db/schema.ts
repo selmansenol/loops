@@ -344,6 +344,26 @@ export const ai_provider_keys = pgTable(
   (t) => [primaryKey({ columns: [t.workspace_id, t.provider] })],
 );
 
+// One-way issue-tracker integrations (GitHub / Linear): push a post to the
+// tracker from the post page. Token is stored per workspace per provider.
+export const workspace_integrations = pgTable(
+  "workspace_integrations",
+  {
+    workspace_id: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+    provider: text("provider").notNull(), // 'github' | 'linear'
+    token: text("token").notNull(),
+    // github: "owner/repo" · linear: team id
+    target: text("target").notNull(),
+    created_by: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.workspace_id, t.provider] })],
+);
+
 // ============================================================
 // Analytics & admin
 // ============================================================
