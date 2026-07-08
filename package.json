@@ -47,7 +47,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.86",
     "@ai-sdk/google": "^3.0.83",
-    "@ai-sdk/openai": "^3.0.74",
+    "@ai-sdk/openai": "^4.0.8",
     "@ai-sdk/openai-compatible": "^2.0.51",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
